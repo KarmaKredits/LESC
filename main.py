@@ -1,37 +1,17 @@
 import discord
 from discord.ext import commands
 import os
+from LESC import team_db
 
 my_secret = os.environ['TOKEN']
 
-##set up api grab from google sheets
-team_db = {'LESC1':[
-  {'name':'Pineapple On Pizza'	,'captain':'SassyBrenda' 	,'teammate':'KarmaKredits','division': 'US'},
-  {'name':'Overconfident'	,'captain':'MrPriority'	,'teammate':'ChillCatDad','division': 'EU'},
-  {'name':'The Ginger Brothers'	,'captain':'Noblent'	,'teammate':'ItsJeffTTV'		,'division': 'US'},
-  {'name':'Up Your ARSEnal'	,'captain':'harm'	,'teammate':'yolomcshweg','division': 'EU'},
-  {'name':'JustZees League' 	,'captain':'Shwa_Zee'	,'teammate':'justin.;p'		,'division': 'US'},
-  {'name':'PERKELE'	,'captain':'Sant.'	,'teammate':'Normy','division': 'EU'},
-  {'name':'Strawberries > Grapes'	,'captain':'Semper1515'	,'teammate':'SickLarry' 		,'division': 'US'},
-  {'name':'LouisJames & His Cousin'	,'captain':'LouisJames'	,'teammate':'BigLez_THE_Bong_Head','division': 'EU'},
-  {'name':'5'	,'captain':'Anubis' 	,'teammate':'Laggittarius'		,'division': 'US'},
-  {'name':'AlphaKenny1'	,'captain':'DannyofthePaul'	,'teammate':'Azeria','division': 'EU'},
-  {'name':'BobbyBuddy'	,'captain':'RuddyBuddy' 	,'teammate':'BobbyNay'		,'division': 'US'},
-  {'name':'6'	,'captain':'Jamal751'	,'teammate':'Piers','division': 'EU'},
-  {'name':'Big Cox'	,'captain':'Boxidize'	,'teammate':'Vl0xx' 		,'division': 'US'},
-  {'name':'Fighting 13th'	,'captain':'Elephantagon' 	,'teammate':'MartPorsche','division': 'EU'},
-  {'name':'Flying Avocados'	,'captain':'Avocado'	,'teammate':'FlyZK'		,'division': 'US'},
-  {'name':'Gooch Slime'	,'captain':'Eddd_'	,'teammate':'jjjamie__','division': 'EU'},
-  {'name':'Tiny Games'	,'captain':'Tiny' 	,'teammate':'CSmith_Games'		,'division': 'US'},
-  {'name':'DNRB'	,'captain':'Rorymtb'	,'teammate':'Daughton','division': 'EU'},
-  {'name':'Nked Dommer-nuts'	,'captain':'NK_XIV'	,'teammate':'Mdomm'		,'division': 'US'},
-  {'name':'Failing 13th'	,'captain':'Benny_07' 	,'teammate':'Thomas','division': 'EU'},
-  {'name':'Boost Over Ball'	,'captain':'TheDongerLord'	,'teammate':'VHP' 		,'division': 'US'},
-  {'name':'O7'	,'captain':'HighSolution136'	,'teammate':'Ragdoll139','division': 'EU'},
-  {'name':'Never Wallalols'	,'captain':'GingerSoccerMom'	,'teammate':'Midori'		,'division': 'US'},
-  {'name':'I Need Boost'	'flyabl3' 	,'teammate':'holy nuggie','division': 'EU'},
-  {'name':'The 2 Meatballs'	,'captain':'0val'	,'teammate':'Elekid123','division': 'EU'}
-]}
+##US TEAM Link
+# https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777&range=A2:C15
+
+##EU TEAM Link
+# https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777&range=E2:G16
+
+
 
 participant_db = {}
 
@@ -40,8 +20,8 @@ client = commands.Bot(command_prefix = '.')
 @client.event
 async def on_ready():
   print('Bot Ready')
-  # for team in team_db['LESC1']:
-  #   print(team['division'])
+  for team in team_db['LESC1']:
+    print(team['name'])
 
   
 
@@ -50,24 +30,63 @@ async def ping(ctx):
   await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
 
 @client.command()
-async def teams(ctx,season=1,division='all'):
-  output = '**Teams:**\n'
-  us = '__US Division:__'
-  eu = '__EU Division:__'
+async def season(ctx,*args):
+  division = 'all' #default to all
+  season = '1' #default to current
+  for arg in args:
+    if arg.lower() == 'eu':
+      division = 'EU'
+    elif arg.lower() == 'us':
+      division = 'US'
+    if arg == '1':
+      season = '1'
 
-  for team in team_db['LESC1']:
-    if team['division']=='US':
+  us = ''
+  eu = ''
+
+  embedTitle='LESC Season ' + season + ' Teams'
+  embedVar = discord.Embed(title=embedTitle, color=0xffffff)
+
+  for team in team_db['LESC'+season]:
+    if team['division'].upper()=='US':
       us = us + '\n' + team['name']
-    elif team['division']=='EU':
+    elif team['division'].upper()=='EU':
       eu = eu + '\n' + team['name']
-  if division == 'EU':
-    output = output + eu
-  elif division == 'US':
-    output = output + us
-  else:
-    output = output + us + '\n\n'+ eu
 
+  if division in ['US','all']:
+    embedVar.add_field(name="US Division", value=us, inline=True)
 
-  await ctx.send(output)
+  if division in ['EU','all']:
+    embedVar.add_field(name="EU Division", value=eu, inline=True)
+
+  await ctx.send(embed=embedVar)
+
+@client.command()
+async def teams(ctx,*args):
+  division = [] #default to all
+  season = '1' #default to current
+  for arg in args:
+    if arg.lower() == 'eu':
+      division = division.append('EU')
+    elif arg.lower() == 'us':
+      division = division.append('US')
+    elif arg == '1':
+      season = '1'
+  if len(division)<1:
+    division = ['US','EU']
+ 
+  embedTitle='LESC Season ' + season + ' Teams'
+  
+  for div in division:
+    embedVar = discord.Embed(title=embedTitle,description='**' + div + ' Division**', color=0xffffff)
+    for col in ['name','captain','teammate']:
+      val = []
+      print(col)
+      for team in team_db['LESC'+season]:
+        if team['division'] == div:
+          val.append(team[col])
+      embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
+    await ctx.send(embed=embedVar)
+    embedVar.clear_fields
 
 client.run(my_secret)
