@@ -25,3 +25,27 @@ team_db = {'LESC1':[
   {'name':'I Need Boost', 'captain':	'flyabl3' 	,'teammate':'holy nuggie','division': 'EU'},
   {'name':'The 2 Meatballs'	,'captain':'0val'	,'teammate':'Elekid123','division': 'EU'}
 ]}
+
+participant_db = {'commissioners:':[],'players':[],'substitutes':['bagayaro','Bagwer_RL','excel メ','GoodNeighbor','hugo_chakka','IcedColed (Cole)','JJ','r4l','Shvrkii','thebronxbomber','Wildered'],'commentator':[],'viewers':[],'collaborators:':[]}
+
+player_db = [{'player':'VHP','season':['S1 :flag_us: Division'],'awards':[':first_place: S1 US Champion',':sweat: S1 Playoff Contender', ':goal: S1 Team Golden Boot',':angel: S1 Team Guardian Angel',':soccer: S1 OG Participant'],'teams':['Boost Over Ball'],'teammates':['TheDongerLord']},
+{'player':'KarmaKredits','season':['S1 US Division'],'awards':['S1 Playoff Contender','S1 OG Participant'],'teams':['Pineapple on Pizza'],'teammates':['Sassy Brenda']},
+{'player':'Ragdoll139','season':['S1 EU Division'],'awards':['S1 Playoff Contender','S1 Team Golden Boot','S1 OG Participant'],'teams':['O7'],'teammates':['HighSolution136']},
+{'player':'GingerSoccerMom','season':['S1 US Division'],'awards':['S1 Playoff Contender','S1 OG Participant'],'teams':['Never Wallalols'],'teammates':['Midori']}]
+
+match_db = {}
+
+regex = '^(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)$'
+standingsUS = """Rank	Team	W	L	SP	SW	GF	GA	GD	PTS
+1	Boost Over Ball	24	2	8	8	127	47	80	32
+2	BobbyBuddy	20	10	8	6	112	71	41	26
+3	Never Wallalols	19	11	8	6	110	81	29	25
+4	Anubis & Laggittarius	19	13	8	6	102	83	19	25
+5	Pineapple On Pizza	18	14	8	5	96	92	4	23
+6	Nked Dommer-nuts	18	17	8	5	97	100	-3	23
+7	Big Cox	16	13	8	4	89	66	23	20
+8	Avocado & FlyZK	13	17	8	3	78	95	-17	16
+9	The Ginger Brothers	14	22	8	2	102	126	-24	16
+10	JustZees League	9	18	8	2	65	79	-14	11
+11	Strawberries > Grapes	9	21	8	2	66	118	-52	11
+12	Tiny Games	3	24	8	0	59	145	-86	3"""

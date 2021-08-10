@@ -1,0 +1,20 @@
+{
+  "files": {
+    "LESC.py": [
+      {
+        "id": "fc1c7ea8-f275-4a7b-ad31-3ab1f0da7ef9",
+        "line": 32,
+        "version": 522,
+        "index": 2765
+      }
+    ],
+    "main.py": [
+      {
+        "id": "56d26bd0-160c-4fd9-b4a3-ad931100a76f",
+        "line": 184,
+        "version": 5119,
+        "index": 5394
+      }
+    ]
+  }
+}
