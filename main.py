@@ -6,6 +6,25 @@ from LESC import participant_db
 from LESC import standingsUS
 from LESC import player_db
 import re
+from dotenv import load_dotenv
+from quickstart import main as getDB
+
+load_dotenv()
+TOKEN = os.getenv(key='TOKEN')
+
+LESC1url = 'https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit?usp=sharing'
+LESC1test = 'https://docs.google.com/spreadsheets/d/1DGpfnwq57um8KmXQEGIqby3nUqfK7Q4SbvXOfsbZsdM/edit?usp=sharing'
+testID = '1DGpfnwq57um8KmXQEGIqby3nUqfK7Q4SbvXOfsbZsdM'
+
+
+
+# range_names = [
+#     # Range names ...
+# ]
+# result = service.spreadsheets().values().batchGet(
+#     spreadsheetId=spreadsheet_id, ranges=range_names).execute()
+# ranges = result.get('valueRanges', [])
+# print('{0} ranges retrieved.'.format(len(ranges)))
 
 # from selenium import webdriver
 # from selenium.webdriver.chrome.options import Options
@@ -28,7 +47,7 @@ standingsUS_db['rows'] = []
 standingsUS_db['data'] = [[]]
 for row in range(len(matches)-1):
   # print(matches[row+1])
-  standingsUS_db['rows'].append(matches[row+1]) 
+  standingsUS_db['rows'].append(matches[row+1])
   # for col in range(len(matches[row+1])):
   #   standingsUS_db['data'][col] = []
   #   standingsUS_db['data'][col][row] = matches[row+1][col]
@@ -54,8 +73,9 @@ async def on_ready():
   print('Bot Ready')
   # for team in team_db['LESC1']:
   #   print(team['name'])
+  global LESC_DB
+  LESC_DB = getDB()
 
-  
 
 @client.command()
 async def ping(ctx):
@@ -106,9 +126,9 @@ async def teams(ctx,*args):
       season = '1'
   if len(division)<1:
     division = ['US','EU']
- 
+
   embedTitle='LESC Season ' + season + ' Teams'
-  
+
   for div in division:
     embedVar = discord.Embed(title=embedTitle,description='**' + div + ' Division**', color=0xffffff)
     for col in ['name','captain','teammate']:
