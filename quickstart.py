@@ -5,7 +5,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from dotenv import load_dotenv
+import json
 load_dotenv()
+
+CREDENTIALS=json.loads(os.getenv(key='CREDENTIALS'))
+TOKEN=json.loads(os.getenv(key='GOOGLE_TOKEN'))
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
@@ -23,26 +27,29 @@ def main():
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
-    creds = None
+    # creds = None
+    creds = Credentials(TOKEN['token'],refresh_token=TOKEN['refresh_token'],token_uri=TOKEN['token_uri'],client_id=TOKEN['client_id'],client_secret=TOKEN['client_secret'],scopes=TOKEN['scopes'])
+
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if not os.path.exists('credentials.json'):
-        with open('credentials.json', 'w') as creditials:
-            creditials.write(os.getenv(key='CREDENTIALS'))
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
+    # if os.path.exists('token.json'):
+    #     creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # # If there are no (valid) credentials available, let the user log in.
+    # if not creds or not creds.valid:
+    #     if creds and creds.expired and creds.refresh_token:
+    #         creds.refresh(Request())
+    #     else:
+    #         flow = InstalledAppFlow.from_client_secrets_file(
+    #             'credentials.json', SCOPES)
+    #         flow = Flow(oauth2session, client_type, client_config, redirect_uri=None, code_verifier=None, autogenerate_code_verifier=False)
+    #
+    #         creds = flow.run_local_server(port=0)
+    #     # Save the credentials for the next run
+    #     with open('token.json', 'w') as token:
+    #         token.write(creds.to_json())
+    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # creds = flow.run_local_server(port=0)
 
     service = build('sheets', 'v4', credentials=creds)
 
@@ -60,7 +67,7 @@ def main():
     print('{0} ranges retrieved.'.format(len(ranges)))
 
     if not ranges:
-        # print('No data found.')
+         print('No data found.')
     else:
         # print('LESC ranges')
         for range in ranges:
