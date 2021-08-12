@@ -33,7 +33,7 @@ head = None
 
 def getToken():
     AutCall = requests.post(url=authURL, params=AutParams)
-    print(autCall)
+    print(AutCall.json())
     global access_token
     access_token = AutCall.json()['access_token']
     global head
@@ -41,6 +41,7 @@ def getToken():
     'Client-ID' : CLIENT_ID,
     'Authorization' :  "Bearer " + access_token
     }
+    return str(AutCall)
 
 def getStreamsFromTitle(phrase):
     streams = requests.get(streamsUrl + phrase, headers = head).json()['data']
@@ -59,6 +60,6 @@ def getChannelFromUserID(user_id):
 
 
 if __name__ == '__main__':
-    getToken()
+    print(getToken())
     testgame='Rocket League'
     testTitle='rank'

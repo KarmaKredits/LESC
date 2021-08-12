@@ -27,8 +27,8 @@ def main():
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if not os.path.exists('creditials.json'):
-        with open('creditials.json', 'w') as creditials:
+    if not os.path.exists('credentials.json'):
+        with open('credentials.json', 'w') as creditials:
             creditials.write(os.getenv(key='CREDENTIALS'))
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -51,7 +51,7 @@ def main():
     # result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
     #                             range=SAMPLE_RANGE_NAME).execute()
     # values = result.get('values', [])
-
+    # print(sheet)
     #get sheets from test LESC1
     result = sheet.values().batchGet(spreadsheetId=LESCsheet,
                                 ranges=LESCranges).execute()
@@ -60,11 +60,11 @@ def main():
     print('{0} ranges retrieved.'.format(len(ranges)))
 
     if not ranges:
-        print('No data found.')
+        # print('No data found.')
     else:
-        print('LESC ranges')
+        # print('LESC ranges')
         for range in ranges:
-            print(range.get('range'))
+            # print(range.get('range'))
             for row in range.get('values',[]):
                 # Print columns A and E, which correspond to indices 0 and 4.
                 print(row)
@@ -73,4 +73,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if main():
+        print('PASS')
