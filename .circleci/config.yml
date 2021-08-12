@@ -42,3 +42,6 @@ jobs:
       - run:
           name: Run twitch tests
           command: python twitchWatcher.py
+      - run:
+          name: Run Bot
+          command: python main.py
