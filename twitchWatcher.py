@@ -60,6 +60,6 @@ def getChannelFromUserID(user_id):
 
 
 if __name__ == '__main__':
-    print(getToken())
+    print(len(getToken()))
     testgame='Rocket League'
     testTitle='rank'
