@@ -48,7 +48,7 @@ def main():
     #     # Save the credentials for the next run
     #     with open('token.json', 'w') as token:
     #         token.write(creds.to_json())
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     # creds = flow.run_local_server(port=0)
 
     service = build('sheets', 'v4', credentials=creds)
@@ -74,7 +74,8 @@ def main():
             # print(range.get('range'))
             for row in range.get('values',[]):
                 # Print columns A and E, which correspond to indices 0 and 4.
-                print(row)
+                # print(row)
+                None
     return ranges
 
 
