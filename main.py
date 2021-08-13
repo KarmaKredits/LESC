@@ -7,7 +7,7 @@ from LESC import standingsUS
 from LESC import player_db
 import re
 from dotenv import load_dotenv
-from quickstart import main as getDB
+from googleSheets import getDataFromGoogleSheets as getDB
 
 load_dotenv()
 TOKEN = os.getenv(key='TOKEN')

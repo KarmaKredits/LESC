@@ -38,10 +38,7 @@ jobs:
       - run:
           name: Run google tests
           # This assumes pytest is installed via the install-package step above
-          command: python quickstart.py
+          command: python googleSheets.py
       - run:
           name: Run twitch tests
           command: python twitchWatcher.py
-      - run:
-          name: Run Bot
-          command: python main.py
