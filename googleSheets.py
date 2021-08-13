@@ -116,9 +116,9 @@ def formatStandings(ranges):
     eu = ranges[3].get('values',[])
     us[0][0]='Rank' #currently null cell
     eu[0][0]='Rank' #currently null cell
+    standings = {}
     standings['US']=us
     standings['EU']=eu
-    print(standings)
     return standings
 
 if __name__ == '__main__':
