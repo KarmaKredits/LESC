@@ -26,7 +26,7 @@ CREDENTIALS={"installed":{"client_id":os.getenv(key='CRED_CLIENT_ID'),
 # if len(token_string)>5:
 #     TOKEN=json.loads(str(os.getenv(key='GOOGLE_TOKEN')))
 # else:
-GOOGLE_TOKEN={"token": os.getenv(key='GOOGLE_TOKEN_TOKEN'),
+TOKEN={"token": os.getenv(key='GOOGLE_TOKEN_TOKEN'),
     "refresh_token": os.getenv(key='GOOGLE_TOKEN_REFRESH'),
     "token_uri": "https://oauth2.googleapis.com/token",
     "client_id": os.getenv(key='CRED_CLIENT_ID'),
