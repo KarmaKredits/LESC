@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 import json
 load_dotenv()
 
-CREDENTIALS=json.loads(os.getenv(key='CREDENTIALS'))
-TOKEN=json.loads(os.getenv(key='GOOGLE_TOKEN'))
+CREDENTIALS=json.loads(str(os.getenv(key='CREDENTIALS')))
+TOKEN=json.loads(str(os.getenv(key='GOOGLE_TOKEN')))
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
