@@ -8,8 +8,31 @@ from dotenv import load_dotenv
 import json
 load_dotenv()
 
-CREDENTIALS=json.loads(os.getenv(key='CREDENTIALS'))
-TOKEN=json.loads(os.getenv(key='GOOGLE_TOKEN'))
+
+
+# credentials_string = os.getenv(key='CREDENTIALS')
+# if len(credentials_string)>5:
+#     CREDENTIALS=json.loads(str(os.getenv(key='CREDENTIALS')))
+# else:
+CREDENTIALS={"installed":{"client_id":os.getenv(key='CRED_CLIENT_ID'),
+    "project_id":"tester-322319",
+    "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+    "token_uri":"https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret":os.getenv(key='CRED_SECRET'),
+    "redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}
+
+# token_string = os.getenv(key='GOOGLE_TOKEN')
+# if len(token_string)>5:
+#     TOKEN=json.loads(str(os.getenv(key='GOOGLE_TOKEN')))
+# else:
+TOKEN={"token": os.getenv(key='GOOGLE_TOKEN_TOKEN'),
+    "refresh_token": os.getenv(key='GOOGLE_TOKEN_REFRESH'),
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "client_id": os.getenv(key='CRED_CLIENT_ID'),
+    "client_secret": os.getenv(key='CRED_SECRET'),
+    "scopes": ["https://www.googleapis.com/auth/spreadsheets.readonly"],
+    "expiry": "2021-08-12T02:07:28.887607Z"}
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
