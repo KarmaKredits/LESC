@@ -11,7 +11,9 @@ from dotenv import load_dotenv
 import googleSheets
 
 load_dotenv()
-TOKEN = os.getenv(key='TOKEN')
+# TOKEN = os.getenv(key='TOKEN')
+TOKEN = os.getenv(key='TOKEN_BETA', default=os.getenv('TOKEN'))
+
 my_secret = os.environ['TOKEN']
 LESC1url = 'https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit?usp=sharing'
 LESC1test = 'https://docs.google.com/spreadsheets/d/1DGpfnwq57um8KmXQEGIqby3nUqfK7Q4SbvXOfsbZsdM/edit?usp=sharing'
@@ -195,4 +197,4 @@ async def profile(ctx, arg = None):
 #   await ctx.send('Command prefix changed to "' + arg +'"')
 
 
-client.run(my_secret)
+client.run(TOKEN)
