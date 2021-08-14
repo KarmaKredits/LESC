@@ -87,13 +87,12 @@ async def teams(ctx,*args):
 
     for div in division:
         embedVar = discord.Embed(title=embedTitle,description='**' + div + ' Division**', color=0xffffff)
-        for col in ['name','captain','teammate']:
+        for col in ['team','captain','teammate']:
             val = []
-            print(col)
             for team in team_db['LESC'+season]:
                 if team['division'] == div:
                     val.append(team[col])
-        embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
+            embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
         await ctx.send(embed=embedVar)
         embedVar.clear_fields
 
