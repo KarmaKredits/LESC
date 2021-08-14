@@ -56,9 +56,9 @@ async def season(ctx,*args):
 
   for team in team_db['LESC'+season]:
     if team['division'].upper()=='US':
-      us = us + '\n' + team['name']
+      us = us + '\n' + team['team']
     elif team['division'].upper()=='EU':
-      eu = eu + '\n' + team['name']
+      eu = eu + '\n' + team['team']
 
   if division in ['US','all']:
     embedVar.add_field(name="US Division", value=us, inline=True)
@@ -104,7 +104,6 @@ async def standings(ctx,*args):
     division = [] #default to all
     season = '1' #default to current
     for arg in args:
-        print(arg)
         if arg.lower() == 'eu':
             division.append('EU')
         elif arg.lower() == 'us':
