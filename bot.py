@@ -34,6 +34,7 @@ client = commands.Bot(command_prefix = '.')
 @client.event
 async def on_ready():
   print('Bot Ready')
+  await client.change_presence(activity=discord.CustomActivity(".help"))
   # for team in team_db['LESC1']:
   #   print(team['name'])
   global LESC_DB
