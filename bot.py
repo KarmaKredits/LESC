@@ -32,11 +32,11 @@ async def on_ready():
   global player_db
   player_db = googleSheets.generateProfiles(team_db)
 
-@client.command()
+@client.command(brief='Check bot latency')
 async def ping(ctx):
   await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
 
-@client.command()
+@client.command(brief='View the teams of a season')
 async def season(ctx,*args):
   division = 'all' #default to all
   season = '1' #default to current
@@ -68,7 +68,7 @@ async def season(ctx,*args):
 
   await ctx.send(embed=embedVar)
 
-@client.command()
+@client.command(brief='View team rosters')
 async def teams(ctx,*args):
     global team_db
     division = [] #default to all
@@ -98,7 +98,7 @@ async def teams(ctx,*args):
 
 
 
-@client.command()
+@client.command(brief='View season standings')
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
@@ -151,7 +151,7 @@ async def standings(ctx,*args):
         string = '\n'.join(rowlist)
         await ctx.send(title + "```" + string + "```")
 
-@client.command(description='view the LESC profile of yourself or the mentioned user',brief='LESC profile of [user] or default to self')
+@client.command(description='view the LESC profile of yourself or the mentioned user',brief='View LESC profile of [user], defaults to self')
 async def profile(ctx, arg = None):
     if arg == None:
         arg = ctx.author.display_name #mention
