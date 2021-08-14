@@ -14,31 +14,13 @@ load_dotenv()
 # TOKEN = os.getenv(key='TOKEN')
 TOKEN = os.getenv(key='TOKEN_BETA', default=os.getenv('TOKEN'))
 
-my_secret = os.environ['TOKEN']
-LESC1url = 'https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit?usp=sharing'
-LESC1test = 'https://docs.google.com/spreadsheets/d/1DGpfnwq57um8KmXQEGIqby3nUqfK7Q4SbvXOfsbZsdM/edit?usp=sharing'
-testID = '1DGpfnwq57um8KmXQEGIqby3nUqfK7Q4SbvXOfsbZsdM'
-
-
-
-
-
-
-##US TEAM Link
-# https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777&range=A2:C15
-
-##EU TEAM Link
-# https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777&range=E2:G16
-
-
 client = commands.Bot(command_prefix = '.')
 
 @client.event
 async def on_ready():
   print('Bot Ready')
   await client.change_presence(activity=discord.Activity(name=".help",type=discord.ActivityType.watching))
-  # for team in team_db['LESC1']:
-  #   print(team['name'])
+  # get db info from googleSheets
   global LESC_DB
   LESC_DB = googleSheets.getDataFromGoogleSheets()
   global team_db
@@ -50,11 +32,11 @@ async def on_ready():
   global player_db
   player_db = googleSheets.generateProfiles(team_db)
 
-@client.command()
+@client.command(brief='Check bot latency')
 async def ping(ctx):
   await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
 
-@client.command()
+@client.command(brief='View the teams of a season')
 async def season(ctx,*args):
   division = 'all' #default to all
   season = '1' #default to current
@@ -74,9 +56,9 @@ async def season(ctx,*args):
 
   for team in team_db['LESC'+season]:
     if team['division'].upper()=='US':
-      us = us + '\n' + team['name']
+      us = us + '\n' + team['team']
     elif team['division'].upper()=='EU':
-      eu = eu + '\n' + team['name']
+      eu = eu + '\n' + team['team']
 
   if division in ['US','all']:
     embedVar.add_field(name="US Division", value=us, inline=True)
@@ -86,7 +68,7 @@ async def season(ctx,*args):
 
   await ctx.send(embed=embedVar)
 
-@client.command()
+@client.command(brief='View team rosters')
 async def teams(ctx,*args):
     global team_db
     division = [] #default to all
@@ -105,25 +87,23 @@ async def teams(ctx,*args):
 
     for div in division:
         embedVar = discord.Embed(title=embedTitle,description='**' + div + ' Division**', color=0xffffff)
-        for col in ['name','captain','teammate']:
+        for col in ['team','captain','teammate']:
             val = []
-            print(col)
             for team in team_db['LESC'+season]:
                 if team['division'] == div:
                     val.append(team[col])
-        embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
+            embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
         await ctx.send(embed=embedVar)
         embedVar.clear_fields
 
 
 
-@client.command()
+@client.command(brief='View season standings')
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
     season = '1' #default to current
     for arg in args:
-        print(arg)
         if arg.lower() == 'eu':
             division.append('EU')
         elif arg.lower() == 'us':
@@ -135,7 +115,7 @@ async def standings(ctx,*args):
 
 
     for div in division:
-        matches = standings_db[div]
+        matches = standings_db['LESC'+season][div]
         title = '**LESC Season ' + season + ' - '+ div +' Standings**\n'
         string = ''
         temp = ''
@@ -171,7 +151,7 @@ async def standings(ctx,*args):
         string = '\n'.join(rowlist)
         await ctx.send(title + "```" + string + "```")
 
-@client.command(description='view the LESC profile of yourself or the mentioned user',brief='LESC profile of [user] or default to self')
+@client.command(description='view the LESC profile of yourself or the mentioned user',brief='View LESC profile of [user], defaults to self')
 async def profile(ctx, arg = None):
     if arg == None:
         arg = ctx.author.display_name #mention
