@@ -4,7 +4,7 @@ import os
 # from LESC import team_db
 from LESC import participant_db
 # from LESC import standingsUS
-from LESC import player_db
+# from LESC import player_db
 import re
 from dotenv import load_dotenv
 # from googleSheets import getDataFromGoogleSheets as getDB
@@ -19,44 +19,6 @@ testID = '1DGpfnwq57um8KmXQEGIqby3nUqfK7Q4SbvXOfsbZsdM'
 
 
 
-# range_names = [
-#     # Range names ...
-# ]
-# result = service.spreadsheets().values().batchGet(
-#     spreadsheetId=spreadsheet_id, ranges=range_names).execute()
-# ranges = result.get('valueRanges', [])
-# print('{0} ranges retrieved.'.format(len(ranges)))
-
-# from selenium import webdriver
-# from selenium.webdriver.chrome.options import Options
-
-# chrome_options = Options()
-# chrome_options.add_argument('--no-sandbox')
-# chrome_options.add_argument('--disable-dev-shm-usage')
-
-# driver = webdriver.Chrome(options=chrome_options)
-# driver.get("https://youtube.com")
-
-# regex = '(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)\t(.+)'
-# p = re.compile(regex)
-# # print(standingsUS)
-# matches = p.findall(standingsUS)
-# standingsUS_db = {}
-#
-# standingsUS_db['header'] = matches[0]
-# standingsUS_db['rows'] = []
-# standingsUS_db['data'] = [[]]
-# for row in range(len(matches)-1):
-#   # print(matches[row+1])
-#   standingsUS_db['rows'].append(matches[row+1])
-#   # for col in range(len(matches[row+1])):
-#   #   standingsUS_db['data'][col] = []
-#   #   standingsUS_db['data'][col][row] = matches[row+1][col]
-#   # print(len(item))
-#   # print(type(item))
-#   # for i in item:
-#     # print(i)
-# # print(standingsUS)
 
 
 
@@ -77,9 +39,13 @@ async def on_ready():
   global LESC_DB
   LESC_DB = googleSheets.getDataFromGoogleSheets()
   global team_db
-  team_db = googleSheets.formatRosters(LESC_DB)
+  team_db={}
+  team_db['LESC1'] = googleSheets.formatRosters(LESC_DB)
   global standings_db
-  standings_db = googleSheets.formatStandings(LESC_DB)
+  standings_db = {}
+  standings_db['LESC1'] = googleSheets.formatStandings(LESC_DB)
+  global player_db
+  player_db = googleSheets.generateProfiles(team_db)
 
 @client.command()
 async def ping(ctx):
@@ -119,6 +85,7 @@ async def season(ctx,*args):
 
 @client.command()
 async def teams(ctx,*args):
+    global team_db
     division = [] #default to all
     season = '1' #default to current
     for arg in args:
@@ -149,6 +116,7 @@ async def teams(ctx,*args):
 
 @client.command()
 async def standings(ctx,*args):
+    global standings_db
     division = [] #default to all
     season = '1' #default to current
     for arg in args:
@@ -202,24 +170,23 @@ async def standings(ctx,*args):
 
 @client.command(description='view the LESC profile of yourself or the mentioned user',brief='LESC profile of [user] or default to self')
 async def profile(ctx, arg = None):
-  if arg == None:
-    arg = ctx.author.display_name #mention
-  # print (ctx.author.mention)
-  # print (arg)
-  # embedVar = discord.Embed(title=arg, color=0xffffff)
-  not_found = True
-  for player in player_db:
-    if arg.lower() == player['player'].lower() or arg.lower() in player['player'].lower():
-      embedVar = discord.Embed(title=player['player'], description='The League of Extraordinary Soccer Cars', color=0xffffff)
-      embedVar.add_field(name='Seasons',value='\n'.join(player['season']),inline=True)
-      embedVar.add_field(name='Teams',value='\n'.join(player['teams']),inline=True)
-      embedVar.add_field(name='Teammates',value='\n'.join(player['teammates']),inline=True)
-      embedVar.add_field(name='Awards',value='\n'.join(player['awards']),inline=True)
-      await ctx.send(embed=embedVar)
-      embedVar.clear_fields
-      not_found = False
-  if not_found:
-    await ctx.send('Profile not found')
+    if arg == None:
+        arg = ctx.author.display_name #mention
+    not_found = True
+    global player_db
+    for playerkey in player_db:
+        pp=player_db[playerkey]
+        if arg.lower() == playerkey.lower() or arg.lower() in playerkey.lower():
+            embedVar = discord.Embed(title=pp['player'], description='The League of Extraordinary Soccer Cars', color=0xffffff)
+            embedVar.add_field(name='Seasons',value='\n'.join(pp['season']),inline=True)
+            embedVar.add_field(name='Teams',value='\n'.join(pp['teams']),inline=True)
+            embedVar.add_field(name='Teammates',value='\n'.join(pp['teammates']),inline=True)
+            embedVar.add_field(name='Awards',value='\n'.join(pp['awards']),inline=True)
+            await ctx.send(embed=embedVar)
+            embedVar.clear_fields
+            not_found = False
+    if not_found:
+        await ctx.send('Profile not found')
 
 # @client.command()
 # async def prefix(ctx, arg = '.'):
