@@ -125,12 +125,12 @@ def formatRosters(ranges):
     for row in range(2,len(us)):
         entry = {'division':'US'}
         for col in range(len(us[row])):
-            entry[header[col].lower()]=us[row][col]
+            entry[header[col].lower()]=us[row][col].strip()
         roster.append(entry)
     for row in range(2,len(eu)):
         entry = {'division':'EU'}
         for col in range(len(eu[row])):
-            entry[header[col].lower()]=eu[row][col]
+            entry[header[col].lower()]=eu[row][col].strip()
         roster.append(entry)
     return roster
 
@@ -144,6 +144,26 @@ def formatStandings(ranges):
     standings['EU']=eu
     return standings
 
+def generateProfiles(roster):
+    player_db={}
+    for season in roster:
+        for team in roster[season]:
+            if not (team['captain'] in player_db):
+                player_db[team['captain']] = {'player':team['captain'],
+                    'season':[],'teams':[],'teammates':[],'awards':[]}
+            if not (team['teammate'] in player_db):
+                player_db[team['teammate']] = {'player':team['teammate'],
+                    'season':[],'teams':[],'teammates':[],'awards':[]}
+            player_db[team['captain']]['season'].append('S' + season[-1] + ' ' + team['division'] + ' Division')
+            player_db[team['captain']]['teams'].append(team['team'])
+            player_db[team['captain']]['teammates'].append(team['teammate'])
+            player_db[team['captain']]['awards'].append('S' + season[-1] + ' OG Participant')
+            player_db[team['teammate']]['season'].append('S' + season[-1] + ' ' + team['division'] + ' Division')
+            player_db[team['teammate']]['teams'].append(team['team'])
+            player_db[team['teammate']]['teammates'].append(team['captain'])
+            player_db[team['teammate']]['awards'].append('S' + season[-1] + ' OG Participant')
+    print(player_db['KarmaKredits'])
+    return player_db
 if __name__ == '__main__':
     db=getDataFromGoogleSheets()
     if db:
@@ -154,3 +174,5 @@ if __name__ == '__main__':
     # awards['LESC1']=formatAwards(db)
     standings={}
     standings['LESC1']=formatStandings(db)
+    players=generateProfiles(roster)
+    print(players)
