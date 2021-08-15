@@ -179,5 +179,31 @@ async def profile(ctx, arg = None):
 #   client = commands.Bot(command_prefix = arg)
 #   await ctx.send('Command prefix changed to "' + arg +'"')
 
+@client.command(brief='Link to invite this bot your own server')
+async def invite(ctx):
+    string = f'Click the link below to invite {client.user.name} to your server \n'
+    link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
+    await ctx.send(string+link)
+
+@client.command(aliases=['doc','data','stats','sheets'],brief='Link to LESC Google Sheet')
+async def sheet(ctx):
+    string= 'Click the link below to go to the offical LESC spreadsheet\n'
+    link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
+    await ctx.send(string+link)
+
+@client.command(brief="!Link to the LESC feedback form!")
+async def feedback(ctx):
+    string = f'Click the link below to give feedback on the LESC \n'
+    link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
+    block = """**LESC Season 2 is COMING SOON ™️ to a discord server near you!**
+
+We want to give you the best Season 2 that we can, and for that we need your help! We've compiled a survey that will help us find out what you want from the LESC, so that we can tweak the format of the competition and make it more fun for everyone. Please head to https://forms.gle/3VfB5nNuwakzSU178 to share your thoughts and opinions.
+
+This survey is for **EVERYONE**, it doesn't matter if you are a **Substitute**, **Commentator**, or **Viewer**, we want your feedback and ideas!
+
+**Two things to note:**
+Firstly, please be honest! We can't improve if we don't know how you lot feel.
+Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
+    await ctx.send(block)
 
 client.run(TOKEN)
