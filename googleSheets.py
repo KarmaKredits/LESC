@@ -144,7 +144,7 @@ def formatStandings(ranges):
     standings['EU']=eu
     return standings
 
-def generateProfiles(roster):
+def generateProfiles(roster,playoff,awardTable):
     player_db={}
     for season in roster:
         for team in roster[season]:
@@ -162,8 +162,41 @@ def generateProfiles(roster):
             player_db[team['teammate']]['teams'].append(team['team'])
             player_db[team['teammate']]['teammates'].append(team['captain'])
             player_db[team['teammate']]['awards'].append('S' + season[-1] + ' OG Participant')
-    print(player_db['KarmaKredits'])
+            if team['team'].lower() in playoff:
+                player_db[team['captain']]['awards'].insert(0,'S' + season[-1] + ' Playoff Contender')
+                player_db[team['teammate']]['awards'].insert(0,'S' + season[-1] + ' Playoff Contender')
+            for row in awardTable:
+                if (team['captain'] in row) or (team['teammate'] in row):
+                    player_db[team['captain']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
+                    player_db[team['teammate']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
+
+
+    print(player_db['BobbyNay'])
     return player_db
+
+def teamsInPlayoffs(ranges):
+    inPlayoffs = False
+    list = []
+    playoffs = ranges[12].get('values',[])
+    # print(playoffs)
+    for col in [0,-1]:
+        for row in [7,13,14,19,20,25,26]:
+            team = playoffs[row][col]
+            index = team.find('(')
+            team = team[:index].strip().lower()
+            list.append(team)
+    return list
+
+def getAwards(ranges):
+    awardList=[]
+    awards = ranges[13].get('values',[])
+    for row in awards:
+        if len(row)>1:
+            try:
+                awardList.append([row[0],row[2],row[3]])
+            except:pass
+    return awardList
+
 if __name__ == '__main__':
     db=getDataFromGoogleSheets()
     if db:
@@ -174,5 +207,6 @@ if __name__ == '__main__':
     # awards['LESC1']=formatAwards(db)
     standings={}
     standings['LESC1']=formatStandings(db)
-    players=generateProfiles(roster)
-    print(players)
+    playoffList=teamsInPlayoffs(db)
+    awardsTable = getAwards(db)
+    players=generateProfiles(roster,playoffList,awardsTable)
