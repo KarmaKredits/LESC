@@ -185,13 +185,13 @@ async def invite(ctx):
     link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
     await ctx.send(string+link)
 
-@client.command(aliases=['doc','data','stats'],brief='Link to LESC Google Sheet')
+@client.command(aliases=['doc','data','stats','sheets'],brief='Link to LESC Google Sheet')
 async def sheet(ctx):
     string= 'Click the link below to go to the offical LESC spreadsheet\n'
     link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
     await ctx.send(string+link)
 
-@client.command(brief='Link to invite this bot your own server')
+@client.command(brief="!Link to the LESC feedback form!")
 async def feedback(ctx):
     string = f'Click the link below to give feedback on the LESC \n'
     link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
