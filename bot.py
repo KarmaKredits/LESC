@@ -29,8 +29,10 @@ async def on_ready():
   global standings_db
   standings_db = {}
   standings_db['LESC1'] = googleSheets.formatStandings(LESC_DB)
+  playoffList=googleSheets.teamsInPlayoffs(LESC_DB)
+  awardsTable = googleSheets.getAwards(LESC_DB)
   global player_db
-  player_db = googleSheets.generateProfiles(team_db)
+  player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
 
 @client.command(brief='Check bot latency')
 async def ping(ctx):
