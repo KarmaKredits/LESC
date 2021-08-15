@@ -179,10 +179,18 @@ async def profile(ctx, arg = None):
 #   client = commands.Bot(command_prefix = arg)
 #   await ctx.send('Command prefix changed to "' + arg +'"')
 
-@client.command()
+@client.command(brief='Link to invite this bot your own server')
 async def invite(ctx):
     string = f'Click the link below to invite {client.user.name} to your server \n'
     link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
     await ctx.send(string+link)
+
+@client.command(aliases=['doc','data','stats'],brief='Link to LESC Google Sheet')
+async def sheet(ctx):
+    string= 'Click the link below to go to the offical LESC spreadsheet\n'
+    link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
+    await ctx.send(string+link)
+
+
 
 client.run(TOKEN)
