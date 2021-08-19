@@ -34,6 +34,11 @@ async def on_ready():
   global player_db
   player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
 
+  guildLESC = client.get_guild('835907044024123473')
+  print(guildLESC)
+  memberList = guildLESC.members
+  print(memberList)
+
 @client.command(brief='Check bot latency')
 async def ping(ctx):
   await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
@@ -205,5 +210,7 @@ This survey is for **EVERYONE**, it doesn't matter if you are a **Substitute**, 
 Firstly, please be honest! We can't improve if we don't know how you lot feel.
 Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
     await ctx.send(block)
+
+
 
 client.run(TOKEN)
