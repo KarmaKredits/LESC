@@ -9,6 +9,7 @@ import re
 from dotenv import load_dotenv
 # from googleSheets import getDataFromGoogleSheets as getDB
 import googleSheets
+from redisDB import redisDB
 
 load_dotenv()
 # TOKEN = os.getenv(key='TOKEN')
@@ -18,21 +19,29 @@ client = commands.Bot(command_prefix = '.')
 
 @client.event
 async def on_ready():
-  print('Bot Ready')
-  await client.change_presence(activity=discord.Activity(name=".help",type=discord.ActivityType.watching))
-  # get db info from googleSheets
-  global LESC_DB
-  LESC_DB = googleSheets.getDataFromGoogleSheets()
-  global team_db
-  team_db={}
-  team_db['LESC1'] = googleSheets.formatRosters(LESC_DB)
-  global standings_db
-  standings_db = {}
-  standings_db['LESC1'] = googleSheets.formatStandings(LESC_DB)
-  playoffList=googleSheets.teamsInPlayoffs(LESC_DB)
-  awardsTable = googleSheets.getAwards(LESC_DB)
-  global player_db
-  player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
+    rc=redisDB()
+    print('Bot Ready')
+    await client.change_presence(activity=discord.Activity(name=".help",type=discord.ActivityType.watching))
+    # get db info from googleSheets
+    global LESC_DB
+    LESC_DB = googleSheets.getDataFromGoogleSheets()
+    # rc.setValue(key='lesc_db',value=LESC_DB)
+
+    global team_db
+    team_db={}
+    team_db['LESC1'] = googleSheets.formatRosters(LESC_DB)
+    # rc.setValue(key='rosters',value=team_db)
+
+    global standings_db
+    standings_db = {}
+    standings_db['LESC1'] = googleSheets.formatStandings(LESC_DB)
+    # rc.setValue(key='standings',value=standings_db)
+
+    playoffList=googleSheets.teamsInPlayoffs(LESC_DB)
+    awardsTable = googleSheets.getAwards(LESC_DB)
+    global player_db
+    player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
+    # rc.setValue(key='participants',value=player_db)
 
 @client.command(brief='Check bot latency')
 async def ping(ctx):
