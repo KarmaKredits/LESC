@@ -102,7 +102,7 @@ def getDataFromGoogleSheets():
     result = sheet.values().batchGet(spreadsheetId=LESCsheet,
                                 ranges=LESCranges).execute()
     ranges = result.get('valueRanges', [])
-    print('{0} ranges retrieved.'.format(len(ranges)))
+    # print('{0} ranges retrieved.'.format(len(ranges)))
 
     if not ranges:
          print('No data found.')
@@ -171,7 +171,7 @@ def generateProfiles(roster,playoff,awardTable):
                     player_db[team['teammate']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
 
 
-    print(player_db['BobbyNay'])
+    # print(player_db['BobbyNay'])
     return player_db
 
 def teamsInPlayoffs(ranges):
