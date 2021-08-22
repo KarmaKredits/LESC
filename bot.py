@@ -15,6 +15,9 @@ load_dotenv()
 # TOKEN = os.getenv(key='TOKEN')
 TOKEN = os.getenv(key='TOKEN_BETA', default=os.getenv('TOKEN'))
 
+intents = discord.Intents.default()
+intents.members = True
+bot = discord.Client(intents=intents)
 client = commands.Bot(command_prefix = '.')
 
 @client.event
@@ -42,6 +45,22 @@ async def on_ready():
     global player_db
     player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
     # rc.setValue(key='participants',value=player_db)
+
+  # bot.run(TOKEN)
+  # get guild
+  # print(client.guilds[0].name)
+  guildLESC = client.get_guild(183763588870176768)
+  print(guildLESC)
+  memberList = guildLESC.members
+  print(memberList)
+  for mem in memberList:
+      print(mem)
+
+  gen = client.get_all_members()
+  for mem in gen:
+      print(mem.name)
+      print(mem.roles)
+
 
 @client.command(brief='Check bot latency')
 async def ping(ctx):
@@ -179,8 +198,39 @@ async def profile(ctx, arg = None):
             await ctx.send(embed=embedVar)
             embedVar.clear_fields
             not_found = False
+    season_sub= ['860144876866502666', # S1 US Sub
+    '860145226224107550',# S1 EU Sub
+    '843196839057948722'] #test
+    award_sub=['869417365975224340', # S1 Participant
+    '695490219687804928']
     if not_found:
-        await ctx.send('Profile not found')
+        if arg.lower()==ctx.author.display_name.lower():
+            season_list = ['-']
+            award_list = ['-']
+            for role in ctx.author.roles:
+                if str(role.id) in season_sub:
+                    print('season')
+                    print(role.name)
+                    season_list.insert(0,role.name)
+                if str(role.id) in award_sub:
+                    print('award')
+                    print(role.name)
+                    award_list.insert(0,role.name)
+            if len(season_list) or len(award_list):
+                player_db[arg] = {'player':arg,
+                    'season':season_list,'teams':['-'],'teammates':['-'],'awards':award_list}
+                if len(player_db[arg]['season'])>1 and '-' in player_db[arg]['season']: player_db[arg]['season'].remove('-')
+                if len(player_db[arg]['awards'])>1 and '-' in player_db[arg]['awards']: player_db[arg]['awards'].remove('-')
+                embedVar = discord.Embed(title=arg, description='The League of Extraordinary Soccer Cars', color=0xffffff)
+                embedVar.add_field(name='Seasons',value='\n'.join(player_db[arg]['season']),inline=True)
+                embedVar.add_field(name='Teams',value='\n'.join(player_db[arg]['teams']),inline=True)
+                embedVar.add_field(name='Teammates',value='\n'.join(player_db[arg]['teammates']),inline=True)
+                embedVar.add_field(name='Awards',value='\n'.join(player_db[arg]['awards']),inline=True)
+                await ctx.send(embed=embedVar)
+            else:
+                ctx.send('No season roles')
+        else:
+            await ctx.send('Profile not found')
 
 # @client.command()
 # async def prefix(ctx, arg = '.'):
@@ -214,5 +264,9 @@ This survey is for **EVERYONE**, it doesn't matter if you are a **Substitute**, 
 Firstly, please be honest! We can't improve if we don't know how you lot feel.
 Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
     await ctx.send(block)
+#
+# def getRoles():
+#     client.get_guild()
+
 
 client.run(TOKEN)

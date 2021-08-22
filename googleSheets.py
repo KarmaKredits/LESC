@@ -1,8 +1,8 @@
-from __future__ import print_function
+# from __future__ import print_function
 import os.path
 from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+# from google_auth_oauthlib.flow import InstalledAppFlow
+# from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from dotenv import load_dotenv
 import json
@@ -64,27 +64,7 @@ table_names={
     'awards':"Prizepool!B2:G13"
 }
 
-def generateCreds():
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            flow = Flow(oauth2session, client_type, client_config, redirect_uri=None, code_verifier=None, autogenerate_code_verifier=False)
 
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    creds = flow.run_local_server(port=0)
 
 def getDataFromGoogleSheets():
     """Shows basic usage of the Sheets API.
@@ -102,7 +82,7 @@ def getDataFromGoogleSheets():
     result = sheet.values().batchGet(spreadsheetId=LESCsheet,
                                 ranges=LESCranges).execute()
     ranges = result.get('valueRanges', [])
-    print('{0} ranges retrieved.'.format(len(ranges)))
+    # print('{0} ranges retrieved.'.format(len(ranges)))
 
     if not ranges:
          print('No data found.')
@@ -171,7 +151,7 @@ def generateProfiles(roster,playoff,awardTable):
                     player_db[team['teammate']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
 
 
-    print(player_db['BobbyNay'])
+    # print(player_db['BobbyNay'])
     return player_db
 
 def teamsInPlayoffs(ranges):
