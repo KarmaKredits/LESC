@@ -53,8 +53,8 @@ async def on_ready():
     player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
     global participant_db
     participant_db = rc.getValue('participants')
-    print(participant_db['sassybrenda'])
-    print(participant_db['karmakredits'])
+    # print(participant_db['sassybrenda'])
+    # print(participant_db['karmakredits'])
     # new={}
     for player in participant_db:
         # print(player)
@@ -208,7 +208,7 @@ async def profile(ctx, arg = None):
         arg = ctx.author.display_name #mention
         print(arg)
     elif len(arg)<3:
-        await ctx.send('Please use at least 3 characters for profile name search')
+        await ctx.message.reply('Please use at least 3 characters for profile name search')
         return
     not_found = True
     global participant_db
@@ -263,7 +263,7 @@ async def profile(ctx, arg = None):
             else:
                 ctx.send('No season roles')
         else:
-            await ctx.send('Profile not found')
+            await ctx.message.reply('Profile not found')
 
 # @client.command()
 # async def prefix(ctx, arg = '.'):
@@ -312,11 +312,11 @@ async def claim(ctx, arg=None):
         link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
         to_send = to_send + 'Profile name found! ' + link_text
         rc.setValue('participants',participant_db)
-        await client.get_channel(logChannel).send(link_text)
+        await log.send(link_text)
     else:
         print(arg + ' not found')
         to_send = to_send + arg + ' not found'
-    await ctx.send(to_send)
+    await ctx.message.reply(to_send)
 #
 @client.command(brief="Add self quote to your profile")
 async def quote(ctx, *args):
