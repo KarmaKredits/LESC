@@ -42,3 +42,6 @@ jobs:
       - run:
           name: Run twitch tests
           command: python twitchWatcher.py
+      - run:
+          name: Run redis tests
+          command: python redisDB.py

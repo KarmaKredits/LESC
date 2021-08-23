@@ -6,9 +6,11 @@ import json
 
 class redisDB():
     # def __init__(self):
-    REDIS_URL=os.getenv('REDIS_URI')
+
+    # REDIS_URL=os.getenv('REDIS_URI')
     REDIS_HOST=os.getenv('REDIS_HOST')
-    REDIS_PORT=os.getenv('REDIS_PORT')
+    REDIS_PORT=int(os.getenv('REDIS_PORT'))
+
     REDIS_PASSWORD=os.getenv('REDIS_PASSWORD')
 
     def printKeys(self):
@@ -17,7 +19,9 @@ class redisDB():
             port=self.REDIS_PORT,
             password=self.REDIS_PASSWORD,
             ssl=True, ssl_cert_reqs=None)
-        print(r.dbsize())
+
+        print(str(r.dbsize()))
+
         keys = r.keys()
         print(keys)
         r.close()
