@@ -71,7 +71,7 @@ async def on_ready():
     # get guild
     # print(client.guilds[0].name)
     guildLESC = client.get_guild(183763588870176768)
-    print(guildLESC)
+    # print(guildLESC)
     memberList = guildLESC.members
     print(memberList)
     for mem in memberList:
@@ -212,17 +212,20 @@ async def profile(ctx, arg = None):
         return
     not_found = True
     global participant_db
-    print(participant_db)
+
     for playerkey in participant_db:
-        print(playerkey)
+        # print(playerkey)
         pp=participant_db[playerkey]
         if (arg.lower() == playerkey.lower()) or (arg.lower() in playerkey.lower() and len(arg)>2):
-            embedVar = discord.Embed(title=pp['player'], description=lescTitle, color=0xffffff)
+            description = ''
+            if len(pp['quote'])>1:
+                description = '*"'+ pp['quote'] +'"*'
+            embedVar = discord.Embed(title=pp['player'], description=description, color=0xffffff)
             embedVar.add_field(name='Seasons',value='\n'.join(pp['season']),inline=True)
             embedVar.add_field(name='Teams',value='\n'.join(pp['teams']),inline=True)
             embedVar.add_field(name='Teammates',value='\n'.join(pp['teammates']),inline=True)
             embedVar.add_field(name='Awards',value='\n'.join(pp['awards']),inline=True)
-            embedVar.add_footer(text=lescTitle)
+            embedVar.set_footer(text=lescTitle,icon_url='https://cdn.discordapp.com/icons/835907044024123473/3963713137e01ae8b9c0be2311dc434c.png')
             await ctx.send(embed=embedVar)
             embedVar.clear_fields
             not_found = False
@@ -254,7 +257,7 @@ async def profile(ctx, arg = None):
                 embedVar.add_field(name='Teams',value='\n'.join(participant_db[arg]['teams']),inline=True)
                 embedVar.add_field(name='Teammates',value='\n'.join(participant_db[arg]['teammates']),inline=True)
                 embedVar.add_field(name='Awards',value='\n'.join(participant_db[arg]['awards']),inline=True)
-                embedVar.add_footer(text=lescTitle)
+                embedVar.set_footer(text=lescTitle)
                 await ctx.send(embed=embedVar)
                 rc.setValue('participants',participant_db) #save user to db
             else:
