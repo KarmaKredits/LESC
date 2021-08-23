@@ -331,12 +331,14 @@ async def quote(ctx, *args):
                 print('found claimed profile')
                 found = True
                 if len(args)>1:
-                    participant_db[player]['quote'] = ' '.join(args)
-                    response = 'Profile quote set to:\n*"' + ' '.join(args) + '"*'
+                    quote = ' '.join(args)
                 else:
-                    participant_db[player]['quote'] = args[0]
-                    response = 'Profile quote set to:\n*"' + args[0] + '"*'
-                await log.send(ctx.author.name + ' has set ' + player + ' quote to: ' + ' '.join(args))
+                    quote = args[0]
+
+                participant_db[player]['quote'] = quote
+                rc.setValue('participants',participant_db)
+                response = 'Profile quote set to:\n*"' + quote + '"*'
+                await log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
         if not found:
             response = 'You must first claim your profile, please use the ".claim <profile name>" command to claim your profile'
     if len(response)>1:
