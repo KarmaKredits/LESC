@@ -20,9 +20,14 @@ intents.members = True
 bot = discord.Client(intents=intents)
 client = commands.Bot(command_prefix = '.')
 lescTitle='The League of Extraordinary Soccer Cars'
+testGuild=183763588870176768
+logChannel=866129852708814858
+log = None
 
 @client.event
 async def on_ready():
+    global log
+    log = client.get_channel(logChannel)
     global rc
     rc=redisDB()
     print('Bot Ready')
@@ -48,8 +53,8 @@ async def on_ready():
     player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
     global participant_db
     participant_db = rc.getValue('participants')
-    print(participant_db['sassybrenda'])
-    print(participant_db['karmakredits'])
+    # print(participant_db['sassybrenda'])
+    # print(participant_db['karmakredits'])
     # new={}
     for player in participant_db:
         # print(player)
@@ -66,7 +71,7 @@ async def on_ready():
     # get guild
     # print(client.guilds[0].name)
     guildLESC = client.get_guild(183763588870176768)
-    print(guildLESC)
+    # print(guildLESC)
     memberList = guildLESC.members
     print(memberList)
     for mem in memberList:
@@ -203,20 +208,24 @@ async def profile(ctx, arg = None):
         arg = ctx.author.display_name #mention
         print(arg)
     elif len(arg)<3:
-        await ctx.send('Please use at least 3 characters for profile name search')
+        await ctx.message.reply('Please use at least 3 characters for profile name search')
         return
     not_found = True
     global participant_db
-    print(participant_db)
+
     for playerkey in participant_db:
-        print(playerkey)
+        # print(playerkey)
         pp=participant_db[playerkey]
         if (arg.lower() == playerkey.lower()) or (arg.lower() in playerkey.lower() and len(arg)>2):
-            embedVar = discord.Embed(title=pp['player'], description=lescTitle, color=0xffffff)
+            description = ''
+            if len(pp['quote'])>1:
+                description = '*"'+ pp['quote'] +'"*'
+            embedVar = discord.Embed(title=pp['player'], description=description, color=0xffffff)
             embedVar.add_field(name='Seasons',value='\n'.join(pp['season']),inline=True)
             embedVar.add_field(name='Teams',value='\n'.join(pp['teams']),inline=True)
             embedVar.add_field(name='Teammates',value='\n'.join(pp['teammates']),inline=True)
             embedVar.add_field(name='Awards',value='\n'.join(pp['awards']),inline=True)
+            embedVar.set_footer(text=lescTitle,icon_url='https://cdn.discordapp.com/icons/835907044024123473/3963713137e01ae8b9c0be2311dc434c.png')
             await ctx.send(embed=embedVar)
             embedVar.clear_fields
             not_found = False
@@ -248,12 +257,13 @@ async def profile(ctx, arg = None):
                 embedVar.add_field(name='Teams',value='\n'.join(participant_db[arg]['teams']),inline=True)
                 embedVar.add_field(name='Teammates',value='\n'.join(participant_db[arg]['teammates']),inline=True)
                 embedVar.add_field(name='Awards',value='\n'.join(participant_db[arg]['awards']),inline=True)
+                embedVar.set_footer(text=lescTitle)
                 await ctx.send(embed=embedVar)
                 rc.setValue('participants',participant_db) #save user to db
             else:
                 ctx.send('No season roles')
         else:
-            await ctx.send('Profile not found')
+            await ctx.message.reply('Profile not found')
 
 # @client.command()
 # async def prefix(ctx, arg = '.'):
@@ -299,16 +309,41 @@ async def claim(ctx, arg=None):
     if arg in participant_db:
         print('arg found')
         participant_db[arg]['id']=ctx.author.id
-        to_send = to_send + 'Profile name found! <@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
+        link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
+        to_send = to_send + 'Profile name found! ' + link_text
         rc.setValue('participants',participant_db)
+        await log.send(link_text)
     else:
         print(arg + ' not found')
         to_send = to_send + arg + ' not found'
-    await ctx.send(to_send)
+    await ctx.message.reply(to_send)
 #
-# @client.command(brief="Add self quote to your profile")
-# async def quote(ctx, *args=[]):
-#     print('TBD')
+@client.command(brief="Add self quote to your profile")
+async def quote(ctx, *args):
+    response = ''
+    if len(args) == 0:
+        print('None')
+        response = 'No quote detected. use this format:\n.quote "your quote here, enclosed by double-quotation marks"'
+    elif len(args)>0:
+        found=False
+        for player in participant_db:
+            if participant_db[player]['id'] == ctx.author.id:
+                print('found claimed profile')
+                found = True
+                if len(args)>1:
+                    quote = ' '.join(args)
+                else:
+                    quote = args[0]
+
+                participant_db[player]['quote'] = quote
+                rc.setValue('participants',participant_db)
+                response = 'Profile quote set to:\n*"' + quote + '"*'
+                await log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
+        if not found:
+            response = 'You must first claim your profile, please use the ".claim <profile name>" command to claim your profile'
+    if len(response)>1:
+        await ctx.message.reply(response)
+
 
 if __name__ == '__main__':
     client.run(TOKEN)
