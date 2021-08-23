@@ -8,7 +8,7 @@ class redisDB():
     # def __init__(self):
     # REDIS_URL=os.getenv('REDIS_URI')
     REDIS_HOST=os.getenv('REDIS_HOST')
-    REDIS_PORT=os.getenv('REDIS_PORT')
+    REDIS_PORT=str(os.getenv('REDIS_PORT'))
     REDIS_PASSWORD=os.getenv('REDIS_PASSWORD')
 
     def printKeys(self):
