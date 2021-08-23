@@ -26,7 +26,7 @@ team_db = {'LESC1':[
   {'name':'The 2 Meatballs'	,'captain':'0val'	,'teammate':'Elekid123','division': 'EU'}
 ]}
 
-participant_db = {'commissioners:':[],'players':[],'substitutes':['bagayaro','Bagwer_RL','excel メ','GoodNeighbor','hugo_chakka','IcedColed (Cole)','JJ','r4l','Shvrkii','thebronxbomber','Wildered'],'commentator':[],'viewers':[],'collaborators:':[]}
+# participant_db = {'commissioners:':[],'players':[],'substitutes':['bagayaro','Bagwer_RL','excel メ','GoodNeighbor','hugo_chakka','IcedColed (Cole)','JJ','r4l','Shvrkii','thebronxbomber','Wildered'],'commentator':[],'viewers':[],'collaborators:':[]}
 
 player_db = [{'player':'VHP','season':['S1 :flag_us: Division'],'awards':[':first_place: S1 US Champion',':sweat: S1 Playoff Contender', ':goal: S1 Team Golden Boot',':angel: S1 Team Guardian Angel',':soccer: S1 OG Participant'],'teams':['Boost Over Ball'],'teammates':['TheDongerLord']},
 {'player':'KarmaKredits','season':['S1 US Division'],'awards':['S1 Playoff Contender','S1 OG Participant'],'teams':['Pineapple on Pizza'],'teammates':['Sassy Brenda']},

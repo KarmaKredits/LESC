@@ -2,13 +2,14 @@ import discord
 from discord.ext import commands
 import os
 # from LESC import team_db
-from LESC import participant_db
+# from LESC import participant_db
 # from LESC import standingsUS
 # from LESC import player_db
 import re
 from dotenv import load_dotenv
 # from googleSheets import getDataFromGoogleSheets as getDB
 import googleSheets
+from redisDB import redisDB
 
 load_dotenv()
 # TOKEN = os.getenv(key='TOKEN')
@@ -18,38 +19,61 @@ intents = discord.Intents.default()
 intents.members = True
 bot = discord.Client(intents=intents)
 client = commands.Bot(command_prefix = '.')
+lescTitle='The League of Extraordinary Soccer Cars'
 
 @client.event
 async def on_ready():
-  print('Bot Ready')
-  print(client)
-  await client.change_presence(activity=discord.Activity(name=".help",type=discord.ActivityType.watching))
-  # get db info from googleSheets
-  global LESC_DB
-  LESC_DB = googleSheets.getDataFromGoogleSheets()
-  global team_db
-  team_db={}
-  team_db['LESC1'] = googleSheets.formatRosters(LESC_DB)
-  global standings_db
-  standings_db = {}
-  standings_db['LESC1'] = googleSheets.formatStandings(LESC_DB)
-  playoffList=googleSheets.teamsInPlayoffs(LESC_DB)
-  awardsTable = googleSheets.getAwards(LESC_DB)
-  global player_db
-  player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
+    global rc
+    rc=redisDB()
+    print('Bot Ready')
+    await client.change_presence(activity=discord.Activity(name=".help",type=discord.ActivityType.watching))
+    # get db info from googleSheets
+    global LESC_DB
+    LESC_DB = googleSheets.getDataFromGoogleSheets()
+    # rc.setValue(key='lesc_db',value=LESC_DB)
 
-  # bot.run(TOKEN)
-  # get guild
-  # print(client.guilds[0].name)
-  guildLESC = client.get_guild(183763588870176768)
-  print(guildLESC)
-  memberList = guildLESC.members
-  print(memberList)
-  for mem in memberList:
-      print(mem)
+    global team_db
+    team_db={}
+    team_db['LESC1'] = googleSheets.formatRosters(LESC_DB)
+    # rc.setValue(key='rosters',value=team_db)
 
-  gen = client.get_all_members()
-  for mem in gen:
+    global standings_db
+    standings_db = {}
+    standings_db['LESC1'] = googleSheets.formatStandings(LESC_DB)
+    # rc.setValue(key='standings',value=standings_db)
+
+    playoffList=googleSheets.teamsInPlayoffs(LESC_DB)
+    awardsTable = googleSheets.getAwards(LESC_DB)
+    global player_db
+    player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
+    global participant_db
+    participant_db = rc.getValue('participants')
+    print(participant_db['sassybrenda'])
+    print(participant_db['karmakredits'])
+    # new={}
+    for player in participant_db:
+        # print(player)
+        # new[player.lower()] = participant_db[player]
+        if not ('id' in participant_db[player]):
+            print('id not found')
+            participant_db[player]['id']=0
+        if not('quote' in participant_db[player]):
+            print('quote found')
+            participant_db[player]['quote']=''
+
+    # rc.setValue(key='participants',value=new)
+    # bot.run(TOKEN)
+    # get guild
+    # print(client.guilds[0].name)
+    guildLESC = client.get_guild(183763588870176768)
+    print(guildLESC)
+    memberList = guildLESC.members
+    print(memberList)
+    for mem in memberList:
+        print(mem)
+
+    gen = client.get_all_members()
+    for mem in gen:
       print(mem.name)
       print(mem.roles)
 
@@ -177,12 +201,18 @@ async def standings(ctx,*args):
 async def profile(ctx, arg = None):
     if arg == None:
         arg = ctx.author.display_name #mention
+        print(arg)
+    elif len(arg)<3:
+        await ctx.send('Please use at least 3 characters for profile name search')
+        return
     not_found = True
-    global player_db
-    for playerkey in player_db:
-        pp=player_db[playerkey]
-        if arg.lower() == playerkey.lower() or arg.lower() in playerkey.lower():
-            embedVar = discord.Embed(title=pp['player'], description='The League of Extraordinary Soccer Cars', color=0xffffff)
+    global participant_db
+    print(participant_db)
+    for playerkey in participant_db:
+        print(playerkey)
+        pp=participant_db[playerkey]
+        if (arg.lower() == playerkey.lower()) or (arg.lower() in playerkey.lower() and len(arg)>2):
+            embedVar = discord.Embed(title=pp['player'], description=lescTitle, color=0xffffff)
             embedVar.add_field(name='Seasons',value='\n'.join(pp['season']),inline=True)
             embedVar.add_field(name='Teams',value='\n'.join(pp['teams']),inline=True)
             embedVar.add_field(name='Teammates',value='\n'.join(pp['teammates']),inline=True)
@@ -194,7 +224,7 @@ async def profile(ctx, arg = None):
     '860145226224107550',# S1 EU Sub
     '843196839057948722'] #test
     award_sub=['869417365975224340', # S1 Participant
-    '695490219687804928']
+    '695490219687804928'] #test
     if not_found:
         if arg.lower()==ctx.author.display_name.lower():
             season_list = ['-']
@@ -209,16 +239,17 @@ async def profile(ctx, arg = None):
                     print(role.name)
                     award_list.insert(0,role.name)
             if len(season_list) or len(award_list):
-                player_db[arg] = {'player':arg,
-                    'season':season_list,'teams':['-'],'teammates':['-'],'awards':award_list}
-                if len(player_db[arg]['season'])>1 and '-' in player_db[arg]['season']: player_db[arg]['season'].remove('-')
-                if len(player_db[arg]['awards'])>1 and '-' in player_db[arg]['awards']: player_db[arg]['awards'].remove('-')
-                embedVar = discord.Embed(title=arg, description='The League of Extraordinary Soccer Cars', color=0xffffff)
-                embedVar.add_field(name='Seasons',value='\n'.join(player_db[arg]['season']),inline=True)
-                embedVar.add_field(name='Teams',value='\n'.join(player_db[arg]['teams']),inline=True)
-                embedVar.add_field(name='Teammates',value='\n'.join(player_db[arg]['teammates']),inline=True)
-                embedVar.add_field(name='Awards',value='\n'.join(player_db[arg]['awards']),inline=True)
+                participant_db[arg] = {'player':arg,
+                    'season':season_list,'teams':['-'],'teammates':['-'],'awards':award_list,'id':0,'quote':''}
+                if len(participant_db[arg]['season'])>1 and '-' in participant_db[arg]['season']: participant_db[arg]['season'].remove('-')
+                if len(participant_db[arg]['awards'])>1 and '-' in participant_db[arg]['awards']: participant_db[arg]['awards'].remove('-')
+                embedVar = discord.Embed(title=arg, description=lescTitle, color=0xffffff)
+                embedVar.add_field(name='Seasons',value='\n'.join(participant_db[arg]['season']),inline=True)
+                embedVar.add_field(name='Teams',value='\n'.join(participant_db[arg]['teams']),inline=True)
+                embedVar.add_field(name='Teammates',value='\n'.join(participant_db[arg]['teammates']),inline=True)
+                embedVar.add_field(name='Awards',value='\n'.join(participant_db[arg]['awards']),inline=True)
                 await ctx.send(embed=embedVar)
+                rc.setValue('participants',participant_db) #save user to db
             else:
                 ctx.send('No season roles')
         else:
@@ -256,9 +287,27 @@ This survey is for **EVERYONE**, it doesn't matter if you are a **Substitute**, 
 Firstly, please be honest! We can't improve if we don't know how you lot feel.
 Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
     await ctx.send(block)
-#
-# def getRoles():
-#     client.get_guild()
+
+@client.command(brief="Link LESC profile to your discord")
+async def claim(ctx, arg=None):
+    print('claim command used')
+    to_send = ''
+    if arg == None:
+        print('no arg')
+        arg = ctx.author.name.lower()
+        to_send = 'No name given, using Discord display name: ' + str(ctx.author.name) + '\n'
+    if arg in participant_db:
+        print('arg found')
+        participant_db[arg]['id']=ctx.author.id
+        to_send = to_send + 'Profile name found! <@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
+        rc.setValue('participants',participant_db)
+    else:
+        print(arg + ' not found')
+        to_send = to_send + arg + ' not found'
+    await ctx.send(to_send)
+
+@client.command(brief="Add self quote to your profile")
+async def quote(ctx, arg=None):
 
 
 client.run(TOKEN)
