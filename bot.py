@@ -19,6 +19,7 @@ intents = discord.Intents.default()
 intents.members = True
 bot = discord.Client(intents=intents)
 client = commands.Bot(command_prefix = '.')
+lescTitle='The League of Extraordinary Soccer Cars'
 
 @client.event
 async def on_ready():
@@ -211,7 +212,7 @@ async def profile(ctx, arg = None):
         print(playerkey)
         pp=participant_db[playerkey]
         if (arg.lower() == playerkey.lower()) or (arg.lower() in playerkey.lower() and len(arg)>2):
-            embedVar = discord.Embed(title=pp['player'], description='The League of Extraordinary Soccer Cars', color=0xffffff)
+            embedVar = discord.Embed(title=pp['player'], description=lescTitle, color=0xffffff)
             embedVar.add_field(name='Seasons',value='\n'.join(pp['season']),inline=True)
             embedVar.add_field(name='Teams',value='\n'.join(pp['teams']),inline=True)
             embedVar.add_field(name='Teammates',value='\n'.join(pp['teammates']),inline=True)
@@ -242,7 +243,7 @@ async def profile(ctx, arg = None):
                     'season':season_list,'teams':['-'],'teammates':['-'],'awards':award_list,'id':0,'quote':''}
                 if len(participant_db[arg]['season'])>1 and '-' in participant_db[arg]['season']: participant_db[arg]['season'].remove('-')
                 if len(participant_db[arg]['awards'])>1 and '-' in participant_db[arg]['awards']: participant_db[arg]['awards'].remove('-')
-                embedVar = discord.Embed(title=arg, description='The League of Extraordinary Soccer Cars', color=0xffffff)
+                embedVar = discord.Embed(title=arg, description=lescTitle, color=0xffffff)
                 embedVar.add_field(name='Seasons',value='\n'.join(participant_db[arg]['season']),inline=True)
                 embedVar.add_field(name='Teams',value='\n'.join(participant_db[arg]['teams']),inline=True)
                 embedVar.add_field(name='Teammates',value='\n'.join(participant_db[arg]['teammates']),inline=True)
@@ -304,6 +305,9 @@ async def claim(ctx, arg=None):
         print(arg + ' not found')
         to_send = to_send + arg + ' not found'
     await ctx.send(to_send)
+
+@client.command(brief="Add self quote to your profile")
+async def quote(ctx, arg=None):
 
 
 client.run(TOKEN)
