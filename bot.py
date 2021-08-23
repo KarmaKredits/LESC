@@ -20,9 +20,14 @@ intents.members = True
 bot = discord.Client(intents=intents)
 client = commands.Bot(command_prefix = '.')
 lescTitle='The League of Extraordinary Soccer Cars'
+testGuild=183763588870176768
+logChannel=866129852708814858
+log = None
 
 @client.event
 async def on_ready():
+    global log
+    log = client.get_channel(logChannel)
     global rc
     rc=redisDB()
     print('Bot Ready')
@@ -217,6 +222,7 @@ async def profile(ctx, arg = None):
             embedVar.add_field(name='Teams',value='\n'.join(pp['teams']),inline=True)
             embedVar.add_field(name='Teammates',value='\n'.join(pp['teammates']),inline=True)
             embedVar.add_field(name='Awards',value='\n'.join(pp['awards']),inline=True)
+            embedVar.add_footer(text=lescTitle)
             await ctx.send(embed=embedVar)
             embedVar.clear_fields
             not_found = False
@@ -248,6 +254,7 @@ async def profile(ctx, arg = None):
                 embedVar.add_field(name='Teams',value='\n'.join(participant_db[arg]['teams']),inline=True)
                 embedVar.add_field(name='Teammates',value='\n'.join(participant_db[arg]['teammates']),inline=True)
                 embedVar.add_field(name='Awards',value='\n'.join(participant_db[arg]['awards']),inline=True)
+                embedVar.add_footer(text=lescTitle)
                 await ctx.send(embed=embedVar)
                 rc.setValue('participants',participant_db) #save user to db
             else:
@@ -299,16 +306,39 @@ async def claim(ctx, arg=None):
     if arg in participant_db:
         print('arg found')
         participant_db[arg]['id']=ctx.author.id
-        to_send = to_send + 'Profile name found! <@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
+        link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
+        to_send = to_send + 'Profile name found! ' + link_text
         rc.setValue('participants',participant_db)
+        await client.get_channel(logChannel).send(link_text)
     else:
         print(arg + ' not found')
         to_send = to_send + arg + ' not found'
     await ctx.send(to_send)
 #
-# @client.command(brief="Add self quote to your profile")
-# async def quote(ctx, *args=[]):
-#     print('TBD')
+@client.command(brief="Add self quote to your profile")
+async def quote(ctx, *args):
+    response = ''
+    if len(args) == 0:
+        print('None')
+        response = 'No quote detected. use this format:\n.quote "your quote here, enclosed by double-quotation marks"'
+    elif len(args)>0:
+        found=False
+        for player in participant_db:
+            if participant_db[player]['id'] == ctx.author.id:
+                print('found claimed profile')
+                found = True
+                if len(args)>1:
+                    participant_db[player]['quote'] = ' '.join(args)
+                    response = 'Profile quote set to:\n*"' + ' '.join(args) + '"*'
+                else:
+                    participant_db[player]['quote'] = args[0]
+                    response = 'Profile quote set to:\n*"' + args[0] + '"*'
+                await log.send(ctx.author.name + ' has set ' + player + ' quote to: ' + ' '.join(args))
+        if not found:
+            response = 'You must first claim your profile, please use the ".claim <profile name>" command to claim your profile'
+    if len(response)>1:
+        await ctx.message.reply(response)
+
 
 if __name__ == '__main__':
     client.run(TOKEN)
