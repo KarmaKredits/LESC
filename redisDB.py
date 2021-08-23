@@ -17,7 +17,7 @@ class redisDB():
             port=self.REDIS_PORT,
             password=self.REDIS_PASSWORD,
             ssl=True, ssl_cert_reqs=None)
-        print(r.dbsize())
+        print(str(r.dbsize()))
         keys = r.keys()
         print(keys)
         r.close()
