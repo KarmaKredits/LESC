@@ -305,10 +305,10 @@ async def claim(ctx, arg=None):
         print(arg + ' not found')
         to_send = to_send + arg + ' not found'
     await ctx.send(to_send)
-# 
+#
 # @client.command(brief="Add self quote to your profile")
 # async def quote(ctx, *args=[]):
 #     print('TBD')
 
-if __name__ == __main__:
+if __name__ == '__main__':
     client.run(TOKEN)
