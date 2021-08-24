@@ -304,9 +304,10 @@ async def claim(ctx, arg=None):
     to_send = ''
     if arg == None:
         print('no arg')
-        arg = ctx.author.display_name.lower()
+        arg = ctx.author.display_name
         to_send = 'No name given, using Discord display name: ' + str(ctx.author.display_name) + '\n'
-    if arg.lower() in participant_db:
+    arg = arg.lower()
+    if arg in participant_db:
         print('arg found')
         participant_db[arg]['id']=ctx.author.id
         link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
