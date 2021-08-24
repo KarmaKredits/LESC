@@ -248,15 +248,16 @@ async def profile(ctx, arg = None):
                     print(role.name)
                     award_list.insert(0,role.name)
             if len(season_list) or len(award_list):
-                participant_db[arg] = {'player':arg,
+                key=arg.lower()
+                participant_db[key] = {'player':arg,
                     'season':season_list,'teams':['-'],'teammates':['-'],'awards':award_list,'id':0,'quote':''}
-                if len(participant_db[arg]['season'])>1 and '-' in participant_db[arg]['season']: participant_db[arg]['season'].remove('-')
-                if len(participant_db[arg]['awards'])>1 and '-' in participant_db[arg]['awards']: participant_db[arg]['awards'].remove('-')
-                embedVar = discord.Embed(title=arg, description=lescTitle, color=0xffffff)
-                embedVar.add_field(name='Seasons',value='\n'.join(participant_db[arg]['season']),inline=True)
-                embedVar.add_field(name='Teams',value='\n'.join(participant_db[arg]['teams']),inline=True)
-                embedVar.add_field(name='Teammates',value='\n'.join(participant_db[arg]['teammates']),inline=True)
-                embedVar.add_field(name='Awards',value='\n'.join(participant_db[arg]['awards']),inline=True)
+                if len(participant_db[key]['season'])>1 and '-' in participant_db[key]['season']: participant_db[key]['season'].remove('-')
+                if len(participant_db[key]['awards'])>1 and '-' in participant_db[key]['awards']: participant_db[key]['awards'].remove('-')
+                embedVar = discord.Embed(title=arg, color=0xffffff)
+                embedVar.add_field(name='Seasons',value='\n'.join(participant_db[key]['season']),inline=True)
+                embedVar.add_field(name='Teams',value='\n'.join(participant_db[key]['teams']),inline=True)
+                embedVar.add_field(name='Teammates',value='\n'.join(participant_db[key]['teammates']),inline=True)
+                embedVar.add_field(name='Awards',value='\n'.join(participant_db[key]['awards']),inline=True)
                 embedVar.set_footer(text=lescTitle)
                 await ctx.send(embed=embedVar)
                 rc.setValue('participants',participant_db) #save user to db
