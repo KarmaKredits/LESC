@@ -6,6 +6,7 @@ from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from dotenv import load_dotenv
 import json
+# from bot import logErr
 load_dotenv()
 
 
@@ -65,7 +66,6 @@ table_names={
 }
 
 
-
 def getDataFromGoogleSheets():
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
@@ -73,16 +73,29 @@ def getDataFromGoogleSheets():
     # creds = None
     creds = Credentials(TOKEN['token'],refresh_token=TOKEN['refresh_token'],token_uri=TOKEN['token_uri'],client_id=TOKEN['client_id'],client_secret=TOKEN['client_secret'],scopes=TOKEN['scopes'])
 
+
     service = build('sheets', 'v4', credentials=creds)
 
     # Call the Sheets API
     sheet = service.spreadsheets()
+    ranges= []
+    try:
 
     #get sheets from test LESC1
-    result = sheet.values().batchGet(spreadsheetId=LESCsheet,
-                                ranges=LESCranges).execute()
-    ranges = result.get('valueRanges', [])
-    # print('{0} ranges retrieved.'.format(len(ranges)))
+        result = sheet.values().batchGet(spreadsheetId=LESCsheet, ranges=LESCranges).execute()
+
+        ranges = result.get('valueRanges', [])
+        # print('{0} ranges retrieved.'.format(len(ranges)))
+
+    except Exception as err:
+        errArray = [type(err).__class__.__name__]
+        print('++ ', type(err))
+        for arg in err.args:
+            print('++++' ,arg)
+            errArray.append(json.dumps(arg))
+            # logErr('\n'.join(errArray))
+            return None
+
 
     if not ranges:
          print('No data found.')
@@ -150,8 +163,6 @@ def generateProfiles(roster,playoff,awardTable):
                     player_db[team['captain']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
                     player_db[team['teammate']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
 
-
-    # print(player_db['BobbyNay'])
     return player_db
 
 def teamsInPlayoffs(ranges):

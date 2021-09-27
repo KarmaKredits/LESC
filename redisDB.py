@@ -10,15 +10,17 @@ class redisDB():
     # REDIS_URL=os.getenv('REDIS_URI')
     REDIS_HOST=os.getenv('REDIS_HOST')
     REDIS_PORT=int(os.getenv('REDIS_PORT'))
-
     REDIS_PASSWORD=os.getenv('REDIS_PASSWORD')
 
     def printKeys(self):
         # r = redis.from_url(os.environ.get(REDIS_URL))
         r = redis.StrictRedis(host=self.REDIS_HOST,
-            port=self.REDIS_PORT,
-            password=self.REDIS_PASSWORD,
-            ssl=True, ssl_cert_reqs=None)
+        port=self.REDIS_PORT,
+        # port=12345,
+        password=self.REDIS_PASSWORD,
+        ssl=True,
+        ssl_cert_reqs=None,
+        socket_timeout=10)
 
         print(str(r.dbsize()))
 

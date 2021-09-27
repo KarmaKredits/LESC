@@ -24,64 +24,111 @@ testGuild=183763588870176768
 logChannel=866129852708814858
 log = None
 
+
 @client.event
 async def on_ready():
+    print('LOADING...')
+    await client.change_presence(activity=discord.Activity(name=".help",type=discord.ActivityType.watching))
+
+    step = 'log'
+
+
     global log
     log = client.get_channel(logChannel)
+
     global rc
     rc=redisDB()
+
+    try:
+
+        # get db info from googleSheets
+        print('loading data from google sheets...')
+        step = 'google Sheet'
+        global LESC_DB
+        # try:
+        LESC_DB = googleSheets.getDataFromGoogleSheets()
+        # rc.setValue(key='lesc_db',value=LESC_DB)
+        # except RefreshError as err:
+        #     print(type(err))
+        #     for arg in err:
+        #         print(arg)
+        #         print(err[arg])
+
+        print('formating rosters...')
+        step = 'rosters'
+        global team_db
+        team_db={}
+        team_db['LESC1'] = googleSheets.formatRosters(LESC_DB)
+        # rc.setValue(key='rosters',value=team_db)
+
+
+        # if team_db['LESC1']:
+        #     print('test')
+
+        print('formation standings...')
+        step = 'standings'
+        global standings_db
+        standings_db = {}
+        standings_db['LESC1'] = googleSheets.formatStandings(LESC_DB)
+        # rc.setValue(key='standings',value=standings_db)
+        playoffList=googleSheets.teamsInPlayoffs(LESC_DB)
+        awardsTable = googleSheets.getAwards(LESC_DB)
+
+        print('generating profiles...')
+        step = 'profiles'
+        global player_db
+        player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
+
+        print('loading participants from redis...')
+        step = 'redis participants'
+        global participant_db
+        participant_db = rc.getValue('participants')
+        # print(participant_db)
+        # print(participant_db['sassybrenda'])
+        # print(participant_db['karmakredits'])
+        # new={}
+        for player in participant_db:
+            # print(player)
+            # new[player.lower()] = participant_db[player]
+            if not ('id' in participant_db[player]):
+                print('id not found')
+                participant_db[player]['id']=0
+            if not('quote' in participant_db[player]):
+                print('quote found')
+                participant_db[player]['quote']=''
+
+        # rc.setValue(key='participants',value=new)
+        # bot.run(TOKEN)
+        # get guild
+        # print(client.guilds[0].name)
+        guildLESC = client.get_guild(183763588870176768)
+        # print(guildLESC)
+        # memberList = guildLESC.members
+        # print(memberList)
+        # for mem in memberList:
+        #     print(mem)
+        step = 'keys'
+        rc.printKeys()
+
+        # gen = client.get_all_members()
+        # for mem in gen:
+        #   print(mem.name)
+        #   print(mem.roles)
+        # end of load
+
+    except Exception as e:
+        msg = await log.send(e)
+        newcontent = step + ':\n' + msg.content
+        await msg.edit(content=newcontent)
+        raise
+
+
     print('Bot Ready')
-    await client.change_presence(activity=discord.Activity(name=".help",type=discord.ActivityType.watching))
-    # get db info from googleSheets
-    global LESC_DB
-    LESC_DB = googleSheets.getDataFromGoogleSheets()
-    # rc.setValue(key='lesc_db',value=LESC_DB)
+    print('==========================')
 
-    global team_db
-    team_db={}
-    team_db['LESC1'] = googleSheets.formatRosters(LESC_DB)
-    # rc.setValue(key='rosters',value=team_db)
 
-    global standings_db
-    standings_db = {}
-    standings_db['LESC1'] = googleSheets.formatStandings(LESC_DB)
-    # rc.setValue(key='standings',value=standings_db)
-
-    playoffList=googleSheets.teamsInPlayoffs(LESC_DB)
-    awardsTable = googleSheets.getAwards(LESC_DB)
-    global player_db
-    player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
-    global participant_db
-    participant_db = rc.getValue('participants')
-    # print(participant_db['sassybrenda'])
-    # print(participant_db['karmakredits'])
-    # new={}
-    for player in participant_db:
-        # print(player)
-        # new[player.lower()] = participant_db[player]
-        if not ('id' in participant_db[player]):
-            print('id not found')
-            participant_db[player]['id']=0
-        if not('quote' in participant_db[player]):
-            print('quote found')
-            participant_db[player]['quote']=''
-
-    # rc.setValue(key='participants',value=new)
-    # bot.run(TOKEN)
-    # get guild
-    # print(client.guilds[0].name)
-    guildLESC = client.get_guild(183763588870176768)
-    # print(guildLESC)
-    memberList = guildLESC.members
-    print(memberList)
-    for mem in memberList:
-        print(mem)
-
-    gen = client.get_all_members()
-    for mem in gen:
-      print(mem.name)
-      print(mem.roles)
-
+# def logErr(arg):
+#     await log.send(arg)
 
 @client.command(brief='Check bot latency')
 async def ping(ctx):
@@ -260,7 +307,14 @@ async def profile(ctx, arg = None):
                 embedVar.add_field(name='Awards',value='\n'.join(participant_db[key]['awards']),inline=True)
                 embedVar.set_footer(text=lescTitle)
                 await ctx.send(embed=embedVar)
-                rc.setValue('participants',participant_db) #save user to db
+                try:
+                    rc.setValue('participants',participant_db) #save user to db
+                except Exception as e:
+                    msg = await log.send(e)
+                    newcontent = 'save user to redis participants: '+ arg + '\n' + msg.content
+                    await msg.edit(content=newcontent)
+                    raise
+
             else:
                 ctx.send('No season roles')
         else:
@@ -313,8 +367,15 @@ async def claim(ctx, arg=None):
         participant_db[arg]['id']=ctx.author.id
         link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
         to_send = to_send + 'Profile name found! ' + link_text
-        rc.setValue('participants',participant_db)
-        await log.send(link_text)
+        try:
+            rc.setValue('participants',participant_db)
+            await log.send(link_text)
+        except Exception as e:
+            msg = await log.send(e)
+            newcontent = 'claim redis participants: '+ arg + '\n' + msg.content
+            await msg.edit(content=newcontent)
+            raise
+
     else:
         print(arg + ' not found')
         to_send = to_send + arg + ' not found'
@@ -338,9 +399,15 @@ async def quote(ctx, *args):
                     quote = args[0]
 
                 participant_db[player]['quote'] = quote
-                rc.setValue('participants',participant_db)
-                response = 'Profile quote set to:\n*"' + quote + '"*'
-                await log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
+                try:
+                    rc.setValue('participants',participant_db)
+                    response = 'Profile quote set to:\n*"' + quote + '"*'
+                    await log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
+                except Exception as e:
+                    msg = await log.send(e)
+                    newcontent = 'quote to redis participants: '+ arg + '\n' + msg.content
+                    await msg.edit(content=newcontent)
+                    raise
         if not found:
             response = 'You must first claim your profile, please use the ".claim <profile name>" command to claim your profile'
     if len(response)>1:
