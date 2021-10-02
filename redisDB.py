@@ -66,3 +66,4 @@ if __name__ == '__main__':
     db_keys = rc.printKeys()
     # for k in db_keys:
     #     rc.getValue(key=k)
+    # print(rc.getValue('lesc_db'))
