@@ -1,6 +1,9 @@
 import os
 from dotenv import load_dotenv
 import requests
+from datetime import datetime
+
+# now = datetime.now()
 
 load_dotenv()
 
@@ -9,7 +12,7 @@ SECRET  = os.getenv(key='TWITCH_SECRET')
 
 # driver = webdriver.Chrome(options=chrome_options)
 # driver.get("https://youtube.com")
-streamerlist = ['gingersoccermom','ragdoll139','itsruddy','theleakygiraffe','midoriin4k','soundsofthewild']
+streamerlist = ['gingersoccermom','ragdoll139','itsruddy','theleakygiraffe','midoriin4k','soundsofthewild','Shwa_zee']
 game_name = 'Rocket League'
 key_words = ['LESC','League of Extraordinary Soccer Cars']
 
@@ -63,3 +66,17 @@ if __name__ == '__main__':
     print(len(getToken()))
     testgame='Rocket League'
     testTitle='rank'
+    # time = 0
+    searchTerm = 'Bord'
+    for streamer in streamerlist:
+        stream = getStreamsFromLogin(streamer)
+        if len(stream) > 0:
+            print(streamer, 'on')
+            print(stream[0]['title'])
+            if searchTerm in stream[0]['title']:
+                print('found')
+                timeStr = stream[0]['started_at']
+                time = datetime.strptime(timeStr, '%Y-%m-%dT%H:%M:%SZ')
+                print(time)
+                print(datetime.utcnow())
+                print(datetime.utcnow()-time)

@@ -24,6 +24,20 @@ testGuild=183763588870176768
 logChannel=866129852708814858
 log = None
 
+def updateFromGoogleSheets():
+    try:
+        # get db info from googleSheets
+        print('loading data from google sheets...')
+        global LESC_DB
+        LESC_DB = googleSheets.getDataFromGoogleSheets()
+        rc.setValue(key='lesc_db',value=LESC_DB)
+
+    except Exception as e:
+        msg =  log.send(e)
+        newcontent = 'Google Sheet Update:\n' + msg.content
+        msg.edit(content=newcontent)
+        raise
+
 
 @client.event
 async def on_ready():
@@ -32,7 +46,6 @@ async def on_ready():
 
     step = 'log'
 
-
     global log
     log = client.get_channel(logChannel)
 
@@ -40,39 +53,30 @@ async def on_ready():
     rc=redisDB()
 
     try:
-
         # get db info from googleSheets
         print('loading data from google sheets...')
-        step = 'google Sheet'
+        step = 'redis DB'
         global LESC_DB
-        # try:
-        LESC_DB = googleSheets.getDataFromGoogleSheets()
+        # LESC_DB = googleSheets.getDataFromGoogleSheets()
         # rc.setValue(key='lesc_db',value=LESC_DB)
-        # except RefreshError as err:
-        #     print(type(err))
-        #     for arg in err:
-        #         print(arg)
-        #         print(err[arg])
+        LESC1_DB = rc.getValue('lesc_db') #LESC1
+
 
         print('formating rosters...')
         step = 'rosters'
         global team_db
         team_db={}
-        team_db['LESC1'] = googleSheets.formatRosters(LESC_DB)
+        team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
         # rc.setValue(key='rosters',value=team_db)
-
-
-        # if team_db['LESC1']:
-        #     print('test')
 
         print('formation standings...')
         step = 'standings'
         global standings_db
         standings_db = {}
-        standings_db['LESC1'] = googleSheets.formatStandings(LESC_DB)
+        standings_db['LESC1'] = googleSheets.formatStandings(LESC1_DB)
         # rc.setValue(key='standings',value=standings_db)
-        playoffList=googleSheets.teamsInPlayoffs(LESC_DB)
-        awardsTable = googleSheets.getAwards(LESC_DB)
+        playoffList=googleSheets.teamsInPlayoffs(LESC1_DB)
+        awardsTable = googleSheets.getAwards(LESC1_DB)
 
         print('generating profiles...')
         step = 'profiles'
@@ -86,10 +90,8 @@ async def on_ready():
         # print(participant_db)
         # print(participant_db['sassybrenda'])
         # print(participant_db['karmakredits'])
-        # new={}
         for player in participant_db:
             # print(player)
-            # new[player.lower()] = participant_db[player]
             if not ('id' in participant_db[player]):
                 print('id not found')
                 participant_db[player]['id']=0
@@ -97,31 +99,19 @@ async def on_ready():
                 print('quote found')
                 participant_db[player]['quote']=''
 
-        # rc.setValue(key='participants',value=new)
-        # bot.run(TOKEN)
         # get guild
         # print(client.guilds[0].name)
         guildLESC = client.get_guild(183763588870176768)
         # print(guildLESC)
-        # memberList = guildLESC.members
-        # print(memberList)
-        # for mem in memberList:
-        #     print(mem)
+
         step = 'keys'
         rc.printKeys()
-
-        # gen = client.get_all_members()
-        # for mem in gen:
-        #   print(mem.name)
-        #   print(mem.roles)
-        # end of load
 
     except Exception as e:
         msg = await log.send(e)
         newcontent = step + ':\n' + msg.content
         await msg.edit(content=newcontent)
         raise
-
 
     print('Bot Ready')
     print('==========================')

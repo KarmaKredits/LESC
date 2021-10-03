@@ -188,16 +188,55 @@ def getAwards(ranges):
             except:pass
     return awardList
 
+def getMatches(ranges):
+    matches = {'us': [], 'eu': []}
+    temp = ranges[4].get('values',[])
+    for week in [4,6,8,10]:
+        print(week)
+        for row in ranges[week].get('values',[]):
+            if len(row) == 8:
+                homeTeam, vs, awayTeam, day, date, time, commentating, result = row
+                matches['us'].append({
+                    'home': homeTeam,
+                    'away': awayTeam,
+                    'day': day,
+                    'date': date,
+                    'time': time,
+                    'commentators': commentating,
+                    'result': result
+                    })
+    for week in [5,7,9,11]:
+        print(week)
+        for row in ranges[week].get('values',[]):
+            if len(row) == 8:
+                homeTeam, vs, awayTeam, day, date, time, commentating, result = row
+                matches['eu'].append({
+                    'home': homeTeam,
+                    'away': awayTeam,
+                    'day': day,
+                    'date': date,
+                    'time': time,
+                    'commentators': commentating,
+                    'result': result
+                    })
+    # print(matches)
+    return matches
+    # ['Home Team', '', 'Away Team', 'Day', 'Date', 'Time', 'Commentating ', 'Result']
+    # ['Nked Dommer-nuts', 'v', 'JustZees League ', 'Mon', '6/28', '9:30 am', '', '0-3']
+
+
 if __name__ == '__main__':
     db=getDataFromGoogleSheets()
     if db:
         print('PASS')
-    roster = {}
-    roster['LESC1']=formatRosters(db)
-    awards={}
+    # roster = {}
+    # roster['LESC1']=formatRosters(db)
+    # awards={}
     # awards['LESC1']=formatAwards(db)
-    standings={}
-    standings['LESC1']=formatStandings(db)
-    playoffList=teamsInPlayoffs(db)
-    awardsTable = getAwards(db)
-    players=generateProfiles(roster,playoffList,awardsTable)
+    # standings={}
+    # standings['LESC1']=formatStandings(db)
+    # playoffList=teamsInPlayoffs(db)
+    # awardsTable = getAwards(db)
+    # players=generateProfiles(roster,playoffList,awardsTable)
+    # print(db[4])
+    print(getMatches(db))
