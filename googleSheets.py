@@ -192,10 +192,11 @@ def getMatches(ranges):
     matches = {'us': [], 'eu': []}
     temp = ranges[4].get('values',[])
     for week in [4,6,8,10]:
-        print(week)
-        for row in ranges[week].get('values',[]):
-            if len(row) == 8:
-                homeTeam, vs, awayTeam, day, date, time, commentating, result = row
+        values = ranges[week].get('values',[])
+        for i in range(len(values)):
+            if len(values[i]) == 8 and not ('Home' in values[i][0]):
+                homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
+                # print(values[i])
                 matches['us'].append({
                     'home': homeTeam,
                     'away': awayTeam,
@@ -206,10 +207,11 @@ def getMatches(ranges):
                     'result': result
                     })
     for week in [5,7,9,11]:
-        print(week)
-        for row in ranges[week].get('values',[]):
-            if len(row) == 8:
-                homeTeam, vs, awayTeam, day, date, time, commentating, result = row
+        values = ranges[week].get('values',[])
+        for i in range(len(values)):
+            if len(values[i]) == 8 and not ('Home' in values[i][0]):
+                homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
+                # print(values[i])
                 matches['eu'].append({
                     'home': homeTeam,
                     'away': awayTeam,
