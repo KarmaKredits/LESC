@@ -50,4 +50,4 @@ if __name__ == '__main__':
         for key in max:
             temp.append(match[key] + ' '*(max[key]-len(match[key])))
         output = output + '  '.join(temp)
-    print(output)
+    # print(output)

@@ -453,7 +453,7 @@ async def matches(ctx, arg = ''):
         for key in max:
             temp.append(match[key] + ' '*(max[key]-len(match[key])))
         output = output + '  '.join(temp)
-    print(output)
+    # print(output)
     await ctx.send('```' + output + '```')
 
 if __name__ == '__main__':

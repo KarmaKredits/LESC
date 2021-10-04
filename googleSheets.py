@@ -241,4 +241,4 @@ if __name__ == '__main__':
     # awardsTable = getAwards(db)
     # players=generateProfiles(roster,playoffList,awardsTable)
     # print(db[4])
-    print(getMatches(db))
+    # print(getMatches(db))
