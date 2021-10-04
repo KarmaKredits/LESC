@@ -69,7 +69,7 @@ async def on_ready():
         team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
         # rc.setValue(key='rosters',value=team_db)
 
-        print('formation standings...')
+        print('formating standings...')
         step = 'standings'
         global standings_db
         standings_db = {}
@@ -98,6 +98,12 @@ async def on_ready():
             if not('quote' in participant_db[player]):
                 print('quote found')
                 participant_db[player]['quote']=''
+
+        print('formating matches...')
+        step = 'matches'
+        global matches_db
+        matches_db = {}
+        matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
 
         # get guild
         # print(client.guilds[0].name)
@@ -403,6 +409,52 @@ async def quote(ctx, *args):
     if len(response)>1:
         await ctx.message.reply(response)
 
+@client.command(brief="Search matches of team")
+async def matches(ctx, arg = ''):
+    global matches_db
+    if arg == '':
+        await ctx.message.reply('Please include part of team name you wish to lookup. For example,**.matches never**, to look up matches for the "Never Wallalols"')
+        return
+    searchTerm = arg
+    prepList = []
+    max = {
+        'home': 0,
+        'away': 0,
+        'day': 0,
+        'date': 0,
+        'time': 0,
+        # 'commentators': 0,
+        'result': 0
+        }
+    header = {
+        'home': 'Home Team',
+        'away': 'Away Team',
+        'day': 'Day',
+        'date': 'Date',
+        'time': 'Time',
+        # 'commentators': 0,
+        'result': 'Result'
+        }
+    for div in matches_db['LESC1']:
+
+        for match in matches_db['LESC1'][div]:
+            if searchTerm.lower() in match['home'].lower() or searchTerm.lower() in match['away'].lower():
+                for m in max:
+                    if max[m] < len(match[m]):
+                        max[m] = len(match[m])
+                prepList.append(match)
+    head = []
+    for key in max:
+        head.append(header[key] + ' '*(max[key]-len(header[key])))
+    output = 'LESC Season 1\n' + '  '.join(head)
+    for match in prepList:
+        output = output + "\n"
+        temp = []
+        for key in max:
+            temp.append(match[key] + ' '*(max[key]-len(match[key])))
+        output = output + '  '.join(temp)
+    # print(output)
+    await ctx.send('```' + output + '```')
 
 if __name__ == '__main__':
     client.run(TOKEN)
