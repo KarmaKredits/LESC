@@ -11,8 +11,8 @@ if __name__ == '__main__':
     # print(matches)
     # ['Home Team', '', 'Away Team', 'Day', 'Date', 'Time', 'Commentating ', 'Result']
     # ['Nked Dommer-nuts', 'v', 'JustZees League ', 'Mon', '6/28', '9:30 am', '', '0-3']
-    output = 'Home Team - Away Team - Day - Date - Time - Result'
-    searchTerm = 'Straw'
+    # output = 'Home Team - Away Team - Day - Date - Time - Result'
+    searchTerm = 'fly'
     prepList = []
     max = {
         'home': 0,
@@ -23,16 +23,31 @@ if __name__ == '__main__':
         # 'commentators': 0,
         'result': 0
         }
-    for match in matches['us']:
-        if searchTerm.lower() in match['home'].lower() or searchTerm.lower() in match['away'].lower():
-            for m in max:
-                if max[m] < len(match[m]):
-                    max[m] = len(match[m])
-            prepList.append(match)
+    header = {
+        'home': 'Home Team',
+        'away': 'Away Team',
+        'day': 'Day',
+        'date': 'Date',
+        'time': 'Time',
+        # 'commentators': 0,
+        'result': 'Result'
+        }
+    for div in matches:
+
+        for match in matches[div]:
+            if searchTerm.lower() in match['home'].lower() or searchTerm.lower() in match['away'].lower():
+                for m in max:
+                    if max[m] < len(match[m]):
+                        max[m] = len(match[m])
+                prepList.append(match)
+    head = []
+    for key in max:
+        head.append(header[key] + ' '*(max[key]-len(header[key])))
+    output = '  '.join(head)
     for match in prepList:
         output = output + "\n"
         temp = []
         for key in max:
             temp.append(match[key] + ' '*(max[key]-len(match[key])))
-        output = output + ' - '.join(temp)
+        output = output + '  '.join(temp)
     print(output)
