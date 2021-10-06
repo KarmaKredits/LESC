@@ -10,6 +10,11 @@ from dotenv import load_dotenv
 # from googleSheets import getDataFromGoogleSheets as getDB
 import googleSheets
 from redisDB import redisDB
+from datetime import datetime
+from datetime import timedelta
+import time as t
+twitchTracking = {}
+import twitchWatcher as tw
 
 load_dotenv()
 # TOKEN = os.getenv(key='TOKEN')
@@ -121,6 +126,8 @@ async def on_ready():
 
     print('Bot Ready')
     print('==========================')
+    # twitchAlerts()
+
 
 
 # def logErr(arg):
@@ -455,6 +462,114 @@ async def matches(ctx, arg = ''):
         output = output + '  '.join(temp)
     # print(output)
     await ctx.send('```' + output + '```')
+
+# @client.command(brief="Return streams online")
+# async def on(ctx, arg = ''):
+#     tw.getToken()
+#     embed = discord.Embed(title='Steamers Online', color=0xffffff)
+#     for streamer in tw.streamerlist:
+#         stream = tw.getStreamsFromLogin(streamer)
+#         print(stream)
+#         if len(stream) > 0:
+#             user_name = stream[0]['user_name']
+#             game_name = stream[0]['game_name']
+#             title = stream[0]['title']
+#             login = stream[0]['user_login']
+#             embed.add_field(name=user_name, value=game_name + '\n[' + title + '](https://www.twitch.tv/' + login +')',inline=False)
+#     await ctx.send(embed=embed)
+
+@client.command(brief="Return streamers online or next schedule stream")
+async def streams(ctx, arg = ''):
+    msg = await ctx.send('Fetching dem streamers...')
+    tw.getToken()
+    user_list = tw.getUserIDFromLogin('&login='.join(tw.streamerlist))
+    embed = discord.Embed(title='LESC Community Streams', color=0xffffff)
+    embed.set_footer(text = 'DM KarmaKredits to be added to streamer list')
+    now = datetime.utcnow()
+    list = []
+    for user in user_list:
+        # print(user['id'], '\n')
+        sched = tw.getScheduleFromUserID(user['id'])
+        if sched == None: sched = []
+        # print(sched)
+        # print(user['display_name'])
+        stream = tw.getStreamsFromLogin(user['login'])
+        if stream == None: stream = []
+        # print(stream)
+        if len(stream) > 0:
+            user_name = stream[0]['user_name']
+            game_name = stream[0]['game_name']
+            title = stream[0]['title']
+            login = stream[0]['user_login']
+            dt_start = datetime.strptime(stream[0]['started_at'], '%Y-%m-%dT%H:%M:%SZ')
+            list.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
+        elif len(sched)>0:
+            login_name = user['login']
+            display_name = user['display_name']
+            title = sched[0]['title']
+            game = 'Not Specified'
+            if sched[0]['category'] != None: game = sched[0]['category']['name']
+            start_time = sched[0]['start_time']
+            dt_start = datetime.strptime(sched[0]['start_time'], '%Y-%m-%dT%H:%M:%SZ')
+            delta = dt_start - now
+            # print(delta)
+            # await ctx.send(delta)
+            delta = delta - timedelta(microseconds=delta.microseconds)
+            hours = delta.total_seconds()/3600
+            list.append({'time' : dt_start, 'data' : { 'name' : display_name, 'value' : title + '\nGame: ' + game + '\n Starting in T-' + str(delta)}})
+    #sort list
+    sorted_list = []
+    # for spot in range(len(list)):
+    # print(list)
+    while len(list)>0:
+        earliest = None
+        keytopop = 0
+        for key in range(len(list)):
+            # print(earliest, list[key]['time'])
+            if earliest == None:
+                earliest = list[key]['time']
+                keytopop = key
+            elif earliest > list[key]['time']:
+                earliest = list[key]['time']
+                keytopop = key
+        # print(list[key])
+        sorted_list.append(list.pop(keytopop))
+    # print(sorted_list)
+    # add to fields
+    for item in sorted_list:
+        embed.add_field(name = item['data']['name'], value = item['data']['value'], inline = True)
+        # embed.add_field(name = '\u200b', value = '\u200b', inline = False)
+    # await ctx.send(embed=embed)
+    await msg.edit(content = '', embed=embed)
+
+
+def twitchAlerts():
+    print('twitch')
+    tw.getToken()
+    searchTerm = ''
+    for streamer in tw.streamerlist:
+        stream = tw.getStreamsFromLogin(streamer)
+        print(stream)
+        if len(stream) > 0:
+            print(streamer, 'on')
+            print(stream[0]['title'])
+            if searchTerm in stream[0]['title']:
+                print('found')
+                timeStr = stream[0]['started_at']
+                times = datetime.strptime(timeStr, '%Y-%m-%dT%H:%M:%SZ')
+                print(times)
+                print(datetime.utcnow())
+                delta = datetime.utcnow()-times
+                print(delta)
+                print(delta.microseconds)
+                print(delta - timedelta(microseconds=delta.microseconds))
+    print('done')
+    return
+
+def cycle(seconds):
+    twitchAlerts()
+    time.sleep(seconds)
+    cycle(10)
 
 if __name__ == '__main__':
     client.run(TOKEN)
