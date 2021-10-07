@@ -509,19 +509,20 @@ async def streams(ctx, arg = ''):
             dt_start = datetime.strptime(stream[0]['started_at'], '%Y-%m-%dT%H:%M:%SZ')
             list.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
         elif len(sched)>0:
-            login_name = user['login']
-            display_name = user['display_name']
-            title = sched[0]['title']
-            game = 'Not Specified'
-            if sched[0]['category'] != None: game = sched[0]['category']['name']
             start_time = sched[0]['start_time']
             dt_start = datetime.strptime(sched[0]['start_time'], '%Y-%m-%dT%H:%M:%SZ')
             delta = dt_start - now
-            # print(delta)
-            # await ctx.send(delta)
-            delta = delta - timedelta(microseconds=delta.microseconds)
-            hours = delta.total_seconds()/3600
-            list.append({'time' : dt_start, 'data' : { 'name' : display_name, 'value' : title + '\nGame: ' + game + '\n Starting in T-' + str(delta)}})
+            if delta.total_seconds() > -300:
+                login_name = user['login']
+                display_name = user['display_name']
+                title = sched[0]['title']
+                game = 'Not Specified'
+                if sched[0]['category'] != None: game = sched[0]['category']['name']
+                # print(delta)
+                # await ctx.send(delta)
+                delta = delta - timedelta(microseconds=delta.microseconds)
+                hours = delta.total_seconds()/3600
+                list.append({'time' : dt_start, 'data' : { 'name' : display_name, 'value' : title + '\nGame: ' + game + '\n Starting in T-' + str(delta)}})
     #sort list
     sorted_list = []
     # for spot in range(len(list)):
