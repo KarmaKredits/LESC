@@ -608,16 +608,16 @@ async def twitchAlerts():
     sorted_list_check = []
     for item in sorted_list:
         embed.add_field(name = item['data']['name'], value = item['data']['value'], inline = True)
-        sorted_list_check.append(item['time'])
+        sorted_list_check.append(item['data']['name'])
 
     # print('done')
     # print('pre',next_time)
     if next_time == None: next_time = 12*60*60
     else: next_time = math.floor(next_time/2)
     # print('post',next_time)
-    if (next_time <60 and next_time >= 0) or (sorted_list != last_sorted_list and last_sorted_list != []):
-        print('next_time <60 and next_time > 0', next_time < 60 and next_time >= 0)
-        print('sorted_list != last_sorted_list and last_sorted_list != []',sorted_list_check != last_sorted_list and last_sorted_list != [])
+    if (next_time <60 and next_time >= 0) or (sorted_list_check != last_sorted_list and last_sorted_list != []):
+        print('next_time <60 and next_time > 0', next_time)
+        print('sorted_list != last_sorted_list and last_sorted_list != []',sorted_list_check, last_sorted_list)
         await log.send(embed=embed)
 
     last_sorted_list = sorted_list_check
