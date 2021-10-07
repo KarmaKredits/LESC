@@ -2,23 +2,27 @@ import os
 from dotenv import load_dotenv
 import requests
 from datetime import datetime
+import json
 
 # now = datetime.now()
 
 load_dotenv()
-
+# "redis://:(...+)@(...+):(\d+)"gm
 CLIENT_ID = os.getenv(key='TWITCH_CLIENT_ID')
 SECRET  = os.getenv(key='TWITCH_SECRET')
 
 # driver = webdriver.Chrome(options=chrome_options)
 # driver.get("https://youtube.com")
-streamerlist = ['gingersoccermom','ragdoll139','itsruddy','theleakygiraffe','midoriin4k','soundsofthewild','Shwa_zee']
+streamerlist = ['gingersoccermom','ragdoll139','itsruddy','theleakygiraffe','midoriin4k',
+                'soundsofthewild','Shwa_zee','chillcatdad','benny07','csmith_games',
+                'itsjeffguy','arkwav','xxvhpxx','dannyofthepaul']
 game_name = 'Rocket League'
 key_words = ['LESC','League of Extraordinary Soccer Cars']
 
 streamsUrl = 'https://api.twitch.tv/helix/streams?user_login=' #login name
 channelsUrl = 'https://api.twitch.tv/helix/channels?broadcaster_id=' # ID #
 usersUrl = 'https://api.twitch.tv/helix/users?login=' #login_name
+scheduleUrl = 'https://api.twitch.tv/helix/schedule?first=1&broadcaster_id='
 
 authURL = 'https://id.twitch.tv/oauth2/token'
 AutParams = {'client_id': CLIENT_ID,
@@ -36,7 +40,7 @@ head = None
 
 def getToken():
     AutCall = requests.post(url=authURL, params=AutParams)
-    print(AutCall.json())
+    # print(AutCall.json())
     global access_token
     access_token = AutCall.json()['access_token']
     global head
@@ -54,29 +58,82 @@ def getStreamsFromLogin(login_name):
     return streams #list of matches
 
 def getUserIDFromLogin(login_name):
-    id =requests.get(usersUrl, headers = head).json()['data'][0]['id']
-    return str(id) #broadcaster_id of login name
+    id =requests.get(usersUrl + login_name, headers = head).json()['data']#[0]['id']
+    return id #broadcaster_id of login name
 
 def getChannelFromUserID(user_id):
-    channel_info = requests.get(channelsUrl + str(user_id), headers = head).json()['data'][0]
+    channel_info = requests.get(channelsUrl + str(user_id), headers = head).json()#['data']#[0]
     return channel_info #channel info dict
+
+def getScheduleFromUserID(user_id):
+    schedule_info = requests.get(scheduleUrl + str(user_id), headers = head).json()
+    # print(schedule_info)
+    # print('data' in schedule_info)
+    if 'data' in schedule_info:
+        # print()
+        return schedule_info['data']['segments'] #channel info dict
+    else:
+        return []
 
 
 if __name__ == '__main__':
     print(len(getToken()))
     testgame='Rocket League'
     testTitle='rank'
+
+    # sched = getScheduleFromUserID('150659658')
+    # first = None
+    # for item in sched:
+    #     print(item)
+    #     if first == None:
+    #         if item['is_recurring'] == True:
+    #             first = item
+    #     elif first['title'] == item['title']:
+    #         print('duplicate')
+    #         break
+
+
+
+    user_list = getUserIDFromLogin('&login='.join(streamerlist))
+    # user_list = getUserIDFromLogin('gingersoccermom')
+    # print(user_list)
+    now = datetime.utcnow()
+    for user in user_list:
+        # print(user['id'], '\n')
+        sched = getScheduleFromUserID(user['id'])
+        # print(sched)
+        print(user['display_name'])
+        if len(sched)>0:
+            print(sched[0]['title'])
+            if sched[0]['category'] != None: print(sched[0]['category']['name'])
+            print(sched[0]['start_time'])
+            dt_start = datetime.strptime(sched[0]['start_time'], '%Y-%m-%dT%H:%M:%SZ')
+            delta = dt_start - now
+            print(delta.total_seconds())
+        else:
+            print('No Schedule')
+        print('')
+
     # time = 0
-    searchTerm = 'Bord'
-    for streamer in streamerlist:
-        stream = getStreamsFromLogin(streamer)
-        if len(stream) > 0:
-            print(streamer, 'on')
-            print(stream[0]['title'])
-            if searchTerm in stream[0]['title']:
-                print('found')
-                timeStr = stream[0]['started_at']
-                time = datetime.strptime(timeStr, '%Y-%m-%dT%H:%M:%SZ')
-                print(time)
-                print(datetime.utcnow())
-                print(datetime.utcnow()-time)
+    # print('&user_login='.join(streamerlist))
+    # print(getStreamsFromLogin('&user_login='.join(streamerlist)))
+
+    # searchTerm = ''
+    # for streamer in streamerlist:
+    #     stream = getStreamsFromLogin(streamer)
+    #     print(streamer, stream)
+    #
+    #     if len(stream) > 0:
+    #         id = str(stream[0]['id'])
+    #         print(id)
+    #         channel = getChannelFromUserID(id)
+    #         print(channel)
+    #         print(streamer, 'on')
+    #         print(stream[0]['title'])
+    #         if searchTerm in stream[0]['title']:
+    #             print('found')
+    #             timeStr = stream[0]['started_at']
+    #             time = datetime.strptime(timeStr, '%Y-%m-%dT%H:%M:%SZ')
+    #             print(time)
+    #             print(datetime.utcnow())
+    #             print(datetime.utcnow()-time)
