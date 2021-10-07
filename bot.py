@@ -15,6 +15,8 @@ from datetime import timedelta
 import time as t
 twitchTracking = {}
 import twitchWatcher as tw
+import asyncio
+import math
 
 load_dotenv()
 # TOKEN = os.getenv(key='TOKEN')
@@ -28,6 +30,7 @@ lescTitle='The League of Extraordinary Soccer Cars'
 testGuild=183763588870176768
 logChannel=866129852708814858
 log = None
+last_sorted_list = []
 
 def updateFromGoogleSheets():
     try:
@@ -127,6 +130,8 @@ async def on_ready():
     print('Bot Ready')
     print('==========================')
     # twitchAlerts()
+    print('execute cycle from ready')
+    task1 = asyncio.create_task(cycle(10))
 
 
 
@@ -543,33 +548,90 @@ async def streams(ctx, arg = ''):
     await msg.edit(content = '', embed=embed)
 
 
-def twitchAlerts():
-    print('twitch')
+async def twitchAlerts():
+    global last_sorted_list
+    print('twitchAlert check')
     tw.getToken()
-    searchTerm = ''
-    for streamer in tw.streamerlist:
-        stream = tw.getStreamsFromLogin(streamer)
-        print(stream)
+    user_list = tw.getUserIDFromLogin('&login='.join(tw.streamerlist))
+    embed = discord.Embed(title='LESC Community Streams', color=0xffffff)
+    embed.set_footer(text = 'DM KarmaKredits to be added to streamer list')
+    now = datetime.utcnow()
+    list = []
+    next_time = None
+    for user in user_list:
+        sched = tw.getScheduleFromUserID(user['id'])
+        if sched == None: sched = []
+        stream = tw.getStreamsFromLogin(user['login'])
+        if stream == None: stream = []
         if len(stream) > 0:
-            print(streamer, 'on')
-            print(stream[0]['title'])
-            if searchTerm in stream[0]['title']:
-                print('found')
-                timeStr = stream[0]['started_at']
-                times = datetime.strptime(timeStr, '%Y-%m-%dT%H:%M:%SZ')
-                print(times)
-                print(datetime.utcnow())
-                delta = datetime.utcnow()-times
-                print(delta)
-                print(delta.microseconds)
-                print(delta - timedelta(microseconds=delta.microseconds))
-    print('done')
-    return
+            user_name = stream[0]['user_name']
+            game_name = stream[0]['game_name']
+            title = stream[0]['title']
+            login = stream[0]['user_login']
+            dt_start = datetime.strptime(stream[0]['started_at'], '%Y-%m-%dT%H:%M:%SZ')
+            list.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
+        elif len(sched)>0:
+            start_time = sched[0]['start_time']
+            dt_start = datetime.strptime(sched[0]['start_time'], '%Y-%m-%dT%H:%M:%SZ')
+            delta = dt_start - now
+            delta = delta - timedelta(microseconds=delta.microseconds)
+            if delta.total_seconds()<-300:
+                None
+                print('less than 300')
+            else:
+                login_name = user['login']
+                display_name = user['display_name']
+                title = sched[0]['title']
+                game = 'Not Specified'
+                if sched[0]['category'] != None: game = sched[0]['category']['name']
+                hours = delta.total_seconds()/3600
+                secs_til = math.floor(delta.total_seconds())
+                if next_time == None: next_time = secs_til
+                elif secs_til < next_time: next_time = secs_til
+                list.append({'time' : dt_start, 'data' : { 'name' : display_name, 'value' : title + '\nGame: ' + game + '\n Starting in T-' + str(delta)}})
+    #sort list
+    sorted_list = []
+    # for spot in range(len(list)):
+    while len(list)>0:
+        earliest = None
+        keytopop = 0
+        for key in range(len(list)):
+            if earliest == None:
+                earliest = list[key]['time']
+                keytopop = key
+            elif earliest > list[key]['time']:
+                earliest = list[key]['time']
+                keytopop = key
+        sorted_list.append(list.pop(keytopop))
+    # add to fields
+    for item in sorted_list:
+        embed.add_field(name = item['data']['name'], value = item['data']['value'], inline = True)
 
-def cycle(seconds):
-    twitchAlerts()
-    time.sleep(seconds)
-    cycle(10)
+    # print('done')
+    # print('pre',next_time)
+    if next_time == None: next_time = 12*60*60
+    else: next_time = math.floor(next_time/2)
+    # print('post',next_time)
+    if (next_time <60 and next_time >= 0) or (sorted_list != last_sorted_list and last_sorted_list != []):
+        print('next_time <60 and next_time > 0', next_time < 60 and next_time >= 0)
+        print('sorted_list != last_sorted_list and last_sorted_list != []',sorted_list != last_sorted_list and last_sorted_list != [])
+        await log.send(embed=embed)
+    last_sorted_list = sorted_list
+    return next_time
+
+async def cycle(seconds):
+    # print('cycle start', 'execute twitch Alerts')
+    wait_time = await twitchAlerts()
+    # await wait_time
+    # print('wait_time', wait_time)
+
+    if wait_time < 60: wait_time = 60
+    print('sleep',wait_time)
+    await asyncio.sleep(wait_time)
+    # print('wake,''execute cycle')
+    # asyncio.create_task(cycle(wait_time))
+    # print('cycle end', seconds)
+    return asyncio.create_task(cycle(wait_time))
 
 if __name__ == '__main__':
     client.run(TOKEN)
