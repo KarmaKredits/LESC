@@ -605,8 +605,10 @@ async def twitchAlerts():
                 keytopop = key
         sorted_list.append(list.pop(keytopop))
     # add to fields
+    sorted_list_check = []
     for item in sorted_list:
         embed.add_field(name = item['data']['name'], value = item['data']['value'], inline = True)
+        sorted_list_check.append(item['time'])
 
     # print('done')
     # print('pre',next_time)
@@ -615,9 +617,11 @@ async def twitchAlerts():
     # print('post',next_time)
     if (next_time <60 and next_time >= 0) or (sorted_list != last_sorted_list and last_sorted_list != []):
         print('next_time <60 and next_time > 0', next_time < 60 and next_time >= 0)
-        print('sorted_list != last_sorted_list and last_sorted_list != []',sorted_list != last_sorted_list and last_sorted_list != [])
+        print('sorted_list != last_sorted_list and last_sorted_list != []',sorted_list_check != last_sorted_list and last_sorted_list != [])
         await log.send(embed=embed)
-    last_sorted_list = sorted_list
+
+    last_sorted_list = sorted_list_check
+
     return next_time
 
 async def cycle(seconds):
