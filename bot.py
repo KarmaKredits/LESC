@@ -615,7 +615,7 @@ async def twitchAlerts():
     if next_time == None: next_time = 12*60*60
     else: next_time = math.floor(next_time/2)
     # print('post',next_time)
-    if (next_time <60 and next_time >= 0) or (sorted_list_check != last_sorted_list and last_sorted_list != []):
+    if (next_time <30 and next_time >= 0) or (sorted_list_check != last_sorted_list and last_sorted_list != []):
         print('next_time <60 and next_time > 0', next_time)
         print('sorted_list != last_sorted_list and last_sorted_list != []',sorted_list_check, last_sorted_list)
         await log.send(embed=embed)
