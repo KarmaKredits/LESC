@@ -3,24 +3,15 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 import json
+from urllib.parse import urlparse
 
 class redisDB():
     # def __init__(self):
 
-    # REDIS_URL=os.getenv('REDIS_URI')
-    REDIS_HOST=os.getenv('REDIS_HOST')
-    REDIS_PORT=int(os.getenv('REDIS_PORT'))
-    REDIS_PASSWORD=os.getenv('REDIS_PASSWORD')
+    url = urlparse(os.getenv('REDIS_TLS_URL'))
 
     def printKeys(self):
-        # r = redis.from_url(os.environ.get(REDIS_URL))
-        r = redis.StrictRedis(host=self.REDIS_HOST,
-        port=self.REDIS_PORT,
-        # port=12345,
-        password=self.REDIS_PASSWORD,
-        ssl=True,
-        ssl_cert_reqs=None,
-        socket_timeout=10)
+        r = redis.Redis(host=self.url.hostname, port=self.url.port, username=self.url.username, password=self.url.password, ssl=True, ssl_cert_reqs=None)
 
         print(str(r.dbsize()))
 
@@ -31,10 +22,8 @@ class redisDB():
 
     def getValue(self,key):
         # connect to db
-        r = redis.StrictRedis(host=self.REDIS_HOST,
-            port=self.REDIS_PORT,
-            password=self.REDIS_PASSWORD,
-            ssl=True, ssl_cert_reqs=None)
+        r = redis.Redis(host=self.url.hostname, port=self.url.port, username=self.url.username, password=self.url.password, ssl=True, ssl_cert_reqs=None)
+
         # check if key exists
         value = ''
         if (r.exists(key)):
@@ -50,10 +39,8 @@ class redisDB():
 
     def setValue(self,key,value):
         # connect to db
-        r = redis.StrictRedis(host=self.REDIS_HOST,
-            port=self.REDIS_PORT,
-            password=self.REDIS_PASSWORD,
-            ssl=True, ssl_cert_reqs=None)
+        r = redis.Redis(host=self.url.hostname, port=self.url.port, username=self.url.username, password=self.url.password, ssl=True, ssl_cert_reqs=None)
+
         # get stored value
         valueString = json.dumps(value)
         r.set(key,valueString)
