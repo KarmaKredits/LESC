@@ -13,9 +13,10 @@ SECRET  = os.getenv(key='TWITCH_SECRET')
 
 # driver = webdriver.Chrome(options=chrome_options)
 # driver.get("https://youtube.com")
-streamerlist = ['gingersoccermom','ragdoll139','itsruddy','theleakygiraffe','midoriin4k',
+streamerlist = ['gingersoccermom','ragdoll139','itsruddyy','theleakygiraffe','midoriin4k',
                 'soundsofthewild','Shwa_zee','chillcatdad','benny07','csmith_games',
-                'itsjeffguy','arkwav','xxvhpxx','dannyofthepaul']
+                'itsjeffguy','arkwav','xxvhpxx','dannyofthepaul','bigfootmcgroot',
+                'r4lplays','tuffavocado','kylure','laggittarius']
 game_name = 'Rocket League'
 key_words = ['LESC','League of Extraordinary Soccer Cars']
 
