@@ -15,25 +15,28 @@ load_dotenv()
 # if len(credentials_string)>5:
 #     CREDENTIALS=json.loads(str(os.getenv(key='CREDENTIALS')))
 # else:
-CREDENTIALS={"installed":{"client_id":os.getenv(key='CRED_CLIENT_ID'),
-    "project_id":"tester-322319",
-    "auth_uri":"https://accounts.google.com/o/oauth2/auth",
-    "token_uri":"https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
-    "client_secret":os.getenv(key='CRED_SECRET'),
-    "redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}
+# CREDENTIALS={"installed":{"client_id":os.getenv(key='CRED_CLIENT_ID'),
+#     "project_id":"tester-322319",
+#     "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+#     "token_uri":"https://oauth2.googleapis.com/token",
+#     "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+#     "client_secret":os.getenv(key='CRED_SECRET'),
+#     "redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}
 
 # token_string = os.getenv(key='GOOGLE_TOKEN')
 # if len(token_string)>5:
 #     TOKEN=json.loads(str(os.getenv(key='GOOGLE_TOKEN')))
 # else:
-TOKEN={"token": os.getenv(key='GOOGLE_TOKEN_TOKEN'),
-    "refresh_token": os.getenv(key='GOOGLE_TOKEN_REFRESH'),
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "client_id": os.getenv(key='CRED_CLIENT_ID'),
-    "client_secret": os.getenv(key='CRED_SECRET'),
-    "scopes": ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-    "expiry": "2021-08-12T02:07:28.887607Z"}
+# TOKEN={"token": os.getenv(key='GOOGLE_TOKEN_TOKEN'),
+#     "refresh_token": os.getenv(key='GOOGLE_TOKEN_REFRESH'),
+#     "token_uri": "https://oauth2.googleapis.com/token",
+#     "client_id": os.getenv(key='CRED_CLIENT_ID'),
+#     "client_secret": os.getenv(key='CRED_SECRET'),
+#     "scopes": ["https://www.googleapis.com/auth/spreadsheets.readonly"],
+#     "expiry": "2021-08-12T02:07:28.887607Z"}
+
+TOKEN=json.loads(os.getenv(key='GOOGLE_TOKEN'))
+
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
@@ -47,7 +50,6 @@ LESCsheet='1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII'
 LESCranges = ['Rosters!A2:C15','Rosters!E2:G16','US Table!A2:J14','EU Table!A2:J15',
     'Week 1!B2:I14','Week 1!B18:I31','Week 2!A2:H14','Week 2!A18:H28','Week 3!A2:I13',
     'Week 3!A22:I37','Week 4!A2:I17', 'Week 4!A18:I31','Playoff Bracket!B1:I27','Prizepool!B2:G13']
-
 table_names={
     'us_roster':'Rosters!A2:C15',
     'eu_roster':'Rosters!E2:G16',
@@ -64,7 +66,10 @@ table_names={
     'playoff':"'Playoff Bracket'!B1:I27",
     'awards':"Prizepool!B2:G13"
 }
-
+LESCsheet2 = '1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw'
+LESCranges2 = ['upper_roster','upper_standings','upper_week1','upper_week2',
+    'upper_week3','upper_week4','lower_roster','lower_standings','lower_week1',
+    'lower_week2','lower_week3','lower_week4','playoff']
 
 def getDataFromGoogleSheets():
     """Shows basic usage of the Sheets API.
@@ -82,10 +87,10 @@ def getDataFromGoogleSheets():
     try:
 
     #get sheets from test LESC1
-        result = sheet.values().batchGet(spreadsheetId=LESCsheet, ranges=LESCranges).execute()
+        result = sheet.values().batchGet(spreadsheetId=LESCsheet2, ranges=LESCranges2).execute()
 
         ranges = result.get('valueRanges', [])
-        # print('{0} ranges retrieved.'.format(len(ranges)))
+        print('{0} ranges retrieved.'.format(len(ranges)))
 
     except Exception as err:
         errArray = [type(err).__class__.__name__]
@@ -101,12 +106,14 @@ def getDataFromGoogleSheets():
          print('No data found.')
     else:
         # print('LESC ranges')
+        # print(ranges)
         for range in ranges:
             # print(range.get('range'))
-            # print(range['range'])
+            print(range['range'])
+            # print(range)
             for row in range.get('values',[]):
                 # Print columns A and E, which correspond to indices 0 and 4.
-                # print(row)
+                print(row)
                 None
     return ranges
 
@@ -189,36 +196,107 @@ def getAwards(ranges):
     return awardList
 
 def getMatches(ranges):
+    print('getMatches')
+    # print(ranges)
     matches = {'us': [], 'eu': []}
+    matches = {'upper':[], 'lower':[]}
     temp = ranges[4].get('values',[])
-    for week in [4,6,8,10]:
+    # for week in [4,6,8,10]:
+    print('===========\nweek')
+    print('upper')
+    for week in [2,3,4,5]:
         values = ranges[week].get('values',[])
         for i in range(len(values)):
-            if len(values[i]) == 8 and not ('Home' in values[i][0]):
-                homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
-                # print(values[i])
-                matches['us'].append({
-                    'home': homeTeam,
-                    'away': awayTeam,
+            print(i,' - ', len(values[i]), ' - ', values[i])
+            if len(values[i]) >=3 and not ('Home' in values[i][0]):
+                home, vs, away, *others = values[i]
+                day, date, time, commentators, result = 0,0,0,0,0
+                if len(others) == 1:
+                    day = others
+                elif len(others) == 2:
+                    day, date = others
+                elif len(others) == 3:
+                    day, date, time = others
+                elif len(others) == 4:
+                    day, date, time, commentators = others
+                elif len(others) == 5:
+                    day, date, time, commentators, result = others
+
+                tempM = {}
+                print(range(len(values[i])))
+                for j in range(len(values[i])):
+                    print('j=',j)
+
+                    print('try ', values[i][j])
+                    tempM[j]= values[i][j]
+
+                print(tempM)
+                # tempData= {
+                #     'home': '',
+                #     'away': '',
+                #     'day': '',
+                #     'date': '',
+                #     'time': '',
+                #     'commentators': '',
+                #     'result': ''
+                #     }
+                # # matches['us'].append({
+                # matches['upper'].append({
+                #     'home': tempData['home'],
+                #     'away': tempData['away'],
+                #     'day': tempData['day'],
+                #     'date': tempData['date'],
+                #     'time': tempData['time'],
+                #     'commentators': tempData['commentators'],
+                #     'result': tempData['result']
+                #     })
+                matches['upper'].append({
+                    'home': home,
+                    'away': away,
                     'day': day,
                     'date': date,
                     'time': time,
-                    'commentators': commentating,
+                    'commentators': commentators,
                     'result': result
                     })
-    for week in [5,7,9,11]:
+
+    # for week in [5,7,9,11]:
+    print('lower')
+    for week in [8,9,10,11]:
         values = ranges[week].get('values',[])
         for i in range(len(values)):
-            if len(values[i]) == 8 and not ('Home' in values[i][0]):
-                homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
+            print(i,' - ', len(values[i]), ' - ', values[i])
+            if len(values[i]) >= 3 and not ('Home' in values[i][0]):
+                # homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
                 # print(values[i])
-                matches['eu'].append({
-                    'home': homeTeam,
-                    'away': awayTeam,
+                home, vs, away, *others = values[i]
+                day, date, time, commentators, result = 0,0,0,0,0
+                if len(others) == 1:
+                    day = others
+                elif len(others) == 2:
+                    day, date = others
+                elif len(others) == 3:
+                    day, date, time = others
+                elif len(others) == 4:
+                    day, date, time, commentators = others
+                elif len(others) == 5:
+                    day, date, time, commentators, result = others
+
+                tempM = {}
+                print(range(len(values[i])))
+                for j in range(len(values[i])):
+                    print('j=',j)
+
+                    print('try ', values[i][j])
+                    tempM[j]= values[i][j]
+                # matches['eu'].append({
+                matches['lower'].append({
+                    'home': home,
+                    'away': away,
                     'day': day,
                     'date': date,
                     'time': time,
-                    'commentators': commentating,
+                    'commentators': commentators,
                     'result': result
                     })
     # print(matches)
@@ -231,6 +309,8 @@ if __name__ == '__main__':
     db=getDataFromGoogleSheets()
     if db:
         print('PASS')
+    matchesDB = getMatches(db)
+    # print(matchesDB)
     # roster = {}
     # roster['LESC1']=formatRosters(db)
     # awards={}
