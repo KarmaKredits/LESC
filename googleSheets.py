@@ -202,8 +202,7 @@ def getAwards(ranges):
 def getMatches(ranges):
     print('getMatches')
     # print(ranges)
-    matches = {'us': [], 'eu': []}
-    matches = {'d1':[], 'd2':[]}
+    matches = {1:[], 2:[]}
     temp = ranges[4].get('values',[])
     # print('===========\nweek')
     # print('upper')
@@ -228,7 +227,7 @@ def getMatches(ranges):
                 tempM = {}
                 # print(range(len(values[i])))
 
-                matches['d1'].append({
+                matches[1].append({
                     'home': home,
                     'away': away,
                     'day': day,
@@ -246,7 +245,7 @@ def getMatches(ranges):
                 # homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
                 # print(values[i])
                 home, vs, away, *others = values[i]
-                day, date, time, commentators, result = '-','-','-','-','-'
+                day, date, time, commentators, result = 'TBD','TBD','TBD','-','-'
                 if len(others) == 1:
                     day = others
                 elif len(others) == 2:
@@ -259,7 +258,7 @@ def getMatches(ranges):
                     day, date, time, commentators, result = others
 
                 # matches['eu'].append({
-                matches['d2'].append({
+                matches[2].append({
                     'home': home,
                     'away': away,
                     'day': day,

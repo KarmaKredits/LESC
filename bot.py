@@ -477,8 +477,10 @@ async def quote(ctx, *args):
     if len(response)>1:
         await ctx.message.reply(response)
 
-@client.command(brief="Search matches of team")
+@client.command(brief="Search matches of team",aliases=['match','matchup','matchups'])
 async def matches(ctx, arg = ''):
+    # season = 1 #default
+    # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
     global matches_db
     if arg == '':
         await ctx.message.reply('Please include part of team name you wish to lookup. For example,**.matches never**, to look up matches for the "Never Wallalols"')
