@@ -152,7 +152,7 @@ async def on_ready():
 async def ping(ctx):
   await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
 
-@client.command(brief='View the teams of a season')
+@client.command(brief='View the teams of a season',usage='[season #] [division name]')
 async def season(ctx,*args):
     division = [] #default to all
     season = 2 #default to current
@@ -191,7 +191,7 @@ async def season(ctx,*args):
 
     await ctx.send(embed=embedVar)
 
-@client.command(brief='View team rosters',aliases=['team','roster','rosters'])
+@client.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]')
 async def teams(ctx,*args):
     global team_db
     division = [] #default to all
@@ -236,7 +236,7 @@ async def teams(ctx,*args):
 
 
 
-@client.command(brief='View season standings',aliases=['results'])
+@client.command(brief='View season standings',aliases=['results'],usage='[season #] [division name]')
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
@@ -384,25 +384,27 @@ async def invite(ctx):
 @client.command(aliases=['doc','data','stats','sheets'],brief='Link to LESC Google Sheet')
 async def sheet(ctx):
     string= 'Click the link below to go to the offical LESC spreadsheet\n'
-    link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
+    # link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
+    link = 'https://docs.google.com/spreadsheets/d/1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw/edit?usp=sharing'
     await ctx.send(string+link)
 
-@client.command(brief="!Link to the LESC feedback form!")
-async def feedback(ctx):
-    string = f'Click the link below to give feedback on the LESC \n'
-    link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
-    block = """**LESC Season 2 is COMING SOON ™️ to a discord server near you!**
+# TEMPORARILY REMOVED
+# @client.command(brief="!Link to the LESC feedback form!")
+# async def feedback(ctx):
+#     string = f'Click the link below to give feedback on the LESC \n'
+#     link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
+#     block = """**LESC Season 2 is COMING SOON ™️ to a discord server near you!**
+#
+# We want to give you the best Season 2 that we can, and for that we need your help! We've compiled a survey that will help us find out what you want from the LESC, so that we can tweak the format of the competition and make it more fun for everyone. Please head to https://forms.gle/3VfB5nNuwakzSU178 to share your thoughts and opinions.
+#
+# This survey is for **EVERYONE**, it doesn't matter if you are a **Substitute**, **Commentator**, or **Viewer**, we want your feedback and ideas!
+#
+# **Two things to note:**
+# Firstly, please be honest! We can't improve if we don't know how you lot feel.
+# Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
+#     await ctx.send(block)
 
-We want to give you the best Season 2 that we can, and for that we need your help! We've compiled a survey that will help us find out what you want from the LESC, so that we can tweak the format of the competition and make it more fun for everyone. Please head to https://forms.gle/3VfB5nNuwakzSU178 to share your thoughts and opinions.
-
-This survey is for **EVERYONE**, it doesn't matter if you are a **Substitute**, **Commentator**, or **Viewer**, we want your feedback and ideas!
-
-**Two things to note:**
-Firstly, please be honest! We can't improve if we don't know how you lot feel.
-Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
-    await ctx.send(block)
-
-@client.command(brief="Link LESC profile to your discord")
+@client.command(brief="Link LESC profile to your discord",usage='[your name in google sheets if not the same as your Discord name]')
 async def claim(ctx, arg=None):
     print('claim command used')
     to_send = ''
@@ -430,7 +432,7 @@ async def claim(ctx, arg=None):
         to_send = to_send + arg + ' not found'
     await ctx.message.reply(to_send)
 #
-@client.command(brief="Add self quote to your profile")
+@client.command(brief="Add self quote to your profile",usage='<"Your quote enclosed with double quotations">')
 async def quote(ctx, *args):
     response = ''
     if len(args) == 0:
@@ -462,7 +464,7 @@ async def quote(ctx, *args):
     if len(response)>1:
         await ctx.message.reply(response)
 
-@client.command(brief="Search matches of team",aliases=['match','matchup','matchups'])
+@client.command(brief="Search matches of team",aliases=['match','matchup','matchups'],usage='<team name search>')
 async def matches(ctx, arg = ''):
     # season = 1 #default
     # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }

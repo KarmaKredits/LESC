@@ -210,7 +210,7 @@ def getMatches(ranges):
         values = ranges[week].get('values',[])
         for i in range(len(values)):
             # print(i,' - ', len(values[i]), ' - ', values[i])
-            if len(values[i]) >=3 and not ('Home' in values[i][0]):
+            if len(values[i]) >=6 and not ('Home' in values[i][0]):
                 home, vs, away, *others = values[i]
                 day, date, time, commentators, result = 'TBD','TBD','TBD','','-'
                 if len(others) == 1:
@@ -241,7 +241,7 @@ def getMatches(ranges):
         values = ranges[week].get('values',[])
         for i in range(len(values)):
             # print(i,' - ', len(values[i]), ' - ', values[i])
-            if len(values[i]) >= 3 and not ('Home' in values[i][0]):
+            if len(values[i]) >= 6 and not ('Home' in values[i][0]):
                 # homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
                 # print(values[i])
                 home, vs, away, *others = values[i]
