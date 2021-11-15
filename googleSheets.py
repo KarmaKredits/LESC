@@ -137,16 +137,16 @@ def formatRosters(ranges):
     return roster
 
 def formatStandings(ranges):
-    us = ranges[2].get('values',[])
-    eu = ranges[3].get('values',[])
-    us[0][0]='Rank' #currently null cell
-    eu[0][0]='Rank' #currently null cell
+    d1 = ranges[1].get('values',[])
+    d2 = ranges[7].get('values',[])
+    d1[0][0]='Rank' #currently null cell
+    d2[0][0]='Rank' #currently null cell
     standings = {}
-    standings['US']=us
-    standings['EU']=eu
+    standings['upper']=d1
+    standings['lower']=d2
     return standings
 
-def generateProfiles(roster,playoff,awardTable):
+def generateProfiles(roster,playoff=[],awardTable=[]):
     player_db={}
     for season in roster:
         for team in roster[season]:
@@ -319,9 +319,11 @@ if __name__ == '__main__':
     # awards={}
     # awards['LESC1']=formatAwards(db)
     # standings={}
-    # standings['LESC1']=formatStandings(db)
+    # standings['LESC2']=formatStandings(db)
+    # print(standings)
     # playoffList=teamsInPlayoffs(db)
     # awardsTable = getAwards(db)
-    # players=generateProfiles(roster,playoffList,awardsTable)
+    players=generateProfiles(roster)
+    print(players)
     # print(db[4])
     # print(getMatches(db))
