@@ -278,20 +278,20 @@ if __name__ == '__main__':
     # db, db2 =getDataFromGoogleSheets()
     if db:
         print('PASS')
-    matchesDB = getMatches(db)
-    print(matchesDB)
-    roster = {}
+    # matchesDB = getMatches(db)
+    # print(matchesDB)
+    # roster = {}
     # roster['LESC1']=formatRosters(db2)
-    roster['LESC2']=formatRosters(db)
-    print(roster)
+    # roster['LESC2']=formatRosters(db)
+    # print(roster)
     # awards={}
     # awards['LESC1']=formatAwards(db)
-    standings={}
-    standings['LESC2']=formatStandings(db)
+    # standings={}
+    # standings['LESC2']=formatStandings(db)
     # print(standings)
     # playoffList=teamsInPlayoffs(db)
     # awardsTable = getAwards(db)
-    players=generateProfiles(roster)
-    print(players)
+    # players=generateProfiles(roster)
+    # print(players)
     # print(db[4])
     # print(getMatches(db))
