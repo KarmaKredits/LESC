@@ -154,53 +154,44 @@ async def ping(ctx):
 
 @client.command(brief='View the teams of a season')
 async def season(ctx,*args):
-  division = 'all' #default to all
-  season = '2' #default to current
-  for arg in args:
-    if arg.lower() == 'eu':
-      division = 'EU'
-    elif arg.lower() == 'us':
-      division = 'US'
-    elif arg.lower() == 'upper':
-      division = 'upper'
-    elif arg.lower() == 'lower':
-       division = 'lower'
-    elif arg == '1':
-      season = '1'
-    elif arg == '2':
-      season = '2'
+    division = [] #default to all
+    season = 2 #default to current
+    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    for arg in args:
+        if arg == '1':
+            season = 1
+        elif arg == '2':
+            season = 2
+        elif arg.lower() == 'us':
+            division.append(1)
+            season = 1
+        elif arg.lower() == 'eu':
+            division.append(2)
+            season = 1
+        elif arg.lower() == 'upper':
+            division.append(1)
+            season = 2
+        elif arg.lower() == 'lower':
+            division.append(2)
+            season = 2
+    # if division not specified, use both
+    if len(division)<1:
+        division = [1,2]
 
-  us = ''
-  eu = ''
-  upper = ''
-  lower = ''
+    d={1:'',2:''}
 
-  embedTitle='LESC Season ' + season + ' Teams'
-  embedVar = discord.Embed(title=embedTitle, color=0xffffff)
+    embedTitle='LESC Season ' + str(season) + ' Teams'
+    embedVar = discord.Embed(title=embedTitle, color=0xffffff)
 
-  for team in team_db['LESC'+season]:
-    if team['division'].upper()=='US':
-      us = us + '\n' + team['team']
-    elif team['division'].upper()=='EU':
-      eu = eu + '\n' + team['team']
-    elif team['division'].upper()=='upper':
-      upper = upper + '\n' + team['team']
-    elif team['division'].upper()=='lower':
-      lower = lower + '\n' + team['team']
+    for team in team_db['LESC'+str(season)]:
+        d[team['division']] = d[team['division']] + '\n' + team['team']
+    print('d=\n',d)
+    for div in division:
+        embedVar.add_field(name=seaDiv[season][div] +' Division', value=d[div], inline=True)
 
-  if division in ['US','all']:
-    embedVar.add_field(name="US Division", value=us, inline=True)
-  if division in ['EU','all']:
-    embedVar.add_field(name="EU Division", value=eu, inline=True)
+    await ctx.send(embed=embedVar)
 
-  if division in ['upper','all']:
-    embedVar.add_field(name="Lower Division", value=upper, inline=True)
-  if division in ['lower','all']:
-    embedVar.add_field(name="Lower Division", value=lower, inline=True)
-
-  await ctx.send(embed=embedVar)
-
-@client.command(brief='View team rosters')
+@client.command(brief='View team rosters',aliases=['team','roster','rosters'])
 async def teams(ctx,*args):
     global team_db
     division = [] #default to all
@@ -232,12 +223,6 @@ async def teams(ctx,*args):
     embedTitle='LESC Season ' + str(season) + ' Teams'
     print(division)
     for div in division:
-        print(div)
-        # if len(div)>3:
-        #     divT = div.capitalize()
-        # else:
-        #     divT = div
-        # print(divT)
         embedVar = discord.Embed(title=embedTitle,description='**' + seaDiv[season][div] + ' Division**', color=0xffffff)
         for col in ['team','captain','teammate']:
             val = []
@@ -251,7 +236,7 @@ async def teams(ctx,*args):
 
 
 
-@client.command(brief='View season standings')
+@client.command(brief='View season standings',aliases=['results'])
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
@@ -313,7 +298,7 @@ async def standings(ctx,*args):
         string = '\n'.join(rowlist)
         await ctx.send(title + "```" + string + "```")
 
-@client.command(description='view the LESC profile of yourself or the mentioned user',brief='View LESC profile of [user], defaults to self')
+@client.command(description='view the LESC profile of yourself or the mentioned user',brief='View LESC profile of [user], defaults to self',aliases=['me'])
 async def profile(ctx, arg = None):
     if arg == None:
         arg = ctx.author.display_name #mention
