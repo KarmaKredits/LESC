@@ -111,11 +111,11 @@ def getDataFromGoogleSheets():
         # print(ranges)
         for range in ranges:
             # print(range.get('range'))
-            print(range['range'])
+            # print(range['range'])
             # print(range)
             for row in range.get('values',[]):
                 # Print columns A and E, which correspond to indices 0 and 4.
-                print(row)
+                # print(row)
                 None
     return ranges #, ranges2
 
@@ -126,13 +126,13 @@ def formatRosters(ranges):
     roster=[]
     for row in range(2,len(d1)):
         # entry = {'division':'US'}
-        entry = {'division':'Upper'}
+        entry = {'division':1}
         for col in range(len(d1[row])):
             entry[header[col].lower()]=d1[row][col].strip()
         roster.append(entry)
     for row in range(2,len(d2)):
         # entry = {'division':'EU'}
-        entry = {'division':'Lower'}
+        entry = {'division':2}
         for col in range(len(d2[row])):
             entry[header[col].lower()]=d2[row][col].strip()
         roster.append(entry)
@@ -203,17 +203,17 @@ def getMatches(ranges):
     print('getMatches')
     # print(ranges)
     matches = {'us': [], 'eu': []}
-    matches = {'upper':[], 'lower':[]}
+    matches = {'d1':[], 'd2':[]}
     temp = ranges[4].get('values',[])
-    print('===========\nweek')
-    print('upper')
+    # print('===========\nweek')
+    # print('upper')
     for week in [4,6,8,10]:
         values = ranges[week].get('values',[])
         for i in range(len(values)):
             # print(i,' - ', len(values[i]), ' - ', values[i])
-            if len(values[i]) >=6 and not ('Home' in values[i][0]):
+            if len(values[i]) >=3 and not ('Home' in values[i][0]):
                 home, vs, away, *others = values[i]
-                day, date, time, commentators, result = 0,0,0,0,0
+                day, date, time, commentators, result = 'TBD','TBD','TBD','','-'
                 if len(others) == 1:
                     day = others
                 elif len(others) == 2:
@@ -226,9 +226,9 @@ def getMatches(ranges):
                     day, date, time, commentators, result = others
 
                 tempM = {}
-                print(range(len(values[i])))
+                # print(range(len(values[i])))
 
-                matches['upper'].append({
+                matches['d1'].append({
                     'home': home,
                     'away': away,
                     'day': day,
@@ -237,16 +237,16 @@ def getMatches(ranges):
                     'commentators': commentators,
                     'result': result
                     })
-    print('lower')
+    # print('lower')
     for week in [5,7,9,11]:
         values = ranges[week].get('values',[])
         for i in range(len(values)):
-            print(i,' - ', len(values[i]), ' - ', values[i])
-            if len(values[i]) >= 6 and not ('Home' in values[i][0]):
+            # print(i,' - ', len(values[i]), ' - ', values[i])
+            if len(values[i]) >= 3 and not ('Home' in values[i][0]):
                 # homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
                 # print(values[i])
                 home, vs, away, *others = values[i]
-                day, date, time, commentators, result = '','','','',''
+                day, date, time, commentators, result = '-','-','-','-','-'
                 if len(others) == 1:
                     day = others
                 elif len(others) == 2:
@@ -258,15 +258,8 @@ def getMatches(ranges):
                 elif len(others) == 5:
                     day, date, time, commentators, result = others
 
-                tempM = {}
-                print(range(len(values[i])))
-                for j in range(len(values[i])):
-                    print('j=',j)
-
-                    print('try ', values[i][j])
-                    tempM[j]= values[i][j]
                 # matches['eu'].append({
-                matches['lower'].append({
+                matches['d2'].append({
                     'home': home,
                     'away': away,
                     'day': day,

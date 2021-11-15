@@ -1,10 +1,6 @@
 import discord
 from discord.ext import commands
 import os
-# from LESC import team_db
-# from LESC import participant_db
-# from LESC import standingsUS
-# from LESC import player_db
 import re
 from dotenv import load_dotenv
 # from googleSheets import getDataFromGoogleSheets as getDB
@@ -39,6 +35,7 @@ def updateFromGoogleSheets():
         # global LESC_DB
         LESC_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
+        rc = redisDB()
         rc.setValue(key='lesc2_db',value=LESC_DB) # overwrite
 
     except Exception as e:
@@ -91,15 +88,17 @@ async def on_ready():
         standings_db['LESC1'] = googleSheets.formatStandings(LESC1_DB)
         standings_db['LESC2'] = googleSheets.formatStandings(LESC2_DB)
         # rc.setValue(key='standings',value=standings_db)
+        print('playoffs')
         playoffList=googleSheets.teamsInPlayoffs(LESC1_DB)
-        playoffList=googleSheets.teamsInPlayoffs(LESC2_DB)
+        # playoffList=googleSheets.teamsInPlayoffs(LESC2_DB)
+        print('awards')
         awardsTable = googleSheets.getAwards(LESC1_DB)
-        awardsTable = googleSheets.getAwards(LESC2_DB)
+        # awardsTable = googleSheets.getAwards(LESC2_DB)
 
         print('generating profiles...')
         step = 'profiles'
         global player_db
-        player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
+        # player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
 
         print('loading participants from redis...')
         step = 'redis participants'
@@ -156,17 +155,25 @@ async def ping(ctx):
 @client.command(brief='View the teams of a season')
 async def season(ctx,*args):
   division = 'all' #default to all
-  season = '1' #default to current
+  season = '2' #default to current
   for arg in args:
     if arg.lower() == 'eu':
       division = 'EU'
     elif arg.lower() == 'us':
       division = 'US'
-    if arg == '1':
+    elif arg.lower() == 'upper':
+      division = 'upper'
+    elif arg.lower() == 'lower':
+       division = 'lower'
+    elif arg == '1':
       season = '1'
+    elif arg == '2':
+      season = '2'
 
   us = ''
   eu = ''
+  upper = ''
+  lower = ''
 
   embedTitle='LESC Season ' + season + ' Teams'
   embedVar = discord.Embed(title=embedTitle, color=0xffffff)
@@ -176,12 +183,20 @@ async def season(ctx,*args):
       us = us + '\n' + team['team']
     elif team['division'].upper()=='EU':
       eu = eu + '\n' + team['team']
+    elif team['division'].upper()=='upper':
+      upper = upper + '\n' + team['team']
+    elif team['division'].upper()=='lower':
+      lower = lower + '\n' + team['team']
 
   if division in ['US','all']:
     embedVar.add_field(name="US Division", value=us, inline=True)
-
   if division in ['EU','all']:
     embedVar.add_field(name="EU Division", value=eu, inline=True)
+
+  if division in ['upper','all']:
+    embedVar.add_field(name="Lower Division", value=upper, inline=True)
+  if division in ['lower','all']:
+    embedVar.add_field(name="Lower Division", value=lower, inline=True)
 
   await ctx.send(embed=embedVar)
 
@@ -189,26 +204,49 @@ async def season(ctx,*args):
 async def teams(ctx,*args):
     global team_db
     division = [] #default to all
-    season = '1' #default to current
+    season = 2 #default to current
+    argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
+    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
     for arg in args:
-        if arg.lower() == 'eu':
-            division.append('EU')
+        if arg == '1':
+            season = 1
+        elif arg == '2':
+            season = 2
+        elif arg.lower() == 'eu':
+            division.append(2)
+            season = 1
         elif arg.lower() == 'us':
-            division.append('US')
-        elif arg == '1':
-            season = '1'
-    if len(division)<1:
-        division = ['US','EU']
+            division.append(1)
+            season = 1
+        elif arg.lower() == 'upper':
+            division.append(1)
+            season = 2
+        elif arg.lower() == 'lower':
+            division.append(2)
+            season = 2
 
-    embedTitle='LESC Season ' + season + ' Teams'
+    print(division)
+    if len(division)<1 and season == 1:
+        division = [1,2]
+    elif len(division)<1:
+        division = [1,2]
 
+    embedTitle='LESC Season ' + str(season) + ' Teams'
+    print(division)
     for div in division:
-        embedVar = discord.Embed(title=embedTitle,description='**' + div + ' Division**', color=0xffffff)
+        print(div)
+        # if len(div)>3:
+        #     divT = div.capitalize()
+        # else:
+        #     divT = div
+        # print(divT)
+        embedVar = discord.Embed(title=embedTitle,description='**' + seaDiv[season][div] + ' Division**', color=0xffffff)
         for col in ['team','captain','teammate']:
             val = []
-            for team in team_db['LESC'+season]:
+            for team in team_db['LESC'+str(season)]:
                 if team['division'] == div:
                     val.append(team[col])
+
             embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
         await ctx.send(embed=embedVar)
         embedVar.clear_fields
@@ -219,20 +257,30 @@ async def teams(ctx,*args):
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
-    season = '1' #default to current
+    season = '2' #default to current
     for arg in args:
         if arg.lower() == 'eu':
             division.append('EU')
         elif arg.lower() == 'us':
             division.append('US')
+        elif arg.lower() == 'upper':
+            division.append('upper')
+        elif arg.lower() == 'lower':
+            division.append('lower')
         elif arg == '1':
             season = '1'
-    if len(division)<1:
+        elif arg == '2':
+            season = '2'
+
+    if len(division)<1 and season == 1:
         division = ['US','EU']
+    elif len(division)<1:
+        division = ['upper','lower']
 
 
     for div in division:
         matches = standings_db['LESC'+season][div]
+        if len(div) > 3: div = div.capitalize()
         title = '**LESC Season ' + season + ' - '+ div +' Standings**\n'
         string = ''
         temp = ''
@@ -458,9 +506,9 @@ async def matches(ctx, arg = ''):
         # 'commentators': 0,
         'result': 'Result'
         }
-    for div in matches_db['LESC1']:
+    for div in matches_db['LESC2']:
 
-        for match in matches_db['LESC1'][div]:
+        for match in matches_db['LESC2'][div]:
             if searchTerm.lower() in match['home'].lower() or searchTerm.lower() in match['away'].lower():
                 for m in max:
                     if max[m] < len(match[m]):
@@ -469,7 +517,7 @@ async def matches(ctx, arg = ''):
     head = []
     for key in max:
         head.append(header[key] + ' '*(max[key]-len(header[key])))
-    output = 'LESC Season 1\n' + '  '.join(head)
+    output = 'LESC Season 2\n' + '  '.join(head)
     for match in prepList:
         output = output + "\n"
         temp = []
