@@ -1,10 +1,6 @@
 import discord
 from discord.ext import commands
 import os
-# from LESC import team_db
-# from LESC import participant_db
-# from LESC import standingsUS
-# from LESC import player_db
 import re
 from dotenv import load_dotenv
 # from googleSheets import getDataFromGoogleSheets as getDB
@@ -36,9 +32,11 @@ def updateFromGoogleSheets():
     try:
         # get db info from googleSheets
         print('loading data from google sheets...')
-        global LESC_DB
-        LESC_DB = googleSheets.getDataFromGoogleSheets()
-        rc.setValue(key='lesc_db',value=LESC_DB)
+        # global LESC_DB
+        LESC_DB = googleSheets.getDataFromGoogleSheets() #current season only
+        #sync existing and new data
+        rc = redisDB()
+        rc.setValue(key='lesc2_db',value=LESC_DB) # overwrite
 
     except Exception as e:
         msg =  log.send(e)
@@ -57,6 +55,9 @@ async def on_ready():
     global log
     log = client.get_channel(logChannel)
 
+    step = 'updateFromGoogleSheets'
+    updateFromGoogleSheets()
+
     global rc
     rc=redisDB()
 
@@ -64,10 +65,12 @@ async def on_ready():
         # get db info from googleSheets
         print('loading data from google sheets...')
         step = 'redis DB'
-        global LESC_DB
-        # LESC_DB = googleSheets.getDataFromGoogleSheets()
-        # rc.setValue(key='lesc_db',value=LESC_DB)
+        # global LESC_DB
+        # LESC2_DB = googleSheets.getDataFromGoogleSheets()
+        # rc.setValue(key='lesc2_db',value=LESC2_DB)
+
         LESC1_DB = rc.getValue('lesc_db') #LESC1
+        LESC2_DB = rc.getValue('lesc2_db') #LESC2
 
 
         print('formating rosters...')
@@ -75,6 +78,7 @@ async def on_ready():
         global team_db
         team_db={}
         team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
+        team_db['LESC2'] = googleSheets.formatRosters(LESC2_DB)
         # rc.setValue(key='rosters',value=team_db)
 
         print('formating standings...')
@@ -82,14 +86,19 @@ async def on_ready():
         global standings_db
         standings_db = {}
         standings_db['LESC1'] = googleSheets.formatStandings(LESC1_DB)
+        standings_db['LESC2'] = googleSheets.formatStandings(LESC2_DB)
         # rc.setValue(key='standings',value=standings_db)
+        print('playoffs')
         playoffList=googleSheets.teamsInPlayoffs(LESC1_DB)
+        # playoffList=googleSheets.teamsInPlayoffs(LESC2_DB)
+        print('awards')
         awardsTable = googleSheets.getAwards(LESC1_DB)
+        # awardsTable = googleSheets.getAwards(LESC2_DB)
 
         print('generating profiles...')
         step = 'profiles'
         global player_db
-        player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
+        # player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
 
         print('loading participants from redis...')
         step = 'redis participants'
@@ -112,6 +121,7 @@ async def on_ready():
         global matches_db
         matches_db = {}
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
+        matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
 
         # get guild
         # print(client.guilds[0].name)
@@ -142,87 +152,118 @@ async def on_ready():
 async def ping(ctx):
   await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
 
-@client.command(brief='View the teams of a season')
+@client.command(brief='View the teams of a season',usage='[season #] [division name]')
 async def season(ctx,*args):
-  division = 'all' #default to all
-  season = '1' #default to current
-  for arg in args:
-    if arg.lower() == 'eu':
-      division = 'EU'
-    elif arg.lower() == 'us':
-      division = 'US'
-    if arg == '1':
-      season = '1'
+    division = [] #default to all
+    season = 2 #default to current
+    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    for arg in args:
+        if arg == '1':
+            season = 1
+        elif arg == '2':
+            season = 2
+        elif arg.lower() == 'us':
+            division.append(1)
+            season = 1
+        elif arg.lower() == 'eu':
+            division.append(2)
+            season = 1
+        elif arg.lower() == 'upper':
+            division.append(1)
+            season = 2
+        elif arg.lower() == 'lower':
+            division.append(2)
+            season = 2
+    # if division not specified, use both
+    if len(division)<1:
+        division = [1,2]
 
-  us = ''
-  eu = ''
+    d={1:'',2:''}
 
-  embedTitle='LESC Season ' + season + ' Teams'
-  embedVar = discord.Embed(title=embedTitle, color=0xffffff)
+    embedTitle='LESC Season ' + str(season) + ' Teams'
+    embedVar = discord.Embed(title=embedTitle, color=0xffffff)
 
-  for team in team_db['LESC'+season]:
-    if team['division'].upper()=='US':
-      us = us + '\n' + team['team']
-    elif team['division'].upper()=='EU':
-      eu = eu + '\n' + team['team']
+    for team in team_db['LESC'+str(season)]:
+        d[team['division']] = d[team['division']] + '\n' + team['team']
+    print('d=\n',d)
+    for div in division:
+        embedVar.add_field(name=seaDiv[season][div] +' Division', value=d[div], inline=True)
 
-  if division in ['US','all']:
-    embedVar.add_field(name="US Division", value=us, inline=True)
+    await ctx.send(embed=embedVar)
 
-  if division in ['EU','all']:
-    embedVar.add_field(name="EU Division", value=eu, inline=True)
-
-  await ctx.send(embed=embedVar)
-
-@client.command(brief='View team rosters')
+@client.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]')
 async def teams(ctx,*args):
     global team_db
     division = [] #default to all
-    season = '1' #default to current
+    season = 2 #default to current
+    argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
+    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
     for arg in args:
-        if arg.lower() == 'eu':
-            division.append('EU')
+        if arg == '1':
+            season = 1
+        elif arg == '2':
+            season = 2
+        elif arg.lower() == 'eu':
+            division.append(2)
+            season = 1
         elif arg.lower() == 'us':
-            division.append('US')
-        elif arg == '1':
-            season = '1'
+            division.append(1)
+            season = 1
+        elif arg.lower() == 'upper':
+            division.append(1)
+            season = 2
+        elif arg.lower() == 'lower':
+            division.append(2)
+            season = 2
+
+    print(division)
     if len(division)<1:
-        division = ['US','EU']
+        division = [1,2]
 
-    embedTitle='LESC Season ' + season + ' Teams'
-
+    embedTitle='LESC Season ' + str(season) + ' Teams'
+    print(division)
     for div in division:
-        embedVar = discord.Embed(title=embedTitle,description='**' + div + ' Division**', color=0xffffff)
+        embedVar = discord.Embed(title=embedTitle,description='**' + seaDiv[season][div] + ' Division**', color=0xffffff)
         for col in ['team','captain','teammate']:
             val = []
-            for team in team_db['LESC'+season]:
+            for team in team_db['LESC'+str(season)]:
                 if team['division'] == div:
                     val.append(team[col])
+
             embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
         await ctx.send(embed=embedVar)
         embedVar.clear_fields
 
 
 
-@client.command(brief='View season standings')
+@client.command(brief='View season standings',aliases=['results'],usage='[season #] [division name]')
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
-    season = '1' #default to current
+    season = 2 #default to current
+    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
     for arg in args:
-        if arg.lower() == 'eu':
-            division.append('EU')
+        if arg == '1':
+            season = 1
+        elif arg == '2':
+            season = 2
+        elif arg.lower() == 'eu':
+            division.append(2)
+            season = 1
         elif arg.lower() == 'us':
-            division.append('US')
-        elif arg == '1':
-            season = '1'
-    if len(division)<1:
-        division = ['US','EU']
+            division.append(1)
+            season = 1
+        elif arg.lower() == 'upper':
+            division.append(1)
+        elif arg.lower() == 'lower':
+            division.append(2)
 
+    if len(division)<1:
+        division = [1,2]
 
     for div in division:
-        matches = standings_db['LESC'+season][div]
-        title = '**LESC Season ' + season + ' - '+ div +' Standings**\n'
+        matches = standings_db['LESC'+str(season)][div]
+        title = '**LESC Season ' + str(season) + ' - '+ seaDiv[season][div] +' Standings**\n'
         string = ''
         temp = ''
         coln=len(matches[0])-1
@@ -257,7 +298,7 @@ async def standings(ctx,*args):
         string = '\n'.join(rowlist)
         await ctx.send(title + "```" + string + "```")
 
-@client.command(description='view the LESC profile of yourself or the mentioned user',brief='View LESC profile of [user], defaults to self')
+@client.command(description='view the LESC profile of yourself or the mentioned user',brief='View LESC profile of [user], defaults to self',aliases=['me'])
 async def profile(ctx, arg = None):
     if arg == None:
         arg = ctx.author.display_name #mention
@@ -343,25 +384,27 @@ async def invite(ctx):
 @client.command(aliases=['doc','data','stats','sheets'],brief='Link to LESC Google Sheet')
 async def sheet(ctx):
     string= 'Click the link below to go to the offical LESC spreadsheet\n'
-    link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
+    # link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
+    link = 'https://docs.google.com/spreadsheets/d/1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw/edit?usp=sharing'
     await ctx.send(string+link)
 
-@client.command(brief="!Link to the LESC feedback form!")
-async def feedback(ctx):
-    string = f'Click the link below to give feedback on the LESC \n'
-    link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
-    block = """**LESC Season 2 is COMING SOON ™️ to a discord server near you!**
+# TEMPORARILY REMOVED
+# @client.command(brief="!Link to the LESC feedback form!")
+# async def feedback(ctx):
+#     string = f'Click the link below to give feedback on the LESC \n'
+#     link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
+#     block = """**LESC Season 2 is COMING SOON ™️ to a discord server near you!**
+#
+# We want to give you the best Season 2 that we can, and for that we need your help! We've compiled a survey that will help us find out what you want from the LESC, so that we can tweak the format of the competition and make it more fun for everyone. Please head to https://forms.gle/3VfB5nNuwakzSU178 to share your thoughts and opinions.
+#
+# This survey is for **EVERYONE**, it doesn't matter if you are a **Substitute**, **Commentator**, or **Viewer**, we want your feedback and ideas!
+#
+# **Two things to note:**
+# Firstly, please be honest! We can't improve if we don't know how you lot feel.
+# Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
+#     await ctx.send(block)
 
-We want to give you the best Season 2 that we can, and for that we need your help! We've compiled a survey that will help us find out what you want from the LESC, so that we can tweak the format of the competition and make it more fun for everyone. Please head to https://forms.gle/3VfB5nNuwakzSU178 to share your thoughts and opinions.
-
-This survey is for **EVERYONE**, it doesn't matter if you are a **Substitute**, **Commentator**, or **Viewer**, we want your feedback and ideas!
-
-**Two things to note:**
-Firstly, please be honest! We can't improve if we don't know how you lot feel.
-Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
-    await ctx.send(block)
-
-@client.command(brief="Link LESC profile to your discord")
+@client.command(brief="Link LESC profile to your discord",usage='[your name in google sheets if not the same as your Discord name]')
 async def claim(ctx, arg=None):
     print('claim command used')
     to_send = ''
@@ -389,7 +432,7 @@ async def claim(ctx, arg=None):
         to_send = to_send + arg + ' not found'
     await ctx.message.reply(to_send)
 #
-@client.command(brief="Add self quote to your profile")
+@client.command(brief="Add self quote to your profile",usage='<"Your quote enclosed with double quotations">')
 async def quote(ctx, *args):
     response = ''
     if len(args) == 0:
@@ -421,8 +464,10 @@ async def quote(ctx, *args):
     if len(response)>1:
         await ctx.message.reply(response)
 
-@client.command(brief="Search matches of team")
+@client.command(brief="Search matches of team",aliases=['match','matchup','matchups'],usage='<team name search>')
 async def matches(ctx, arg = ''):
+    # season = 1 #default
+    # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
     global matches_db
     if arg == '':
         await ctx.message.reply('Please include part of team name you wish to lookup. For example,**.matches never**, to look up matches for the "Never Wallalols"')
@@ -447,9 +492,9 @@ async def matches(ctx, arg = ''):
         # 'commentators': 0,
         'result': 'Result'
         }
-    for div in matches_db['LESC1']:
+    for div in matches_db['LESC2']:
 
-        for match in matches_db['LESC1'][div]:
+        for match in matches_db['LESC2'][div]:
             if searchTerm.lower() in match['home'].lower() or searchTerm.lower() in match['away'].lower():
                 for m in max:
                     if max[m] < len(match[m]):
@@ -458,7 +503,7 @@ async def matches(ctx, arg = ''):
     head = []
     for key in max:
         head.append(header[key] + ' '*(max[key]-len(header[key])))
-    output = 'LESC Season 1\n' + '  '.join(head)
+    output = 'LESC Season 2\n' + '  '.join(head)
     for match in prepList:
         output = output + "\n"
         temp = []
