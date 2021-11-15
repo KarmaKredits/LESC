@@ -118,19 +118,21 @@ def getDataFromGoogleSheets():
     return ranges
 
 def formatRosters(ranges):
-    us = ranges[0].get('values',[])
-    eu = ranges[1].get('values',[])
-    header = us[0]
+    d1 = ranges[0].get('values',[])
+    d2 = ranges[6].get('values',[])
+    header = d1[0]
     roster=[]
-    for row in range(2,len(us)):
-        entry = {'division':'US'}
-        for col in range(len(us[row])):
-            entry[header[col].lower()]=us[row][col].strip()
+    for row in range(2,len(d1)):
+        # entry = {'division':'US'}
+        entry = {'division':'Upper'}
+        for col in range(len(d1[row])):
+            entry[header[col].lower()]=d1[row][col].strip()
         roster.append(entry)
-    for row in range(2,len(eu)):
-        entry = {'division':'EU'}
-        for col in range(len(eu[row])):
-            entry[header[col].lower()]=eu[row][col].strip()
+    for row in range(2,len(d2)):
+        # entry = {'division':'EU'}
+        entry = {'division':'Lower'}
+        for col in range(len(d2[row])):
+            entry[header[col].lower()]=d2[row][col].strip()
         roster.append(entry)
     return roster
 
@@ -207,8 +209,8 @@ def getMatches(ranges):
     for week in [2,3,4,5]:
         values = ranges[week].get('values',[])
         for i in range(len(values)):
-            print(i,' - ', len(values[i]), ' - ', values[i])
-            if len(values[i]) >=3 and not ('Home' in values[i][0]):
+            # print(i,' - ', len(values[i]), ' - ', values[i])
+            if len(values[i]) >=6 and not ('Home' in values[i][0]):
                 home, vs, away, *others = values[i]
                 day, date, time, commentators, result = 0,0,0,0,0
                 if len(others) == 1:
@@ -224,13 +226,13 @@ def getMatches(ranges):
 
                 tempM = {}
                 print(range(len(values[i])))
-                for j in range(len(values[i])):
-                    print('j=',j)
-
-                    print('try ', values[i][j])
-                    tempM[j]= values[i][j]
-
-                print(tempM)
+                # for j in range(len(values[i])):
+                #     # print('j=',j)
+                #
+                #     # print('try ', values[i][j])
+                #     tempM[j]= values[i][j]
+                #
+                # print(tempM)
                 # tempData= {
                 #     'home': '',
                 #     'away': '',
@@ -266,11 +268,11 @@ def getMatches(ranges):
         values = ranges[week].get('values',[])
         for i in range(len(values)):
             print(i,' - ', len(values[i]), ' - ', values[i])
-            if len(values[i]) >= 3 and not ('Home' in values[i][0]):
+            if len(values[i]) >= 6 and not ('Home' in values[i][0]):
                 # homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
                 # print(values[i])
                 home, vs, away, *others = values[i]
-                day, date, time, commentators, result = 0,0,0,0,0
+                day, date, time, commentators, result = '','','','',''
                 if len(others) == 1:
                     day = others
                 elif len(others) == 2:
@@ -309,10 +311,11 @@ if __name__ == '__main__':
     db=getDataFromGoogleSheets()
     if db:
         print('PASS')
-    matchesDB = getMatches(db)
+    # matchesDB = getMatches(db)
     # print(matchesDB)
-    # roster = {}
-    # roster['LESC1']=formatRosters(db)
+    roster = {}
+    roster['LESC2']=formatRosters(db)
+    print(roster)
     # awards={}
     # awards['LESC1']=formatAwards(db)
     # standings={}
