@@ -274,14 +274,14 @@ def getMatches(ranges):
 
 
 if __name__ == '__main__':
-
-    db, db2 =getDataFromGoogleSheets()
+    db =getDataFromGoogleSheets()
+    # db, db2 =getDataFromGoogleSheets()
     if db:
         print('PASS')
     matchesDB = getMatches(db)
     print(matchesDB)
     roster = {}
-    roster['LESC1']=formatRosters(db2)
+    # roster['LESC1']=formatRosters(db2)
     roster['LESC2']=formatRosters(db)
     print(roster)
     # awards={}
