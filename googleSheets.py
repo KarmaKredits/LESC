@@ -67,9 +67,9 @@ table_names={
     'awards':"Prizepool!B2:G13"
 }
 LESCsheet2 = '1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw'
-LESCranges2 = ['upper_roster','upper_standings','upper_week1','upper_week2',
-    'upper_week3','upper_week4','lower_roster','lower_standings','lower_week1',
-    'lower_week2','lower_week3','lower_week4','playoff']
+LESCranges2 = ['upper_roster','lower_roster','upper_standings','lower_standings',
+    'upper_week1','lower_week1','upper_week2','lower_week2','upper_week3','lower_week3',
+    'upper_week4','lower_week4','playoff']
 
 def getDataFromGoogleSheets():
     """Shows basic usage of the Sheets API.
@@ -88,8 +88,10 @@ def getDataFromGoogleSheets():
 
     #get sheets from test LESC1
         result = sheet.values().batchGet(spreadsheetId=LESCsheet2, ranges=LESCranges2).execute()
+        # result2 = sheet.values().batchGet(spreadsheetId=LESCsheet, ranges=LESCranges).execute()
 
         ranges = result.get('valueRanges', [])
+        # ranges2 = result2.get('valueRanges', [])
         print('{0} ranges retrieved.'.format(len(ranges)))
 
     except Exception as err:
@@ -115,11 +117,11 @@ def getDataFromGoogleSheets():
                 # Print columns A and E, which correspond to indices 0 and 4.
                 print(row)
                 None
-    return ranges
+    return ranges #, ranges2
 
 def formatRosters(ranges):
     d1 = ranges[0].get('values',[])
-    d2 = ranges[6].get('values',[])
+    d2 = ranges[1].get('values',[])
     header = d1[0]
     roster=[]
     for row in range(2,len(d1)):
@@ -137,8 +139,8 @@ def formatRosters(ranges):
     return roster
 
 def formatStandings(ranges):
-    d1 = ranges[1].get('values',[])
-    d2 = ranges[7].get('values',[])
+    d1 = ranges[2].get('values',[])
+    d2 = ranges[3].get('values',[])
     d1[0][0]='Rank' #currently null cell
     d2[0][0]='Rank' #currently null cell
     standings = {}
@@ -203,10 +205,9 @@ def getMatches(ranges):
     matches = {'us': [], 'eu': []}
     matches = {'upper':[], 'lower':[]}
     temp = ranges[4].get('values',[])
-    # for week in [4,6,8,10]:
     print('===========\nweek')
     print('upper')
-    for week in [2,3,4,5]:
+    for week in [4,6,8,10]:
         values = ranges[week].get('values',[])
         for i in range(len(values)):
             # print(i,' - ', len(values[i]), ' - ', values[i])
@@ -226,32 +227,7 @@ def getMatches(ranges):
 
                 tempM = {}
                 print(range(len(values[i])))
-                # for j in range(len(values[i])):
-                #     # print('j=',j)
-                #
-                #     # print('try ', values[i][j])
-                #     tempM[j]= values[i][j]
-                #
-                # print(tempM)
-                # tempData= {
-                #     'home': '',
-                #     'away': '',
-                #     'day': '',
-                #     'date': '',
-                #     'time': '',
-                #     'commentators': '',
-                #     'result': ''
-                #     }
-                # # matches['us'].append({
-                # matches['upper'].append({
-                #     'home': tempData['home'],
-                #     'away': tempData['away'],
-                #     'day': tempData['day'],
-                #     'date': tempData['date'],
-                #     'time': tempData['time'],
-                #     'commentators': tempData['commentators'],
-                #     'result': tempData['result']
-                #     })
+
                 matches['upper'].append({
                     'home': home,
                     'away': away,
@@ -261,10 +237,8 @@ def getMatches(ranges):
                     'commentators': commentators,
                     'result': result
                     })
-
-    # for week in [5,7,9,11]:
     print('lower')
-    for week in [8,9,10,11]:
+    for week in [5,7,9,11]:
         values = ranges[week].get('values',[])
         for i in range(len(values)):
             print(i,' - ', len(values[i]), ' - ', values[i])
@@ -308,18 +282,20 @@ def getMatches(ranges):
 
 
 if __name__ == '__main__':
-    db=getDataFromGoogleSheets()
+
+    db, db2 =getDataFromGoogleSheets()
     if db:
         print('PASS')
-    # matchesDB = getMatches(db)
-    # print(matchesDB)
+    matchesDB = getMatches(db)
+    print(matchesDB)
     roster = {}
+    roster['LESC1']=formatRosters(db2)
     roster['LESC2']=formatRosters(db)
     print(roster)
     # awards={}
     # awards['LESC1']=formatAwards(db)
-    # standings={}
-    # standings['LESC2']=formatStandings(db)
+    standings={}
+    standings['LESC2']=formatStandings(db)
     # print(standings)
     # playoffList=teamsInPlayoffs(db)
     # awardsTable = getAwards(db)

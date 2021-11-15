@@ -36,9 +36,10 @@ def updateFromGoogleSheets():
     try:
         # get db info from googleSheets
         print('loading data from google sheets...')
-        global LESC_DB
-        LESC_DB = googleSheets.getDataFromGoogleSheets()
-        rc.setValue(key='lesc_db',value=LESC_DB)
+        # global LESC_DB
+        LESC_DB = googleSheets.getDataFromGoogleSheets() #current season only
+        #sync existing and new data
+        rc.setValue(key='lesc2_db',value=LESC_DB) # overwrite
 
     except Exception as e:
         msg =  log.send(e)
@@ -57,6 +58,9 @@ async def on_ready():
     global log
     log = client.get_channel(logChannel)
 
+    step = 'updateFromGoogleSheets'
+    updateFromGoogleSheets()
+
     global rc
     rc=redisDB()
 
@@ -64,10 +68,12 @@ async def on_ready():
         # get db info from googleSheets
         print('loading data from google sheets...')
         step = 'redis DB'
-        global LESC_DB
-        # LESC_DB = googleSheets.getDataFromGoogleSheets()
-        # rc.setValue(key='lesc_db',value=LESC_DB)
+        # global LESC_DB
+        # LESC2_DB = googleSheets.getDataFromGoogleSheets()
+        # rc.setValue(key='lesc2_db',value=LESC2_DB)
+
         LESC1_DB = rc.getValue('lesc_db') #LESC1
+        LESC2_DB = rc.getValue('lesc2_db') #LESC2
 
 
         print('formating rosters...')
@@ -75,6 +81,7 @@ async def on_ready():
         global team_db
         team_db={}
         team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
+        team_db['LESC2'] = googleSheets.formatRosters(LESC2_DB)
         # rc.setValue(key='rosters',value=team_db)
 
         print('formating standings...')
@@ -82,9 +89,12 @@ async def on_ready():
         global standings_db
         standings_db = {}
         standings_db['LESC1'] = googleSheets.formatStandings(LESC1_DB)
+        standings_db['LESC2'] = googleSheets.formatStandings(LESC2_DB)
         # rc.setValue(key='standings',value=standings_db)
         playoffList=googleSheets.teamsInPlayoffs(LESC1_DB)
+        playoffList=googleSheets.teamsInPlayoffs(LESC2_DB)
         awardsTable = googleSheets.getAwards(LESC1_DB)
+        awardsTable = googleSheets.getAwards(LESC2_DB)
 
         print('generating profiles...')
         step = 'profiles'
@@ -112,6 +122,7 @@ async def on_ready():
         global matches_db
         matches_db = {}
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
+        matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
 
         # get guild
         # print(client.guilds[0].name)
