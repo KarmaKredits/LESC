@@ -226,9 +226,7 @@ async def teams(ctx,*args):
             season = 2
 
     print(division)
-    if len(division)<1 and season == 1:
-        division = [1,2]
-    elif len(division)<1:
+    if len(division)<1:
         division = [1,2]
 
     embedTitle='LESC Season ' + str(season) + ' Teams'
@@ -257,31 +255,30 @@ async def teams(ctx,*args):
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
-    season = '2' #default to current
+    season = 2 #default to current
+    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
     for arg in args:
-        if arg.lower() == 'eu':
-            division.append('EU')
-        elif arg.lower() == 'us':
-            division.append('US')
-        elif arg.lower() == 'upper':
-            division.append('upper')
-        elif arg.lower() == 'lower':
-            division.append('lower')
-        elif arg == '1':
-            season = '1'
+        if arg == '1':
+            season = 1
         elif arg == '2':
-            season = '2'
+            season = 2
+        elif arg.lower() == 'eu':
+            division.append(2)
+            season = 1
+        elif arg.lower() == 'us':
+            division.append(1)
+            season = 1
+        elif arg.lower() == 'upper':
+            division.append(1)
+        elif arg.lower() == 'lower':
+            division.append(2)
 
-    if len(division)<1 and season == 1:
-        division = ['US','EU']
-    elif len(division)<1:
-        division = ['upper','lower']
-
+    if len(division)<1:
+        division = [1,2]
 
     for div in division:
-        matches = standings_db['LESC'+season][div]
-        if len(div) > 3: div = div.capitalize()
-        title = '**LESC Season ' + season + ' - '+ div +' Standings**\n'
+        matches = standings_db['LESC'+str(season)][div]
+        title = '**LESC Season ' + str(season) + ' - '+ seaDiv[season][div] +' Standings**\n'
         string = ''
         temp = ''
         coln=len(matches[0])-1

@@ -144,8 +144,8 @@ def formatStandings(ranges):
     d1[0][0]='Rank' #currently null cell
     d2[0][0]='Rank' #currently null cell
     standings = {}
-    standings['upper']=d1
-    standings['lower']=d2
+    standings[1]=d1
+    standings[2]=d2
     return standings
 
 def generateProfiles(roster,playoff=[],awardTable=[]):
