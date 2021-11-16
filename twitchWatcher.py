@@ -98,43 +98,43 @@ if __name__ == '__main__':
     user_list = getUserIDFromLogin('&login='.join(streamerlist))
     # user_list = getUserIDFromLogin('gingersoccermom')
     # print(user_list)
-    now = datetime.utcnow()
-    for user in user_list:
-        # print(user['id'], '\n')
-        sched = getScheduleFromUserID(user['id'])
-        # print(sched)
-        print(user['display_name'])
-        if len(sched)>0:
-            print(sched[0]['title'])
-            if sched[0]['category'] != None: print(sched[0]['category']['name'])
-            print(sched[0]['start_time'])
-            dt_start = datetime.strptime(sched[0]['start_time'], '%Y-%m-%dT%H:%M:%SZ')
-            delta = dt_start - now
-            print(delta.total_seconds())
-        else:
-            print('No Schedule')
-        print('')
+    # now = datetime.utcnow()
+    # for user in user_list:
+    #     # print(user['id'], '\n')
+    #     sched = getScheduleFromUserID(user['id'])
+    #     # print(sched)
+    #     print(user['display_name'])
+    #     if len(sched)>0:
+    #         print(sched[0]['title'])
+    #         if sched[0]['category'] != None: print(sched[0]['category']['name'])
+    #         print(sched[0]['start_time'])
+    #         dt_start = datetime.strptime(sched[0]['start_time'], '%Y-%m-%dT%H:%M:%SZ')
+    #         delta = dt_start - now
+    #         print(delta.total_seconds())
+    #     else:
+    #         print('No Schedule')
+    #     print('')
 
     # time = 0
     # print('&user_login='.join(streamerlist))
     # print(getStreamsFromLogin('&user_login='.join(streamerlist)))
 
-    # searchTerm = ''
-    # for streamer in streamerlist:
-    #     stream = getStreamsFromLogin(streamer)
-    #     print(streamer, stream)
-    #
-    #     if len(stream) > 0:
-    #         id = str(stream[0]['id'])
-    #         print(id)
-    #         channel = getChannelFromUserID(id)
-    #         print(channel)
-    #         print(streamer, 'on')
-    #         print(stream[0]['title'])
-    #         if searchTerm in stream[0]['title']:
-    #             print('found')
-    #             timeStr = stream[0]['started_at']
-    #             time = datetime.strptime(timeStr, '%Y-%m-%dT%H:%M:%SZ')
-    #             print(time)
-    #             print(datetime.utcnow())
-    #             print(datetime.utcnow()-time)
+    searchTerm = 'AY'
+    for streamer in streamerlist:
+        stream = getStreamsFromLogin(streamer)
+        print(streamer, stream)
+
+        if len(stream) > 0:
+            id = str(stream[0]['id'])
+            print(id)
+            # channel = getChannelFromUserID(id)
+            # print(channel)
+            print(streamer, 'on')
+            print(stream[0]['title'])
+            if searchTerm in stream[0]['title']:
+                print('found')
+                timeStr = stream[0]['started_at']
+                time = datetime.strptime(timeStr, '%Y-%m-%dT%H:%M:%SZ')
+                print(time)
+                print(datetime.utcnow())
+                print(datetime.utcnow()-time)
