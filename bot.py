@@ -27,6 +27,7 @@ testGuild=183763588870176768
 logChannel=866129852708814858
 log = None
 last_sorted_list = []
+last_live = []
 
 def updateFromGoogleSheets():
     try:
@@ -596,6 +597,7 @@ async def streams(ctx, arg = ''):
 
 async def twitchAlerts():
     global last_sorted_list
+    global last_live
     print('twitchAlert check')
     tw.getToken()
     user_list = tw.getUserIDFromLogin('&login='.join(tw.streamerlist))
@@ -632,6 +634,7 @@ async def twitchAlerts():
             delta = delta - timedelta(microseconds=delta.microseconds)
             if delta.total_seconds()<-300:
                 None
+                print(user)
                 print('less than 300')
             else:
                 login_name = user['login']
@@ -676,12 +679,21 @@ async def twitchAlerts():
 
     last_sorted_list = sorted_list_check
 
-    if len(lesc_live)>0:
+    print('lesc_live:\n',lesc_live)
+    print('last_live:\n',last_live)
+    if len(lesc_live)>0 and (lesc_live != last_live):
+        print('diff')
+        send = False
         embed2 = discord.Embed(title='LESC LIVE', color=0xffffff)
         embed2.set_footer(text = 'DM KarmaKredits to be added to streamer list')
         for item in lesc_live:
-            embed2.add_field(name = item['data']['name'], value = item['data']['value'], inline = True)
+            if (item not in last_live):
+                print('item not in last_live')
+                embed2.add_field(name = item['data']['name'], value = item['data']['value'], inline = True)
+                send = True
+        if send:
             await log.send(embed=embed2)
+    last_live = lesc_live
 
     return next_time
 
