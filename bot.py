@@ -35,8 +35,9 @@ def updateFromGoogleSheets():
         # global LESC_DB
         LESC_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
-        rc = redisDB()
-        rc.setValue(key='lesc2_db',value=LESC_DB) # overwrite
+        if LESC_DB is not None:
+            rc = redisDB()
+            rc.setValue(key='lesc2_db',value=LESC_DB) # overwrite
 
     except Exception as e:
         msg =  log.send(e)
@@ -55,8 +56,14 @@ async def on_ready():
     global log
     log = client.get_channel(logChannel)
 
-    step = 'updateFromGoogleSheets'
-    updateFromGoogleSheets()
+    try:
+        step = 'updateFromGoogleSheets'
+        updateFromGoogleSheets()
+    except Exception as e:
+        msg = await log.send(e)
+        newcontent = step + ':\n' + msg.content
+        await msg.edit(content=newcontent)
+        pass
 
     global rc
     rc=redisDB()
