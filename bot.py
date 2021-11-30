@@ -27,6 +27,7 @@ testGuild=183763588870176768
 logChannel=866129852708814858
 log = None
 last_sorted_list = []
+last_live = []
 
 def updateFromGoogleSheets():
     try:
@@ -603,6 +604,7 @@ async def streams(ctx, arg = ''):
 
 async def twitchAlerts():
     global last_sorted_list
+    global last_live
     print('twitchAlert check')
     tw.getToken()
     user_list = tw.getUserIDFromLogin('&login='.join(tw.streamerlist))
@@ -610,6 +612,9 @@ async def twitchAlerts():
     embed.set_footer(text = 'DM KarmaKredits to be added to streamer list')
     now = datetime.utcnow()
     list = []
+    lesc_live = []
+    live=False
+    searchTerms = ['lesc','league of extraordinary soccer cars','']
     next_time = None
     for user in user_list:
         sched = tw.getScheduleFromUserID(user['id'])
@@ -623,6 +628,12 @@ async def twitchAlerts():
             login = stream[0]['user_login']
             dt_start = datetime.strptime(stream[0]['started_at'], '%Y-%m-%dT%H:%M:%SZ')
             list.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
+            live=True
+            # LIVE LESC Stream
+            for term in searchTerms:
+                if term in stream[0]['title'].lower():
+                    lesc_live.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
+
         elif len(sched)>0:
             start_time = sched[0]['start_time']
             dt_start = datetime.strptime(sched[0]['start_time'], '%Y-%m-%dT%H:%M:%SZ')
@@ -630,6 +641,7 @@ async def twitchAlerts():
             delta = delta - timedelta(microseconds=delta.microseconds)
             if delta.total_seconds()<-300:
                 None
+                print(user)
                 print('less than 300')
             else:
                 login_name = user['login']
@@ -667,12 +679,28 @@ async def twitchAlerts():
     if next_time == None: next_time = 12*60*60
     else: next_time = math.floor(next_time/2)
     # print('post',next_time)
-    if (next_time <30 and next_time >= 0) or (sorted_list_check != last_sorted_list and last_sorted_list != []):
+    if live and ((next_time <30 and next_time >= 0) or (sorted_list_check != last_sorted_list and last_sorted_list != [])):
         print('next_time <60 and next_time > 0', next_time)
         print('sorted_list != last_sorted_list and last_sorted_list != []',sorted_list_check, last_sorted_list)
         await log.send(embed=embed)
 
     last_sorted_list = sorted_list_check
+
+    print('lesc_live:\n',lesc_live)
+    print('last_live:\n',last_live)
+    if len(lesc_live)>0 and (lesc_live != last_live):
+        print('diff')
+        send = False
+        embed2 = discord.Embed(title='LESC LIVE', color=0xffffff)
+        embed2.set_footer(text = 'DM KarmaKredits to be added to streamer list')
+        for item in lesc_live:
+            if (item not in last_live):
+                print('item not in last_live')
+                embed2.add_field(name = item['data']['name'], value = item['data']['value'], inline = True)
+                send = True
+        if send:
+            await log.send(embed=embed2)
+    last_live = lesc_live
 
     return next_time
 
