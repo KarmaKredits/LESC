@@ -20,22 +20,22 @@ def generateCreds():
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         print('creds bad')
-        if creds and creds.expired and creds.refresh_token:
-            print('refresh creds')
-            creds.refresh(Request())
-        else:
-            print('flow')
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            # flow = Flow(oauth2session, client_type, client_config, redirect_uri=None, code_verifier=None, autogenerate_code_verifier=False)
+        # if creds and creds.expired and creds.refresh_token:
+        #     print('refresh creds')
+        #     creds.refresh(Request())
+        # else:
+        print('flow')
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', SCOPES)
+        # flow = Flow(oauth2session, client_type, client_config, redirect_uri=None, code_verifier=None, autogenerate_code_verifier=False)
 
-            creds = flow.run_local_server(port=0)
+        creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
             print('write token')
             token.write(creds.to_json())
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    creds = flow.run_local_server(port=0)
+    # creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # creds = flow.run_local_server(port=0)
 
 
 if __name__ == '__main__':
