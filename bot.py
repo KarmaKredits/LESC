@@ -736,7 +736,8 @@ async def twitchAlerts():
             await log.send(embed=embed2)
     last_live = lesc_live
 
-    return next_time
+    # return next_time
+    return 120
 
 async def cycle(seconds):
     # print('cycle start', 'execute twitch Alerts')
