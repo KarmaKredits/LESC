@@ -669,8 +669,9 @@ async def twitchAlerts():
         discordId = tw.streamDiscordId[twName]
         print(twName,discordId)
         member = guildLESC.get_member(discordId)
+        print(member)
         # guildLESC.get_member(discordId)
-        if twName in lesc_live:
+        if twName in role_LESC:
             print('LESC')
             try: member.add_roles(lescRoleID)
             except Exception as e:
@@ -680,7 +681,7 @@ async def twitchAlerts():
             except Exception as e:
                 print('live remove', e)
                 pass
-        elif twName in other_live:
+        elif twName in role_live:
             print('LIVE')
             try: member.add_roles(liveRoleID)
             except Exception as e:
