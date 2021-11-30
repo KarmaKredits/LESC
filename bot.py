@@ -133,6 +133,7 @@ async def on_ready():
 
         # get guild
         # print(client.guilds[0].name)
+        global guildLESC
         guildLESC = client.get_guild(183763588870176768)
         # print(guildLESC)
 
@@ -613,8 +614,11 @@ async def twitchAlerts():
     now = datetime.utcnow()
     list = []
     lesc_live = []
+    other_live = []
+    role_live = []
+    role_LESC = []
     live=False
-    searchTerms = ['lesc','league of extraordinary soccer cars','']
+    searchTerms = ['lesc','league of extraordinary soccer cars']
     next_time = None
     for user in user_list:
         sched = tw.getScheduleFromUserID(user['id'])
@@ -633,6 +637,10 @@ async def twitchAlerts():
             for term in searchTerms:
                 if term in stream[0]['title'].lower():
                     lesc_live.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
+                    role_LESC.append(user_name)
+                else:
+                    other_live.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
+                    role_live.append(user_name)
 
         elif len(sched)>0:
             start_time = sched[0]['start_time']
@@ -654,6 +662,32 @@ async def twitchAlerts():
                 if next_time == None: next_time = secs_til
                 elif secs_til < next_time: next_time = secs_til
                 list.append({'time' : dt_start, 'data' : { 'name' : display_name, 'value' : title + '\nGame: ' + game + '\n Starting in T-' + str(delta)}})
+    #manage roles
+    liveRoleID=915269257904939039
+    lescRoleID=915268612137295892
+    for twName in tw.streamDiscordId:
+        discordId = tw.streamDiscordId[twName]
+        member = guildLESC.get_member(discordId)
+        # guildLESC.get_member(discordId)
+        if twName in lesc_live:
+            try: member.add_roles(lescRoleID)
+            except: pass
+            try: member.remove_roles(liveRoleID)
+            except: pass
+        elif twName in other_live:
+            try: member.add_roles(liveRoleID)
+            except: pass
+            try: member.remove_roles(lescRoleID)
+            except: pass
+        else:
+            try: member.remove_roles(liveRoleID)
+            except: pass
+            try: member.remove_roles(lescRoleID)
+            except: pass
+    # live_memebers = guildLESC.get_role(liveRoleID).members
+    # lesc_members = guildLESC.get_role(lescRoleID).members
+
+
     #sort list
     sorted_list = []
     # for spot in range(len(list)):
