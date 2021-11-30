@@ -11,12 +11,17 @@ load_dotenv()
 CLIENT_ID = os.getenv(key='TWITCH_CLIENT_ID')
 SECRET  = os.getenv(key='TWITCH_SECRET')
 
+streamDiscordId = {
+    'gingersoccermom': '644839166324244489','ragdoll139': '328997596242903040',
+    'itsruddyy': '218166348235276290','theleakygiraffe': '',
+    'midoriin4k': '197506166874570752','soundsofthewild':'273594567385939970',
+    'skrupstar':'249263220026638347','enjib':'187618513911808000'}
 # driver = webdriver.Chrome(options=chrome_options)
 # driver.get("https://youtube.com")
 streamerlist = ['gingersoccermom','ragdoll139','itsruddyy','theleakygiraffe','midoriin4k',
                 'soundsofthewild','Shwa_zee','chillcatdad','benny07','csmith_games',
                 'itsjeffguy','arkwav','xxvhpxx','dannyofthepaul','bigfootmcgroot',
-                'r4lplays','tuffavocado','kylure','laggittarius','skrupstar']
+                'r4lplays','tuffavocado','kylure','laggittarius','skrupstar','enjib']
 game_name = 'Rocket League'
 key_words = ['LESC','League of Extraordinary Soccer Cars']
 
@@ -98,43 +103,43 @@ if __name__ == '__main__':
     user_list = getUserIDFromLogin('&login='.join(streamerlist))
     # user_list = getUserIDFromLogin('gingersoccermom')
     # print(user_list)
-    now = datetime.utcnow()
-    for user in user_list:
-        # print(user['id'], '\n')
-        sched = getScheduleFromUserID(user['id'])
-        # print(sched)
-        print(user['display_name'])
-        if len(sched)>0:
-            print(sched[0]['title'])
-            if sched[0]['category'] != None: print(sched[0]['category']['name'])
-            print(sched[0]['start_time'])
-            dt_start = datetime.strptime(sched[0]['start_time'], '%Y-%m-%dT%H:%M:%SZ')
-            delta = dt_start - now
-            print(delta.total_seconds())
-        else:
-            print('No Schedule')
-        print('')
+    # now = datetime.utcnow()
+    # for user in user_list:
+    #     # print(user['id'], '\n')
+    #     sched = getScheduleFromUserID(user['id'])
+    #     # print(sched)
+    #     print(user['display_name'])
+    #     if len(sched)>0:
+    #         print(sched[0]['title'])
+    #         if sched[0]['category'] != None: print(sched[0]['category']['name'])
+    #         print(sched[0]['start_time'])
+    #         dt_start = datetime.strptime(sched[0]['start_time'], '%Y-%m-%dT%H:%M:%SZ')
+    #         delta = dt_start - now
+    #         print(delta.total_seconds())
+    #     else:
+    #         print('No Schedule')
+    #     print('')
 
     # time = 0
     # print('&user_login='.join(streamerlist))
     # print(getStreamsFromLogin('&user_login='.join(streamerlist)))
 
-    # searchTerm = ''
-    # for streamer in streamerlist:
-    #     stream = getStreamsFromLogin(streamer)
-    #     print(streamer, stream)
-    #
-    #     if len(stream) > 0:
-    #         id = str(stream[0]['id'])
-    #         print(id)
-    #         channel = getChannelFromUserID(id)
-    #         print(channel)
-    #         print(streamer, 'on')
-    #         print(stream[0]['title'])
-    #         if searchTerm in stream[0]['title']:
-    #             print('found')
-    #             timeStr = stream[0]['started_at']
-    #             time = datetime.strptime(timeStr, '%Y-%m-%dT%H:%M:%SZ')
-    #             print(time)
-    #             print(datetime.utcnow())
-    #             print(datetime.utcnow()-time)
+    searchTerm = 'AY'
+    for streamer in streamerlist:
+        stream = getStreamsFromLogin(streamer)
+        print(streamer, stream)
+
+        if len(stream) > 0:
+            id = str(stream[0]['id'])
+            print(id)
+            # channel = getChannelFromUserID(id)
+            # print(channel)
+            print(streamer, 'on')
+            print(stream[0]['title'])
+            if searchTerm in stream[0]['title']:
+                print('found')
+                timeStr = stream[0]['started_at']
+                time = datetime.strptime(timeStr, '%Y-%m-%dT%H:%M:%SZ')
+                print(time)
+                print(datetime.utcnow())
+                print(datetime.utcnow()-time)
