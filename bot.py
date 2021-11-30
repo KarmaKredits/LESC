@@ -134,9 +134,12 @@ async def on_ready():
         # get guild
         # print(client.guilds[0].name)
         global guildLESC
-        guildLESC = client.get_guild(183763588870176768)
+        guildLESC = client.get_guild(835907044024123473)
         # print(guildLESC)
-
+        global guildTEST
+        guildTEST = client.get_guild(183763588870176768)
+        print(guildTEST)
+        print(client.get_guild(183763588870176768))
         step = 'keys'
         rc.printKeys()
 
@@ -665,6 +668,8 @@ async def twitchAlerts():
     #manage roles
     liveRoleID=915269257904939039
     lescRoleID=915268612137295892
+    print(guildLESC)
+    print(guildTEST)
     for twName in tw.streamDiscordId:
         discordId = tw.streamDiscordId[twName]
         print(twName,discordId)
