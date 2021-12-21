@@ -25,7 +25,9 @@ client = commands.Bot(command_prefix = '.')
 lescTitle='The League of Extraordinary Soccer Cars'
 testGuild=183763588870176768
 logChannel=866129852708814858
+lescLiveChannelID = 890650216909406288
 log = None
+lescLiveChannel = None
 last_sorted_list = []
 last_live = []
 
@@ -56,6 +58,12 @@ async def on_ready():
 
     global log
     log = client.get_channel(logChannel)
+
+    step = 'lescLiveChannel'
+    try:
+        lescLiveChannel = client.get_channel(logChannel)
+    except:
+        pass
 
     try:
         step = 'updateFromGoogleSheets'
@@ -670,42 +678,44 @@ async def twitchAlerts():
     lescRoleID=915268612137295892
     print(guildLESC)
     print(guildTEST)
-    for twName in tw.streamDiscordId:
-        discordId = tw.streamDiscordId[twName]
-        print(twName,discordId)
-        member = guildLESC.get_member(discordId)
-        print(member)
-        # guildLESC.get_member(discordId)
-        if twName in role_LESC:
-            print('LESC')
-            try: member.add_roles(lescRoleID)
-            except Exception as e:
-                print('lesc add', e)
-                pass
-            try: member.remove_roles(liveRoleID)
-            except Exception as e:
-                print('live remove', e)
-                pass
-        elif twName in role_live:
-            print('LIVE')
-            try: member.add_roles(liveRoleID)
-            except Exception as e:
-                print('live add', e)
-                pass
-            try: member.remove_roles(lescRoleID)
-            except Exception as e:
-                print('lesc remove', e)
-                pass
-        else:
-            print('None')
-            try: member.remove_roles(liveRoleID)
-            except Exception as e:
-                print('live remove', e)
-                pass
-            try: member.remove_roles(lescRoleID)
-            except Exception as e:
-                print('lesc remove', e)
-                pass
+    try:
+        for twName in tw.streamDiscordId:
+            discordId = tw.streamDiscordId[twName]
+            print(twName,discordId)
+            member = guildLESC.get_member(discordId)
+            print(member)
+            # guildLESC.get_member(discordId)
+            if twName in role_LESC:
+                print('LESC')
+                try: member.add_roles(lescRoleID)
+                except Exception as e:
+                    print('lesc add', e)
+                    pass
+                try: member.remove_roles(liveRoleID)
+                except Exception as e:
+                    print('live remove', e)
+                    pass
+            elif twName in role_live:
+                print('LIVE')
+                try: member.add_roles(liveRoleID)
+                except Exception as e:
+                    print('live add', e)
+                    pass
+                try: member.remove_roles(lescRoleID)
+                except Exception as e:
+                    print('lesc remove', e)
+                    pass
+            else:
+                print('None')
+                try: member.remove_roles(liveRoleID)
+                except Exception as e:
+                    print('live remove', e)
+                    pass
+                try: member.remove_roles(lescRoleID)
+                except Exception as e:
+                    print('lesc remove', e)
+                    pass
+    except: pass
     # live_memebers = guildLESC.get_role(liveRoleID).members
     # lesc_members = guildLESC.get_role(lescRoleID).members
 
@@ -756,6 +766,8 @@ async def twitchAlerts():
                 send = True
         if send:
             await log.send(embed=embed2)
+            if lescLiveChannel != None:
+                await lescLiveChannel.send(embed=embed2)
     last_live = lesc_live
 
     # return next_time
