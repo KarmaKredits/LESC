@@ -30,7 +30,9 @@ testGuild=183763588870176768
 guildTESTID = 183763588870176768
 guildLESCID = 835907044024123473
 logChannel=866129852708814858
+lescLiveChannelID = 890650216909406288
 log = None
+lescLiveChannel = None
 last_sorted_list = []
 last_live = []
 
@@ -61,6 +63,12 @@ async def on_ready():
 
     global log
     log = client.get_channel(logChannel)
+
+    step = 'lescLiveChannel'
+    try:
+        lescLiveChannel = client.get_channel(logChannel)
+    except:
+        pass
 
     try:
         step = 'updateFromGoogleSheets'
@@ -691,6 +699,7 @@ async def twitchAlerts():
                 elif secs_til < next_time: next_time = secs_til
                 list.append({'time' : dt_start, 'data' : { 'name' : display_name, 'value' : title + '\nGame: ' + game + '\n Starting in T-' + str(delta)}})
 
+
     print('role_LESC:\n',role_LESC)
     print('role_live:\n',role_live)
     #manage roles
@@ -742,6 +751,8 @@ async def twitchAlerts():
                 send = True
         if send:
             await log.send(embed=embed2)
+            if lescLiveChannel != None:
+                await lescLiveChannel.send(embed=embed2)
     last_live = lesc_live
 
     # return next_time

@@ -26,7 +26,8 @@ streamerlist = ['gingersoccermom','ragdoll139','rudbud','theleakygiraffe','midor
                 'soundsofthewild','shwa_zee','chillcatdad','benny07','csmith_games',
                 'itsjeffguy','arkwav','xxvhpxx','dannyofthepaul','bigfootmcgroot',
                 'r4lplays','tuffavocado','kylure','laggittarius','skrupstar','enjib',
-                'elekidp06']
+                'elekidp06', 'skilltwister']
+
 game_name = 'Rocket League'
 key_words = ['LESC','League of Extraordinary Soccer Cars']
 
