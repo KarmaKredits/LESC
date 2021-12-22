@@ -66,7 +66,9 @@ async def on_ready():
 
     step = 'lescLiveChannel'
     try:
-        lescLiveChannel = client.get_channel(logChannel)
+        global lescLiveChannel
+        lescLiveChannel = client.get_channel(lescLiveChannelID)
+        print('?????????????????????')
     except:
         pass
 
@@ -757,9 +759,10 @@ async def twitchAlerts():
             if lescLiveChannel != None:
                 await lescLiveChannel.send(embed=embed2)
     last_live = lesc_live
+    # max time to wait 10 minutes
     if next_time > 600: next_time = 600
-    # return next_time
-    return 90
+    return next_time
+    # return 90
 
 async def roleCheck(role_LESC = [], role_live = []):
     print('args: ', role_LESC, role_live)
@@ -784,7 +787,7 @@ async def roleCheck(role_LESC = [], role_live = []):
                 print(lescRole)
                 member = await role[guildID]['guild'].fetch_member(discordId)
                 print('member: ', member)
-                print('member roles: ', member.roles)
+                # print('member roles: ', member.roles)
                 # await log.send(member)
                 # guildLESC.get_member(discordId)
                 if twName in role_LESC:
