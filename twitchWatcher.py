@@ -18,8 +18,8 @@ streamDiscordId = {
     'midoriin4k': '197506166874570752','soundsofthewild':273594567385939970,
     'skrupstar':'249263220026638347','enjib':'187618513911808000',
     'skilltwister': 300638405618958338, 'elekidp06': 300725739114987523,
-    'shwa_zee': 169641021519560707}
-streamDiscordId= {'ragdoll139': 328997596242903040,'rudbud':'174714475113480192'} #test with my id
+    'shwa_zee': 169641021519560707, 'kylure': 182367682811658240}
+# streamDiscordId= {'ragdoll139': 328997596242903040,'rudbud':'174714475113480192'} #test with my id
 # driver = webdriver.Chrome(options=chrome_options)
 # driver.get("https://youtube.com")
 streamerlist = ['gingersoccermom','ragdoll139','rudbud','theleakygiraffe','midoriin4k',
