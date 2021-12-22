@@ -14,16 +14,19 @@ SECRET  = os.getenv(key='TWITCH_SECRET')
 
 streamDiscordId = {
     'gingersoccermom': 644839166324244489,'ragdoll139': 328997596242903040,
-    'rudbud': '218166348235276290','theleakygiraffe': '',
+    'rudbud': '218166348235276290','theleakygiraffe': '362175989205172226',
     'midoriin4k': '197506166874570752','soundsofthewild':273594567385939970,
-    'skrupstar':'249263220026638347','enjib':'187618513911808000'}
-streamDiscordId= {'ragdoll139': 328997596242903040,'kylure':'174714475113480192'} #test with my id
+    'skrupstar':'249263220026638347','enjib':'187618513911808000',
+    'skilltwister': 300638405618958338, 'elekidp06': 300725739114987523,
+    'shwa_zee': 169641021519560707}
+streamDiscordId= {'ragdoll139': 328997596242903040,'rudbud':'174714475113480192'} #test with my id
 # driver = webdriver.Chrome(options=chrome_options)
 # driver.get("https://youtube.com")
 streamerlist = ['gingersoccermom','ragdoll139','rudbud','theleakygiraffe','midoriin4k',
-                'soundsofthewild','Shwa_zee','chillcatdad','benny07','csmith_games',
+                'soundsofthewild','shwa_zee','chillcatdad','benny07','csmith_games',
                 'itsjeffguy','arkwav','xxvhpxx','dannyofthepaul','bigfootmcgroot',
-                'r4lplays','tuffavocado','kylure','laggittarius','skrupstar','enjib']
+                'r4lplays','tuffavocado','kylure','laggittarius','skrupstar','enjib',
+                'elekidp06']
 game_name = 'Rocket League'
 key_words = ['LESC','League of Extraordinary Soccer Cars']
 

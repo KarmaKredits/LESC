@@ -769,7 +769,7 @@ async def roleCheck(role_LESC,role_live):
                 print(lescRole)
                 member = await role[guildID]['guild'].fetch_member(discordId)
                 print(member,member.roles)
-                await log.send(member)
+                # await log.send(member)
                 # guildLESC.get_member(discordId)
                 print(twName, role_LESC)
                 print(twName, role_live)
