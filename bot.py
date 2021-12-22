@@ -149,7 +149,7 @@ async def on_ready():
         global guildLESC
         guildLESC = None
         try:
-            guildLESC = await client.get_guild(guildLESCID)
+            guildLESC = client.get_guild(guildLESCID)
         except: pass
         print('+++++++++++++++++++++++')
         print(guildLESC)
