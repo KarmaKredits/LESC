@@ -651,10 +651,12 @@ async def twitchAlerts():
     searchTerms = ['lesc','league of extraordinary soccer cars']
     next_time = None
     for user in user_list:
+        print(user['login'])
         sched = tw.getScheduleFromUserID(user['id'])
         if sched == None: sched = []
         stream = tw.getStreamsFromLogin(user['login'])
         if stream == None: stream = []
+        print(stream)
         if len(stream) > 0:
             user_name = stream[0]['user_name']
             game_name = stream[0]['game_name']
@@ -673,11 +675,11 @@ async def twitchAlerts():
             if foundTerm:
                 lesc_live.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
                 role_LESC.append(login)
-                print(user_name,'added to LESC')
+                print(user_name, 'added to LESC')
             else:
                 other_live.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
                 role_live.append(login)
-                print(user_name,'added to live')
+                print(user_name, 'added to live')
 
         elif len(sched)>0:
             start_time = sched[0]['start_time']
@@ -699,12 +701,12 @@ async def twitchAlerts():
                 elif secs_til < next_time: next_time = secs_til
                 list.append({'time' : dt_start, 'data' : { 'name' : display_name, 'value' : title + '\nGame: ' + game + '\n Starting in T-' + str(delta)}})
 
-
-    print('role_LESC:\n',role_LESC)
-    print('role_live:\n',role_live)
+    print('======================================================')
+    print('role_LESC:',role_LESC)
+    print('role_live:',role_live)
     #manage roles
-    await roleCheck(role_LESC,role_live)
-
+    await roleCheck(role_LESC, role_live)
+    print('----------------------------------------------------')
     #sort list
     sorted_list = []
     # for spot in range(len(list)):
@@ -754,16 +756,17 @@ async def twitchAlerts():
             if lescLiveChannel != None:
                 await lescLiveChannel.send(embed=embed2)
     last_live = lesc_live
-
+    if next_time > 600: next_time = 600
     # return next_time
-    return 120
+    return 90
 
-async def roleCheck(role_LESC,role_live):
+async def roleCheck(role_LESC = [], role_live = []):
+    print('args: ', role_LESC, role_live)
     global guildTEST
     global guildLESC
     role = {
         guildTESTID: {'live' : 915021503731478581, 'lesc' : 915021759667908608, 'guild': guildTEST},
-        guildLESCID: {'live' : 915269257904939039, 'lesc' : 15268612137295892, 'guild': guildLESC}
+        guildLESCID: {'live' : 915269257904939039, 'lesc' : 915268612137295892, 'guild': guildLESC}
     }
 
     # print(guildLESC)
@@ -772,53 +775,65 @@ async def roleCheck(role_LESC,role_live):
         discordId = tw.streamDiscordId[twName]
         print(twName,discordId)
         for guildID in [guildTESTID, guildLESCID]:
+            print('guild: ', role[guildID]['guild'])
             try:
-                print(role[guildID]['guild'])
                 liveRole = role[guildID]['guild'].get_role(role[guildID]['live'])
                 lescRole = role[guildID]['guild'].get_role(role[guildID]['lesc'])
                 print(liveRole)
                 print(lescRole)
                 member = await role[guildID]['guild'].fetch_member(discordId)
-                print(member,member.roles)
+                print('member: ', member)
+                print('member roles: ', member.roles)
                 # await log.send(member)
                 # guildLESC.get_member(discordId)
-                print(twName, role_LESC)
-                print(twName, role_live)
                 if twName in role_LESC:
                     print('LESC in title')
+                    await log.send(twName + ' is LESC')
                     try:
                         await member.add_roles(lescRole)
                     except Exception as e:
                         print('lesc add', e)
+                        # await log.send(e)
                         pass
                     try:
                         await member.remove_roles(liveRole)
                     except Exception as e:
                         print('live remove', e)
+                        # await log.send(e)
                         pass
                 elif twName in role_live:
                     print('is LIVE')
+                    await log.send(twName + ' is Live')
                     try:
                         await member.add_roles(liveRole)
+                        print('role')
                     except Exception as e:
                         print('live add', e)
+                        # await log.send(e)
                         pass
                     try:
                         await member.remove_roles(lescRole)
                     except Exception as e:
                         print('lesc remove', e)
+                        # await log.send(e)
                         pass
                 else:
                     print('Not live')
+                    await log.send(twName + ' Not Live')
                     try: await member.remove_roles(liveRole)
                     except Exception as e:
                         print('live remove', e)
+                        # await log.send(e)
                         pass
                     try: await member.remove_roles(lescRole)
                     except Exception as e:
                         print('lesc remove', e)
+                        # await log.send(e)
                         pass
-            except: pass
+            except Exception as e:
+                print('exception guild:', guildID, '\n', e)
+                # await log.send(e)
+                pass
     # live_memebers = guildLESC.get_role(liveRoleID).members
     # lesc_members = guildLESC.get_role(lescRoleID).members
 
