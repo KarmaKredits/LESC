@@ -777,8 +777,8 @@ async def roleCheck(role_LESC = [], role_live = []):
         for guildID in [guildTESTID, guildLESCID]:
             print('guild: ', role[guildID]['guild'])
             try:
-                liveRole = role[guildID]['guild'].get_role(role[guildID]['live'])
-                lescRole = role[guildID]['guild'].get_role(role[guildID]['lesc'])
+                liveRole = client.get_guild(guildID).get_role(role[guildID]['live'])
+                lescRole = client.get_guild(guildID).get_role(role[guildID]['lesc'])
                 print(liveRole)
                 print(lescRole)
                 member = await role[guildID]['guild'].fetch_member(discordId)
@@ -788,7 +788,7 @@ async def roleCheck(role_LESC = [], role_live = []):
                 # guildLESC.get_member(discordId)
                 if twName in role_LESC:
                     print('LESC in title')
-                    await log.send(twName + ' is LESC')
+                    # await log.send(twName + ' is LESC')
                     try:
                         await member.add_roles(lescRole)
                     except Exception as e:
@@ -803,7 +803,7 @@ async def roleCheck(role_LESC = [], role_live = []):
                         pass
                 elif twName in role_live:
                     print('is LIVE')
-                    await log.send(twName + ' is Live')
+                    # await log.send(twName + ' is Live')
                     try:
                         await member.add_roles(liveRole)
                         print('role')
@@ -819,7 +819,7 @@ async def roleCheck(role_LESC = [], role_live = []):
                         pass
                 else:
                     print('Not live')
-                    await log.send(twName + ' Not Live')
+                    # await log.send(twName + ' Not Live')
                     try: await member.remove_roles(liveRole)
                     except Exception as e:
                         print('live remove', e)
