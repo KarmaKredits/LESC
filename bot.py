@@ -754,24 +754,25 @@ async def twitchAlerts():
             if lescLiveChannel != None:
                 await lescLiveChannel.send(embed=embed2)
     last_live = lesc_live
-
+    if next_time > 600: next_time = 600
     # return next_time
-    return 120
+    return 60
 
 async def roleCheck(role_LESC,role_live):
     global guildTEST
     global guildLESC
     role = {
         guildTESTID: {'live' : 915021503731478581, 'lesc' : 915021759667908608, 'guild': guildTEST},
-        guildLESCID: {'live' : 915269257904939039, 'lesc' : 15268612137295892, 'guild': guildLESC}
+        guildLESCID: {'live' : 915269257904939039, 'lesc' : 915268612137295892, 'guild': guildLESC}
     }
-
+    
     # print(guildLESC)
     print(guildTEST)
     for twName in tw.streamDiscordId:
         discordId = tw.streamDiscordId[twName]
         print(twName,discordId)
         for guildID in [guildTESTID, guildLESCID]:
+            print('guild: ', role[guildID]['guild'])
             try:
                 print(role[guildID]['guild'])
                 liveRole = role[guildID]['guild'].get_role(role[guildID]['live'])
@@ -790,11 +791,13 @@ async def roleCheck(role_LESC,role_live):
                         await member.add_roles(lescRole)
                     except Exception as e:
                         print('lesc add', e)
+                        # await log.send(e)
                         pass
                     try:
                         await member.remove_roles(liveRole)
                     except Exception as e:
                         print('live remove', e)
+                        # await log.send(e)
                         pass
                 elif twName in role_live:
                     print('is LIVE')
@@ -802,23 +805,30 @@ async def roleCheck(role_LESC,role_live):
                         await member.add_roles(liveRole)
                     except Exception as e:
                         print('live add', e)
+                        # await log.send(e)
                         pass
                     try:
                         await member.remove_roles(lescRole)
                     except Exception as e:
                         print('lesc remove', e)
+                        # await log.send(e)
                         pass
                 else:
                     print('Not live')
                     try: await member.remove_roles(liveRole)
                     except Exception as e:
                         print('live remove', e)
+                        # await log.send(e)
                         pass
                     try: await member.remove_roles(lescRole)
                     except Exception as e:
                         print('lesc remove', e)
+                        # await log.send(e)
                         pass
-            except: pass
+            except Exception as e:
+                print('guild:', guildID, '\n', e)
+                await log.send(e)
+                pass
     # live_memebers = guildLESC.get_role(liveRoleID).members
     # lesc_members = guildLESC.get_role(lescRoleID).members
 
