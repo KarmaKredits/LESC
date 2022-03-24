@@ -112,31 +112,35 @@ async def on_ready():
         standings_db['LESC2'] = googleSheets.formatStandings(LESC2_DB)
         # rc.setValue(key='standings',value=standings_db)
         print('playoffs')
-        playoffList=googleSheets.teamsInPlayoffs(LESC1_DB)
-        # playoffList=googleSheets.teamsInPlayoffs(LESC2_DB)
+        playoffList = {}
+        playoffList['LESC1'] =googleSheets.teamsInPlayoffs(LESC1_DB)
+        playoffList['LESC2'] =googleSheets.teamsInPlayoffs(LESC2_DB)
         print('awards')
-        awardsTable = googleSheets.getAwards(LESC1_DB)
-        # awardsTable = googleSheets.getAwards(LESC2_DB)
+        awardsTable = {}
+        awardsTable['LESC1']  = googleSheets.getAwards(LESC1_DB)
+        # awardsTable['LESC2']  = []
+        awardsTable['LESC2']  = googleSheets.getAwards(LESC2_DB)
 
         print('generating profiles...')
         step = 'profiles'
         global player_db
-        # player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
+        player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
 
         print('loading participants from redis...')
         step = 'redis participants'
         global participant_db
-        participant_db = rc.getValue('participants')
+        # participant_db = rc.getValue('participants')
+        participant_db = player_db
         # print(participant_db)
         # print(participant_db['sassybrenda'])
         # print(participant_db['karmakredits'])
         for player in participant_db:
             # print(player)
             if not ('id' in participant_db[player]):
-                print('id not found')
+                # print('id not found')
                 participant_db[player]['id']=0
             if not('quote' in participant_db[player]):
-                print('quote found')
+                # print('quote found')
                 participant_db[player]['quote']=''
 
         print('formating matches...')
@@ -262,12 +266,15 @@ async def teams(ctx,*args):
 
     embedTitle='LESC Season ' + str(season) + ' Teams'
     print(division)
+    print(team_db['LESC'+str(season)])
     for div in division:
         embedVar = discord.Embed(title=embedTitle,description='**' + seaDiv[season][div] + ' Division**', color=0xffffff)
         for col in ['team','captain','teammate']:
             val = []
             for team in team_db['LESC'+str(season)]:
+
                 if team['division'] == div:
+                    print(team)
                     val.append(team[col])
 
             embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
@@ -397,7 +404,8 @@ async def profile(ctx, arg = None):
                 embedVar.set_footer(text=lescTitle)
                 await ctx.send(embed=embedVar)
                 try:
-                    rc.setValue('participants',participant_db) #save user to db
+                    # rc.setValue('participants',participant_db) #save user to db
+                    None
                 except Exception as e:
                     msg = await log.send(e)
                     newcontent = 'save user to redis participants: '+ arg + '\n' + msg.content
@@ -459,7 +467,7 @@ async def claim(ctx, arg=None):
         link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
         to_send = to_send + 'Profile name found! ' + link_text
         try:
-            rc.setValue('participants',participant_db)
+            # rc.setValue('participants',participant_db)
             await log.send(link_text)
         except Exception as e:
             msg = await log.send(e)
@@ -491,7 +499,7 @@ async def quote(ctx, *args):
 
                 participant_db[player]['quote'] = quote
                 try:
-                    rc.setValue('participants',participant_db)
+                    # rc.setValue('participants',participant_db)
                     response = 'Profile quote set to:\n*"' + quote + '"*'
                     await log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
                 except Exception as e:
@@ -568,7 +576,7 @@ async def matches(ctx, arg = ''):
 #             embed.add_field(name=user_name, value=game_name + '\n[' + title + '](https://www.twitch.tv/' + login +')',inline=False)
 #     await ctx.send(embed=embed)
 
-@client.command(brief="Return streamers online or next schedule stream")
+@client.command(brief="Return streamers online or next schedule stream",usage="test usage")
 async def streams(ctx, arg = ''):
     msg = await ctx.send('Fetching dem streamers...')
     tw.getToken()
@@ -654,12 +662,12 @@ async def twitchAlerts():
     searchTerms = ['lesc','league of extraordinary soccer cars']
     next_time = None
     for user in user_list:
-        print(user['login'])
+        # print(user['login'])
         sched = tw.getScheduleFromUserID(user['id'])
         if sched == None: sched = []
         stream = tw.getStreamsFromLogin(user['login'])
         if stream == None: stream = []
-        print(stream)
+        # print(stream)
         if len(stream) > 0:
             user_name = stream[0]['user_name']
             game_name = stream[0]['game_name']
@@ -678,11 +686,11 @@ async def twitchAlerts():
             if foundTerm:
                 lesc_live.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
                 role_LESC.append(login)
-                print(user_name, 'added to LESC')
+                # print(user_name, 'added to LESC')
             else:
                 other_live.append({'time' : dt_start, 'data' : {'name':user_name, 'value':'[' + title + '](https://www.twitch.tv/' + login +')\n'+game_name}})
                 role_live.append(login)
-                print(user_name, 'added to live')
+                # print(user_name, 'added to live')
 
         elif len(sched)>0:
             start_time = sched[0]['start_time']
@@ -765,7 +773,7 @@ async def twitchAlerts():
     # return 90
 
 async def roleCheck(role_LESC = [], role_live = []):
-    print('args: ', role_LESC, role_live)
+    # print('args: ', role_LESC, role_live)
     global guildTEST
     global guildLESC
     role = {
@@ -774,68 +782,68 @@ async def roleCheck(role_LESC = [], role_live = []):
     }
 
     # print(guildLESC)
-    print(guildTEST)
+    # print(guildTEST)
     for twName in tw.streamDiscordId:
         discordId = tw.streamDiscordId[twName]
-        print(twName,discordId)
+        # print(twName,discordId)
         for guildID in [guildTESTID, guildLESCID]:
-            print('guild: ', role[guildID]['guild'])
+            # print('guild: ', role[guildID]['guild'])
             try:
                 liveRole = client.get_guild(guildID).get_role(role[guildID]['live'])
                 lescRole = client.get_guild(guildID).get_role(role[guildID]['lesc'])
-                print(liveRole)
-                print(lescRole)
+                # print(liveRole)
+                # print(lescRole)
                 member = await role[guildID]['guild'].fetch_member(discordId)
-                print('member: ', member)
+                # print('member: ', member)
                 # print('member roles: ', member.roles)
                 # await log.send(member)
                 # guildLESC.get_member(discordId)
                 if twName in role_LESC:
-                    print('LESC in title')
+                    # print('LESC in title')
                     # await log.send(twName + ' is LESC')
                     try:
                         await member.add_roles(lescRole)
                     except Exception as e:
-                        print('lesc add', e)
+                        # print('lesc add', e)
                         # await log.send(e)
                         pass
                     try:
                         await member.remove_roles(liveRole)
                     except Exception as e:
-                        print('live remove', e)
+                        # print('live remove', e)
                         # await log.send(e)
                         pass
                 elif twName in role_live:
-                    print('is LIVE')
+                    # print('is LIVE')
                     # await log.send(twName + ' is Live')
                     try:
                         await member.add_roles(liveRole)
-                        print('role')
+                        # print('role')
                     except Exception as e:
-                        print('live add', e)
+                        # print('live add', e)
                         # await log.send(e)
                         pass
                     try:
                         await member.remove_roles(lescRole)
                     except Exception as e:
-                        print('lesc remove', e)
+                        # print('lesc remove', e)
                         # await log.send(e)
                         pass
                 else:
-                    print('Not live')
+                    # print('Not live')
                     # await log.send(twName + ' Not Live')
                     try: await member.remove_roles(liveRole)
                     except Exception as e:
-                        print('live remove', e)
+                        # print('live remove', e)
                         # await log.send(e)
                         pass
                     try: await member.remove_roles(lescRole)
                     except Exception as e:
-                        print('lesc remove', e)
+                        # print('lesc remove', e)
                         # await log.send(e)
                         pass
             except Exception as e:
-                print('exception guild:', guildID, '\n', e)
+                # print('exception guild:', guildID, '\n', e)
                 # await log.send(e)
                 pass
     # live_memebers = guildLESC.get_role(liveRoleID).members
