@@ -118,7 +118,7 @@ async def on_ready():
         print('awards')
         awardsTable = {}
         awardsTable['LESC1']  = googleSheets.getAwards(LESC1_DB)
-        awardsTable['LESC2']  = []
+        # awardsTable['LESC2']  = []
         awardsTable['LESC2']  = googleSheets.getAwards(LESC2_DB)
 
         print('generating profiles...')
