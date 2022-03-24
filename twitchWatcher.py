@@ -93,7 +93,7 @@ def getScheduleFromUserID(user_id):
 
 
 if __name__ == '__main__':
-    # print(len(getToken()))
+    print(len(getToken()))
     testgame='Rocket League'
     testTitle='rank'
 
@@ -133,11 +133,10 @@ if __name__ == '__main__':
     # time = 0
     # print('&user_login='.join(streamerlist))
     # print(getStreamsFromLogin('&user_login='.join(streamerlist)))
-
     searchTerm = 'AY'
     for streamer in streamerlist:
         stream = getStreamsFromLogin(streamer)
-        # print(streamer, stream)
+        print(streamer, stream)
 
         if len(stream) > 0:
             id = str(stream[0]['id'])
