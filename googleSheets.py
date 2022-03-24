@@ -69,7 +69,7 @@ table_names={
 LESCsheet2 = '1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw'
 LESCranges2 = ['upper_roster','lower_roster','upper_standings','lower_standings',
     'upper_week1','lower_week1','upper_week2','lower_week2','upper_week3','lower_week3',
-    'upper_week4','lower_week4','playoff']
+    'upper_week4','lower_week4','playoff', 'awards']
 
 def getDataFromGoogleSheets():
     """Shows basic usage of the Sheets API.
@@ -122,6 +122,7 @@ def getDataFromGoogleSheets():
 def formatRosters(ranges):
     d1 = ranges[0].get('values',[])
     d2 = ranges[1].get('values',[])
+    # print(d2)
     header = d1[0]
     roster=[]
     for row in range(2,len(d1)):
@@ -129,13 +130,20 @@ def formatRosters(ranges):
         entry = {'division':1}
         for col in range(len(d1[row])):
             entry[header[col].lower()]=d1[row][col].strip()
-        roster.append(entry)
+        if len(d1[row])==3:
+            roster.append(entry)
     for row in range(2,len(d2)):
         # entry = {'division':'EU'}
+        # print(row)
+        # print(len(d2[row]))
         entry = {'division':2}
         for col in range(len(d2[row])):
+            # print(col)
             entry[header[col].lower()]=d2[row][col].strip()
-        roster.append(entry)
+            # print(d2[row][col].strip())
+            # print(len(d2[row][col].strip()))
+        if len(d2[row])==3:
+            roster.append(entry)
     return roster
 
 def formatStandings(ranges):
@@ -148,32 +156,35 @@ def formatStandings(ranges):
     standings[2]=d2
     return standings
 
-def generateProfiles(roster,playoff=[],awardTable=[]):
+def generateProfiles(season_db,playoff,awardTable):
     player_db={}
-    for season in roster:
-        for team in roster[season]:
+    argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
+    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    for season in season_db:
+        for team in season_db[season]:
             if not (team['captain'] in player_db):
                 player_db[team['captain']] = {'player':team['captain'],
                     'season':[],'teams':[],'teammates':[],'awards':[]}
             if not (team['teammate'] in player_db):
                 player_db[team['teammate']] = {'player':team['teammate'],
                     'season':[],'teams':[],'teammates':[],'awards':[]}
-            player_db[team['captain']]['season'].append('S' + season[-1] + ' ' + team['division'] + ' Division')
+            player_db[team['captain']]['season'].append('S' + season[-1] + ' ' + seaDiv[int(season[-1])][team['division']] + ' Division')
             player_db[team['captain']]['teams'].append(team['team'])
             player_db[team['captain']]['teammates'].append(team['teammate'])
             player_db[team['captain']]['awards'].append('S' + season[-1] + ' OG Participant')
-            player_db[team['teammate']]['season'].append('S' + season[-1] + ' ' + team['division'] + ' Division')
+            player_db[team['teammate']]['season'].append('S' + season[-1] + ' ' + seaDiv[int(season[-1])][team['division']] + ' Division')
             player_db[team['teammate']]['teams'].append(team['team'])
             player_db[team['teammate']]['teammates'].append(team['captain'])
             player_db[team['teammate']]['awards'].append('S' + season[-1] + ' OG Participant')
-            if team['team'].lower() in playoff:
+            if team['team'].lower() in playoff[season]:
                 player_db[team['captain']]['awards'].insert(0,'S' + season[-1] + ' Playoff Contender')
                 player_db[team['teammate']]['awards'].insert(0,'S' + season[-1] + ' Playoff Contender')
-            for row in awardTable:
+            print(awardTable[season])
+            for row in awardTable[season]:
                 if (team['captain'] in row) or (team['teammate'] in row):
                     player_db[team['captain']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
                     player_db[team['teammate']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
-
+    print(player_db['SassyBrenda'])
     return player_db
 
 def teamsInPlayoffs(ranges):
@@ -181,12 +192,21 @@ def teamsInPlayoffs(ranges):
     list = []
     playoffs = ranges[12].get('values',[])
     # print(playoffs)
+    print(len(playoffs))
+    rows = [7,13,14,19,20,25]
+    print(rows)
+    if len(playoffs)>26:
+        rows.append(26)
+        print(rows)
+    # print(rows - 6)
+    print('here')
     for col in [0,-1]:
-        for row in [7,13,14,19,20,25,26]:
+        for row in rows:
             team = playoffs[row][col]
             index = team.find('(')
             team = team[:index].strip().lower()
             list.append(team)
+    print(list)
     return list
 
 def getAwards(ranges):
