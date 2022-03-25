@@ -2,7 +2,7 @@
 name = "repl_python3_LESC"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["KarmaKredits <karmakredits@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
