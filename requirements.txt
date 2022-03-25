@@ -1,11 +1,11 @@
 async-timeout==3.0.1
 git+https://github.com/Rapptz/discord.py
+discord-py==1.7.2
 multidict==5.1.0
 pytest==6.2.3
 python-dateutil==2.8.1
 python-dotenv==0.17.1
 redis==3.5.3
-selenium==3.141.0
 urllib3==1.26.4
 google-api-core==1.31.1
 google-api-python-client==2.15.0
