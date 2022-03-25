@@ -20,6 +20,7 @@ TOKEN = os.getenv(key='TOKEN_BETA', default=os.getenv('TOKEN'))
 
 intents = discord.Intents.default()
 intents.members = True
+intents.messages = True
 print(intents)
 bot = discord.Client(intents=intents)
 client = commands.Bot(command_prefix = '.')
