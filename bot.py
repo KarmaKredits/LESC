@@ -21,7 +21,7 @@ TOKEN = os.getenv(key='TOKEN_BETA', default=os.getenv('TOKEN'))
 intents = discord.Intents.default()
 intents.members = True
 intents.messages = True
-print(intents)
+print('intents: ',intents)
 bot = discord.Client(intents=intents)
 client = commands.Bot(command_prefix = '.')
 # client.intents = intents
@@ -238,6 +238,7 @@ async def season(ctx,*args):
 
 @client.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]')
 async def teams(ctx,*args):
+    print('command: teams')
     global team_db
     division = [] #default to all
     season = 2 #default to current
@@ -406,7 +407,8 @@ async def profile(ctx, arg = None):
                 await ctx.send(embed=embedVar)
                 try:
                     # rc.setValue('participants',participant_db) #save user to db
-                    None
+                    y=8
+
                 except Exception as e:
                     msg = await log.send(e)
                     newcontent = 'save user to redis participants: '+ arg + '\n' + msg.content
