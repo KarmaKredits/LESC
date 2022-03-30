@@ -23,7 +23,10 @@ intents.members = True
 intents.messages = True
 print('intents: ',intents)
 bot = discord.Client(intents=intents)
-client = commands.Bot(command_prefix = '.')
+help_command = commands.DefaultHelpCommand(
+    no_category = 'Commands'
+)
+client = commands.Bot(command_prefix = '.', help_command=help_command)
 # client.intents = intents
 # client.Intents.members = True
 lescTitle='The League of Extraordinary Soccer Cars'
