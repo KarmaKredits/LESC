@@ -200,7 +200,9 @@ async def on_ready():
 async def ping(ctx):
   await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
 
-@client.command(brief='View the teams of a season',usage='[season #] [division name]')
+@client.command(brief='View the teams of a season',usage='[season #] [division name]',
+    description='Defaults to the current season if no [arguments] are passed',
+    help='EXAMPLE:\nTo view the US division for season 1 use,\n.season 1 US')
 async def season(ctx,*args):
     division = [] #default to all
     season = 2 #default to current
@@ -239,7 +241,9 @@ async def season(ctx,*args):
 
     await ctx.send(embed=embedVar)
 
-@client.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]')
+@client.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]',
+description='Defaults to the current season if no [arguments] are passed',
+help='EXAMPLE:\nTo view the team rosters for the Season 1 US division use,\n.team 1 US')
 async def teams(ctx,*args):
     print('command: teams')
     global team_db
@@ -288,7 +292,9 @@ async def teams(ctx,*args):
 
 
 
-@client.command(brief='View season standings',aliases=['results'],usage='[season #] [division name]')
+@client.command(brief='View season standings',aliases=['results'],usage='[season #] [division name]',
+description='Defaults to the current season if no [arguments] are passed',
+help='EXAMPLE:\nTo view the standings of the Season 1 US division use,\n.season 1 US')
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
@@ -350,7 +356,8 @@ async def standings(ctx,*args):
         string = '\n'.join(rowlist)
         await ctx.send(title + "```" + string + "```")
 
-@client.command(description='view the LESC profile of yourself or the mentioned user',brief='View LESC profile of [user], defaults to self',aliases=['me'])
+@client.command(description='View the LESC profile of yourself or the mentioned user',
+    brief='View LESC profile of [user], defaults to self',aliases=['me'],usage='[@user]')
 async def profile(ctx, arg = None):
     if arg == None:
         arg = ctx.author.display_name #mention
@@ -438,8 +445,12 @@ async def invite(ctx):
 @client.command(aliases=['doc','data','stats','sheets'],brief='Link to LESC Google Sheet')
 async def sheet(ctx):
     string= 'Click the link below to go to the offical LESC spreadsheet\n'
+    # season 1
     # link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
+    # season 2
     link = 'https://docs.google.com/spreadsheets/d/1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw/edit?usp=sharing'
+    # season 3
+    # link =
     await ctx.send(string+link)
 
 # TEMPORARILY REMOVED
@@ -458,7 +469,9 @@ async def sheet(ctx):
 # Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
 #     await ctx.send(block)
 
-@client.command(brief="Link LESC profile to your discord",usage='[your name in google sheets if not the same as your Discord name]')
+@client.command(brief="Link LESC profile to your discord",
+    usage='[your name in google sheets if not the same as your Discord name]',
+    description='In order to pull up your league stats in discord without searching your name, you will need to assign your name in the LESC google sheet to your discord account.')
 async def claim(ctx, arg=None):
     print('claim command used')
     to_send = ''
@@ -486,7 +499,9 @@ async def claim(ctx, arg=None):
         to_send = to_send + arg + ' not found'
     await ctx.message.reply(to_send)
 #
-@client.command(brief="Add self quote to your profile",usage='<"Your quote enclosed with double quotations">')
+@client.command(brief="Add a quote to your profile",
+    usage='<"Your quote enclosed with double quotations">',
+    description="Add some flavor to your profile with a quote")
 async def quote(ctx, *args):
     response = ''
     if len(args) == 0:
@@ -518,7 +533,10 @@ async def quote(ctx, *args):
     if len(response)>1:
         await ctx.message.reply(response)
 
-@client.command(brief="Search matches of team",aliases=['match','matchup','matchups'],usage='<team name search>')
+@client.command(brief="Search current season matches of a team",
+    aliases=['match','matchup','matchups'],
+    usage='<team name search>',
+    description='Must search a team name from the current season to pull up matches')
 async def matches(ctx, arg = ''):
     # season = 1 #default
     # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
@@ -582,13 +600,15 @@ async def matches(ctx, arg = ''):
 #             embed.add_field(name=user_name, value=game_name + '\n[' + title + '](https://www.twitch.tv/' + login +')',inline=False)
 #     await ctx.send(embed=embed)
 
-@client.command(brief="Return streamers online or next schedule stream",usage="test usage")
-async def streams(ctx, arg = ''):
+@client.command(brief="Return a list of live streamers or the next scheduled stream",
+    help='If you would like to be added or removed from the list, contact KarmaKredits',
+    aliases = [stream, streamers, streamer, twitch, ttv])
+async def streams(ctx):
     msg = await ctx.send('Fetching dem streamers...')
     tw.getToken()
     user_list = tw.getUserIDFromLogin('&login='.join(tw.streamerlist))
     embed = discord.Embed(title='LESC Community Streams', color=0xffffff)
-    embed.set_footer(text = 'DM KarmaKredits to be added to streamer list')
+    # embed.set_footer(text = 'DM KarmaKredits to be added to streamer list')
     now = datetime.utcnow()
     list = []
     for user in user_list:
@@ -657,7 +677,7 @@ async def twitchAlerts():
     tw.getToken()
     user_list = tw.getUserIDFromLogin('&login='.join(tw.streamerlist))
     embed = discord.Embed(title='LESC Community Streams', color=0xffffff)
-    embed.set_footer(text = 'DM KarmaKredits to be added to streamer list')
+    # embed.set_footer(text = 'DM KarmaKredits to be added to streamer list')
     now = datetime.utcnow()
     list = []
     lesc_live = []
@@ -762,7 +782,7 @@ async def twitchAlerts():
         print('diff')
         send = False
         embed2 = discord.Embed(title='LESC LIVE', color=0xffffff)
-        embed2.set_footer(text = 'DM KarmaKredits to be added to streamer list')
+        # embed2.set_footer(text = 'DM KarmaKredits to be added to streamer list')
         for item in lesc_live:
             if (item not in last_live):
                 print('item not in last_live')
