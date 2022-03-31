@@ -602,7 +602,7 @@ async def matches(ctx, arg = ''):
 
 @client.command(brief="Return a list of live streamers or the next scheduled stream",
     help='If you would like to be added or removed from the list, contact KarmaKredits',
-    aliases = [stream, streamers, streamer, twitch, ttv])
+    aliases = ['stream', 'streamers', 'streamer', 'twitch', 'ttv'])
 async def streams(ctx):
     msg = await ctx.send('Fetching dem streamers...')
     tw.getToken()
