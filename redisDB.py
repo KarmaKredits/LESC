@@ -51,6 +51,9 @@ class redisDB():
 if __name__ == '__main__':
     rc=redisDB()
     db_keys = rc.printKeys()
+    # player_db = rc.getValue('participants')
     # for k in db_keys:
     #     rc.getValue(key=k)
     # print(rc.getValue('lesc_db'))
+    # with open("player_db.txt", "w") as file1:
+        # file1.write(json.dumps(player_db))

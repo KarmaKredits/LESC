@@ -162,28 +162,30 @@ def generateProfiles(season_db,playoff,awardTable):
     seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
     for season in season_db:
         for team in season_db[season]:
-            if not (team['captain'] in player_db):
-                player_db[team['captain']] = {'player':team['captain'],
+            captain = team['captain'].lower()
+            teammate = team['teammate'].lower()
+            if not (captain in player_db):
+                player_db[captain] = {'player':team['captain'],
                     'season':[],'teams':[],'teammates':[],'awards':[]}
-            if not (team['teammate'] in player_db):
-                player_db[team['teammate']] = {'player':team['teammate'],
+            if not (teammate in player_db):
+                player_db[teammate] = {'player':team['teammate'],
                     'season':[],'teams':[],'teammates':[],'awards':[]}
-            player_db[team['captain']]['season'].append('S' + season[-1] + ' ' + seaDiv[int(season[-1])][team['division']] + ' Division')
-            player_db[team['captain']]['teams'].append(team['team'])
-            player_db[team['captain']]['teammates'].append(team['teammate'])
-            player_db[team['captain']]['awards'].append('S' + season[-1] + ' OG Participant')
-            player_db[team['teammate']]['season'].append('S' + season[-1] + ' ' + seaDiv[int(season[-1])][team['division']] + ' Division')
-            player_db[team['teammate']]['teams'].append(team['team'])
-            player_db[team['teammate']]['teammates'].append(team['captain'])
-            player_db[team['teammate']]['awards'].append('S' + season[-1] + ' OG Participant')
+            player_db[captain]['season'].append('S' + season[-1] + ' ' + seaDiv[int(season[-1])][team['division']] + ' Division')
+            player_db[captain]['teams'].append(team['team'])
+            player_db[captain]['teammates'].append(team['teammate'])
+            player_db[captain]['awards'].append('S' + season[-1] + ' OG Participant')
+            player_db[teammate]['season'].append('S' + season[-1] + ' ' + seaDiv[int(season[-1])][team['division']] + ' Division')
+            player_db[teammate]['teams'].append(team['team'])
+            player_db[teammate]['teammates'].append(team['captain'])
+            player_db[teammate]['awards'].append('S' + season[-1] + ' OG Participant')
             if team['team'].lower() in playoff[season]:
-                player_db[team['captain']]['awards'].insert(0,'S' + season[-1] + ' Playoff Contender')
-                player_db[team['teammate']]['awards'].insert(0,'S' + season[-1] + ' Playoff Contender')
+                player_db[captain]['awards'].insert(0,'S' + season[-1] + ' Playoff Contender')
+                player_db[teammate]['awards'].insert(0,'S' + season[-1] + ' Playoff Contender')
             # print(awardTable[season])
             for row in awardTable[season]:
                 if (team['captain'] in row) or (team['teammate'] in row):
-                    player_db[team['captain']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
-                    player_db[team['teammate']]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
+                    player_db[captain]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
+                    player_db[teammate]['awards'].insert(0,'S' + season[-1] + ' ' + row[0])
     # print(player_db['SassyBrenda'])
     return player_db
 

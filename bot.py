@@ -129,23 +129,40 @@ async def on_ready():
         step = 'profiles'
         global player_db
         player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
-
+        # print(player_db)
         print('loading participants from redis...')
         step = 'redis participants'
         global participant_db
-        # participant_db = rc.getValue('participants')
-        participant_db = player_db
+        participant_db = rc.getValue('participants')
+
+        for player in player_db:
+            print(player)
+            if player not in participant_db:
+                print('new')
+                participant_db[player] = player_db[player]
+                participant_db[player]['id']=0
+                participant_db[player]['quote']=''
+            else:
+                for season in player_db[player]['season']:
+                    if not (season in participant_db[player]['season']):
+                        print('season not: ', season)
+                        participant_db[player]['season'].append(season)
+                for team in player_db[player]['teams']:
+                    if not (team in participant_db[player]['teams']):
+                        print('team not: ', team)
+                        participant_db[player]['teams'].append(team)
+                for teammate in player_db[player]['teammates']:
+                    if not (teammate in participant_db[player]['teammates']):
+                        print('teammate not: ', teammate)
+                        participant_db[player]['teammates'].append(teammate)
+                for award in player_db[player]['awards']:
+                    if not (award in participant_db[player]['awards']):
+                        print('award not: ', award)
+                        participant_db[player]['awards'].append(award)
+
         # print(participant_db)
         # print(participant_db['sassybrenda'])
         # print(participant_db['karmakredits'])
-        for player in participant_db:
-            # print(player)
-            if not ('id' in participant_db[player]):
-                # print('id not found')
-                participant_db[player]['id']=0
-            if not('quote' in participant_db[player]):
-                # print('quote found')
-                participant_db[player]['quote']=''
 
         print('formating matches...')
         step = 'matches'
@@ -178,6 +195,7 @@ async def on_ready():
 
         step = 'keys'
         rc.printKeys()
+        print(int(t.time()))
 
     except Exception as e:
         msg = await log.send(e)
@@ -469,6 +487,13 @@ async def sheet(ctx):
 # Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
 #     await ctx.send(block)
 
+@client.command(brief="Get current time + [X hours]",
+    usage='<# of hours to add to current time>',
+    description='Easily schedule across time zones by just adding hours to the current time',
+    help = '.time 1.5,  will respond with the time in 1 and a half hours')
+async def time(ctx, hours=0.0):
+    await ctx.reply(f'<t:{str(int(t.time()) + int(hours*3600))}>')
+
 @client.command(brief="Link LESC profile to your discord",
     usage='[your name in google sheets if not the same as your Discord name]',
     description='In order to pull up your league stats in discord without searching your name, you will need to assign your name in the LESC google sheet to your discord account.')
@@ -486,7 +511,7 @@ async def claim(ctx, arg=None):
         link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
         to_send = to_send + 'Profile name found! ' + link_text
         try:
-            # rc.setValue('participants',participant_db)
+            rc.setValue('participants',participant_db)
             await log.send(link_text)
         except Exception as e:
             msg = await log.send(e)
@@ -520,7 +545,7 @@ async def quote(ctx, *args):
 
                 participant_db[player]['quote'] = quote
                 try:
-                    # rc.setValue('participants',participant_db)
+                    rc.setValue('participants',participant_db)
                     response = 'Profile quote set to:\n*"' + quote + '"*'
                     await log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
                 except Exception as e:
