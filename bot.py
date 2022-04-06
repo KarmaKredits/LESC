@@ -129,23 +129,49 @@ async def on_ready():
         step = 'profiles'
         global player_db
         player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
-
+        # print(player_db)
         print('loading participants from redis...')
         step = 'redis participants'
         global participant_db
-        # participant_db = rc.getValue('participants')
-        participant_db = player_db
+        participant_db = rc.getValue('participants')
+
+        for player in player_db:
+            print(player)
+            if player not in participant_db:
+                print('new')
+                participant_db[player] = player_db[player]
+                participant_db[player]['id']=0
+                participant_db[player]['quote']=''
+            else:
+                for season in player_db[player]['season']:
+                    if not (season in participant_db[player]['season']):
+                        print('season not: ', season)
+                        participant_db[player]['season'].append(season)
+                for team in player_db[player]['teams']:
+                    if not (team in participant_db[player]['teams']):
+                        print('team not: ', team)
+                        participant_db[player]['teams'].append(team)
+                for teammate in player_db[player]['teammates']:
+                    if not (teammate in participant_db[player]['teammates']):
+                        print('teammate not: ', teammate)
+                        participant_db[player]['teammates'].append(teammate)
+                for award in player_db[player]['awards']:
+                    if not (award in participant_db[player]['awards']):
+                        print('award not: ', award)
+                        participant_db[player]['awards'].append(award)
+
+        # participant_db = player_db
         # print(participant_db)
         # print(participant_db['sassybrenda'])
         # print(participant_db['karmakredits'])
-        for player in participant_db:
-            # print(player)
-            if not ('id' in participant_db[player]):
-                # print('id not found')
-                participant_db[player]['id']=0
-            if not('quote' in participant_db[player]):
-                # print('quote found')
-                participant_db[player]['quote']=''
+        # for player in participant_db:
+        #     # print(player)
+        #     if not ('id' in participant_db[player]):
+        #         # print('id not found')
+        #         participant_db[player]['id']=0
+        #     if not('quote' in participant_db[player]):
+        #         # print('quote found')
+        #         participant_db[player]['quote']=''
 
         print('formating matches...')
         step = 'matches'
