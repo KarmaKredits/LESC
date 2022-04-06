@@ -160,18 +160,9 @@ async def on_ready():
                         print('award not: ', award)
                         participant_db[player]['awards'].append(award)
 
-        # participant_db = player_db
         # print(participant_db)
         # print(participant_db['sassybrenda'])
         # print(participant_db['karmakredits'])
-        # for player in participant_db:
-        #     # print(player)
-        #     if not ('id' in participant_db[player]):
-        #         # print('id not found')
-        #         participant_db[player]['id']=0
-        #     if not('quote' in participant_db[player]):
-        #         # print('quote found')
-        #         participant_db[player]['quote']=''
 
         print('formating matches...')
         step = 'matches'
@@ -520,7 +511,7 @@ async def claim(ctx, arg=None):
         link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
         to_send = to_send + 'Profile name found! ' + link_text
         try:
-            # rc.setValue('participants',participant_db)
+            rc.setValue('participants',participant_db)
             await log.send(link_text)
         except Exception as e:
             msg = await log.send(e)
@@ -554,7 +545,7 @@ async def quote(ctx, *args):
 
                 participant_db[player]['quote'] = quote
                 try:
-                    # rc.setValue('participants',participant_db)
+                    rc.setValue('participants',participant_db)
                     response = 'Profile quote set to:\n*"' + quote + '"*'
                     await log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
                 except Exception as e:
