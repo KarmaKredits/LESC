@@ -204,6 +204,7 @@ async def on_ready():
 
         step = 'keys'
         rc.printKeys()
+        print(int(t.time()))
 
     except Exception as e:
         msg = await log.send(e)
@@ -494,6 +495,13 @@ async def sheet(ctx):
 # Firstly, please be honest! We can't improve if we don't know how you lot feel.
 # Secondly, we wont share any answers/information your provide outside of the commissioners, and your email addresses are not recorded by us."""
 #     await ctx.send(block)
+
+@client.command(brief="Get current time + [X hours]",
+    usage='<# of hours to add to current time>',
+    description='Easily schedule across time zones by just adding hours to the current time',
+    help = '.time 1.5,  will respond with the time in 1 and a half hours')
+async def time(ctx, hours=0.0):
+    await ctx.reply(f'<t:{str(int(t.time()) + int(hours*3600))}>')
 
 @client.command(brief="Link LESC profile to your discord",
     usage='[your name in google sheets if not the same as your Discord name]',
