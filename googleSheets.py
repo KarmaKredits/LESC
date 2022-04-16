@@ -301,20 +301,20 @@ if __name__ == '__main__':
     # db, db2 =getDataFromGoogleSheets()
     if db:
         print('PASS')
-    matchesDB = getMatches(db)
+    # matchesDB = getMatches(db)
     # print(matchesDB)
     roster = {}
-    roster['LESC1']=formatRosters(db)
+    # roster['LESC1']=formatRosters(db)
     # roster['LESC2']=formatRosters(db)
     # print(roster)
     # standings={}
     # standings['LESC2']=formatStandings(db)
     # print(standings)
     playoffList = {}
-    playoffList['LESC1']=teamsInPlayoffs(db)
+    # playoffList['LESC1']=teamsInPlayoffs(db)
     awardsTable ={}
-    awardsTable['LESC1'] = getAwards(db)
-    players=generateProfiles(roster,playoffList,awardsTable)
+    # awardsTable['LESC1'] = getAwards(db)
+    # players=generateProfiles(roster,playoffList,awardsTable)
     # print(players)
     # print(db[4])
     # print(getMatches(db))
