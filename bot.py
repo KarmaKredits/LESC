@@ -88,7 +88,7 @@ async def on_ready():
     global LESC3_DB
     try:
         step = 'updateFromGoogleSheets'
-        # await updateFromGoogleSheets() #temp
+        await updateFromGoogleSheets() #temp
     except Exception as e:
         print('db from redis')
         # LESC3_DB = rc.getValue('lesc3_db') #LESC1
@@ -312,13 +312,13 @@ async def teams(ctx,*args):
             division.append(2)
             season = 2
 
-    print(division)
+    # print(division)
     if len(division)<1:
         division = seaDiv[season].keys()
 
     embedTitle='LESC Season ' + str(season) + ' Teams'
-    print(division)
-    print(team_db['LESC'+str(season)])
+    # print(division)
+    # print(team_db['LESC'+str(season)])
     for div in division:
         embedVar = discord.Embed(title=embedTitle,description='**' + seaDiv[season][div] + ' Division**', color=0xffffff)
         for col in ['team','captain','teammate']:
@@ -326,7 +326,7 @@ async def teams(ctx,*args):
             for team in team_db['LESC'+str(season)]:
 
                 if team['division'] == div:
-                    print(team)
+                    # print(team)
                     val.append(team[col])
 
             embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)

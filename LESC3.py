@@ -52,7 +52,7 @@ def formatStandings(db):
         for row in range(len(standings[division])):
             if row>0:
                 standings[division][row].insert(0,str(row))
-        print(standings[division])
+        # print(standings[division])
 
     return standings
 
@@ -103,7 +103,7 @@ def getMatches(db):
                     'commentators': commentators,
                     'result': result
                     })
-    print(matches)
+    # print(matches)
     # for week in [5,7,9,11]:
     #     values = ranges[week].get('values',[])
     #     for i in range(len(values)):
