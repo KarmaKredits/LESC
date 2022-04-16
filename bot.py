@@ -183,6 +183,7 @@ async def on_ready():
         matches_db = {}
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
         matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
+        matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
         checkForMatches()
 
         # get guild
@@ -237,8 +238,12 @@ async def ping(ctx):
     help='EXAMPLE:\nTo view the US division for season 1 use,\n.season 1 US')
 async def season(ctx,*args):
     division = [] #default to all
-    season = 2 #default to current
-    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    season = 3 #default to current
+    seaDiv = {
+    1: {1:'US',2:'EU'},
+    2: {1:'Upper',2:'Lower'},
+    3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+    }
     for arg in args:
         if arg == '1':
             season = 1
@@ -485,16 +490,16 @@ async def invite(ctx):
     link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
     await ctx.send(string+link)
 
-@client.command(aliases=['doc','data','stats','sheets'],brief='Link to LESC Google Sheet')
-async def sheet(ctx):
-    string= 'Click the link below to go to the offical LESC spreadsheet\n'
-    # season 1
-    # link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
-    # season 2
-    link = 'https://docs.google.com/spreadsheets/d/1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw/edit?usp=sharing'
-    # season 3
-    # link =
-    await ctx.send(string+link)
+# @client.command(aliases=['doc','data','stats','sheets'],brief='Link to LESC Google Sheet')
+# async def sheet(ctx):
+#     string= 'Click the link below to go to the offical LESC spreadsheet\n'
+#     # season 1
+#     # link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
+#     # season 2
+#     link = 'https://docs.google.com/spreadsheets/d/1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw/edit?usp=sharing'
+#     # season 3
+#     # link =
+#     await ctx.send(string+link)
 
 # TEMPORARILY REMOVED
 # @client.command(brief="!Link to the LESC feedback form!")
@@ -590,6 +595,11 @@ async def quote(ctx, *args):
 async def matches(ctx, arg = ''):
     # season = 1 #default
     # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    seaDiv = {
+        1: {1:'US',2:'EU'},
+        2: {1:'Upper',2:'Lower'},
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        }
     global matches_db
     if arg == '':
         await ctx.message.reply('Please include part of team name you wish to lookup. For example,**.matches never**, to look up matches for the "Never Wallalols"')
@@ -614,9 +624,9 @@ async def matches(ctx, arg = ''):
         # 'commentators': 0,
         'result': 'Result'
         }
-    for div in matches_db['LESC2']:
+    for div in matches_db['LESC3']:
 
-        for match in matches_db['LESC2'][div]:
+        for match in matches_db['LESC3'][div]:
             if searchTerm.lower() in match['home'].lower() or searchTerm.lower() in match['away'].lower():
                 for m in max:
                     if max[m] < len(match[m]):
@@ -625,7 +635,7 @@ async def matches(ctx, arg = ''):
     head = []
     for key in max:
         head.append(header[key] + ' '*(max[key]-len(header[key])))
-    output = 'LESC Season 2\n' + '  '.join(head)
+    output = 'LESC Season 3\n' + '  '.join(head)
     for match in prepList:
         output = output + "\n"
         temp = []

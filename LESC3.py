@@ -55,3 +55,84 @@ def formatStandings(db):
         print(standings[division])
 
     return standings
+
+def getMatches(db):
+    print('getMatches')
+    # print(ranges)
+    matches = {1:[], 2:[], 3:[], 4:[]}
+    tz = {1: 'ET', 2: 'ET', 3: 'CET', 4: 'CET'}
+    d1 = db['1'][2].get('values',[])
+    d2 = db['2'][2].get('values',[])
+    d3 = db['3'][2].get('values',[])
+    d4 = db['4'][2].get('values',[])
+    matchRaw = {
+        1: d1,
+        2: d2,
+        3: d3,
+        4: d4
+    }
+    # print('===========\nweek')
+    # print('upper')
+    for div in matchRaw:
+        for i in range(len(matchRaw[div])):
+            # print(i,' - ', len(values[i]), ' - ', values[i])
+            if len(matchRaw[div][i]) >=6 and not ('Home' in matchRaw[div][i][0]):
+                home, vs, away, *others = matchRaw[div][i]
+                day, date, time, commentators, result = 'TBD','TBD','TBD','','-'
+                # day, date, time = 'TBD','TBD','TBD'
+                if len(others) == 1:
+                    day = others
+                elif len(others) == 2:
+                    day, date = others
+                elif len(others) == 3:
+                    day, date, time = others
+                elif len(others) == 4:
+                    day, date, time, commentators = others
+                elif len(others) == 5:
+                    day, date, time, commentators, result = others
+
+                tempM = {}
+                # print(range(len(values[i])))
+
+                matches[div].append({
+                    'home': home,
+                    'away': away,
+                    'day': day,
+                    'date': date,
+                    'time': time + ' ' + tz[div],
+                    'commentators': commentators,
+                    'result': result
+                    })
+    print(matches)
+    # for week in [5,7,9,11]:
+    #     values = ranges[week].get('values',[])
+    #     for i in range(len(values)):
+    #         # print(i,' - ', len(values[i]), ' - ', values[i])
+    #         if len(values[i]) >= 6 and not ('Home' in values[i][0]):
+    #             # homeTeam, vs, awayTeam, day, date, time, commentating, result = values[i]
+    #             # print(values[i])
+    #             home, vs, away, *others = values[i]
+    #             day, date, time, commentators, result = 'TBD','TBD','TBD','-','-'
+    #             if len(others) == 1:
+    #                 day = others
+    #             elif len(others) == 2:
+    #                 day, date = others
+    #             elif len(others) == 3:
+    #                 day, date, time = others
+    #             elif len(others) == 4:
+    #                 day, date, time, commentators = others
+    #             elif len(others) == 5:
+    #                 day, date, time, commentators, result = others
+    #
+    #             # matches['eu'].append({
+    #             matches[2].append({
+    #                 'home': home,
+    #                 'away': away,
+    #                 'day': day,
+    #                 'date': date,
+    #                 'time': time,
+    #                 'commentators': commentators,
+    #                 'result': result
+    #                 })
+    # print(matches)
+    return matches
