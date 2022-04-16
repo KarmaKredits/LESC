@@ -5,6 +5,7 @@ import re
 from dotenv import load_dotenv
 # from googleSheets import getDataFromGoogleSheets as getDB
 import googleSheets
+import LESC3
 from redisDB import redisDB
 from datetime import datetime
 from datetime import timedelta
@@ -40,19 +41,20 @@ lescLiveChannel = None
 last_sorted_list = []
 last_live = []
 
-def updateFromGoogleSheets():
+async def updateFromGoogleSheets():
     try:
         # get db info from googleSheets
         print('loading data from google sheets...')
         divisions = [1,2,3,4]
         divisionNames = ['NA Upper','NA Lower','EU Upper', 'EU Lower']
         divisionKey = ['naupper','nalower','euupper', 'eulower']
-        # global LESC_DB
-        LESC_DB = googleSheets.getDataFromGoogleSheets() #current season only
+        # global LESC3_DB
+        LESC3_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
-        if LESC_DB is not None:
-            rc = redisDB()
-            rc.setValue(key='lesc3_db',value=LESC_DB) # overwrite
+        # print('LESC3_DB',LESC3_DB)
+        if LESC3_DB is not None:
+            # rc1 = redisDB()
+            rc.setValue(key='lesc3_db',value=LESC3_DB) # overwrite
 
     except Exception as e:
         # msg =  log.send(e)
@@ -80,20 +82,21 @@ async def on_ready():
     except:
         pass
 
+    global rc
+    rc=redisDB()
+
+    global LESC3_DB
     try:
         step = 'updateFromGoogleSheets'
-        updateFromGoogleSheets()
+        # await updateFromGoogleSheets() #temp
     except Exception as e:
         print('db from redis')
-        LESC3_DB = rc.getValue('lesc3_db') #LESC1
+        # LESC3_DB = rc.getValue('lesc3_db') #LESC1
         msg = await log.send(e)
         newcontent = step + ':\n' + msg.content
         await msg.edit(content=newcontent)
         # pass
 
-    global rc
-    rc=redisDB()
-    print('after rc')
     try:
         # get db info from googleSheets
         print('loading data from google sheets...')
@@ -104,7 +107,7 @@ async def on_ready():
 
         LESC1_DB = rc.getValue('lesc_db') #LESC1
         LESC2_DB = rc.getValue('lesc2_db') #LESC2
-
+        LESC3_DB = rc.getValue('lesc3_db')
 
         print('formating rosters...')
         step = 'rosters'
@@ -112,6 +115,7 @@ async def on_ready():
         team_db={}
         team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
         team_db['LESC2'] = googleSheets.formatRosters(LESC2_DB)
+        team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
         # rc.setValue(key='rosters',value=team_db)
 
         print('formating standings...')
@@ -123,14 +127,16 @@ async def on_ready():
         # rc.setValue(key='standings',value=standings_db)
         print('playoffs')
         playoffList = {}
-        playoffList['LESC1'] =googleSheets.teamsInPlayoffs(LESC1_DB)
-        playoffList['LESC2'] =googleSheets.teamsInPlayoffs(LESC2_DB)
+        playoffList['LESC1'] = googleSheets.teamsInPlayoffs(LESC1_DB)
+        playoffList['LESC2'] = googleSheets.teamsInPlayoffs(LESC2_DB)
+        playoffList['LESC3'] = []
+
         print('awards')
         awardsTable = {}
         awardsTable['LESC1']  = googleSheets.getAwards(LESC1_DB)
         # awardsTable['LESC2']  = []
         awardsTable['LESC2']  = googleSheets.getAwards(LESC2_DB)
-
+        awardsTable['LESC3'] = []
         print('generating profiles...')
         step = 'profiles'
         global player_db
@@ -273,9 +279,13 @@ async def teams(ctx,*args):
     print('command: teams')
     global team_db
     division = [] #default to all
-    season = 2 #default to current
+    season = 3 #default to current
     argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
-    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    seaDiv = {
+        1: {1:'US',2:'EU'},
+        2: {1:'Upper',2:'Lower'},
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        }
     for arg in args:
         if arg == '1':
             season = 1
@@ -296,7 +306,7 @@ async def teams(ctx,*args):
 
     print(division)
     if len(division)<1:
-        division = [1,2]
+        division = seaDiv[season].keys()
 
     embedTitle='LESC Season ' + str(season) + ' Teams'
     print(division)

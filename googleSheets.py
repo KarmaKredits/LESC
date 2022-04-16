@@ -155,7 +155,12 @@ def formatStandings(ranges):
 def generateProfiles(season_db,playoff,awardTable):
     player_db={}
     argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
-    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    seaDiv = {
+        1: {1:'US',2:'EU'},
+        2: {1:'Upper',2:'Lower'},
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        }
     for season in season_db:
         for team in season_db[season]:
             captain = team['captain'].lower()
