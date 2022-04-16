@@ -9,32 +9,6 @@ import json
 # from bot import logErr
 load_dotenv()
 
-
-
-# credentials_string = os.getenv(key='CREDENTIALS')
-# if len(credentials_string)>5:
-#     CREDENTIALS=json.loads(str(os.getenv(key='CREDENTIALS')))
-# else:
-# CREDENTIALS={"installed":{"client_id":os.getenv(key='CRED_CLIENT_ID'),
-#     "project_id":"tester-322319",
-#     "auth_uri":"https://accounts.google.com/o/oauth2/auth",
-#     "token_uri":"https://oauth2.googleapis.com/token",
-#     "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
-#     "client_secret":os.getenv(key='CRED_SECRET'),
-#     "redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}
-
-# token_string = os.getenv(key='GOOGLE_TOKEN')
-# if len(token_string)>5:
-#     TOKEN=json.loads(str(os.getenv(key='GOOGLE_TOKEN')))
-# else:
-# TOKEN={"token": os.getenv(key='GOOGLE_TOKEN_TOKEN'),
-#     "refresh_token": os.getenv(key='GOOGLE_TOKEN_REFRESH'),
-#     "token_uri": "https://oauth2.googleapis.com/token",
-#     "client_id": os.getenv(key='CRED_CLIENT_ID'),
-#     "client_secret": os.getenv(key='CRED_SECRET'),
-#     "scopes": ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-#     "expiry": "2021-08-12T02:07:28.887607Z"}
-
 TOKEN=json.loads(os.getenv(key='GOOGLE_TOKEN'))
 
 
@@ -47,9 +21,15 @@ SAMPLE_RANGE_NAME = 'Class Data!A2:E'
 testID = '1DGpfnwq57um8KmXQEGIqby3nUqfK7Q4SbvXOfsbZsdM'
 testRange = 'US Table!A2:J14'
 LESCsheet='1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII'
-LESCranges = ['Rosters!A2:C15','Rosters!E2:G16','US Table!A2:J14','EU Table!A2:J15',
-    'Week 1!B2:I14','Week 1!B18:I31','Week 2!A2:H14','Week 2!A18:H28','Week 3!A2:I13',
-    'Week 3!A22:I37','Week 4!A2:I17', 'Week 4!A18:I31','Playoff Bracket!B1:I27','Prizepool!B2:G13']
+LESCranges = [
+    'Rosters!A2:C15','Rosters!E2:G16',
+    'US Table!A2:J14','EU Table!A2:J15',
+    'Week 1!B2:I14','Week 1!B18:I31',
+    'Week 2!A2:H14','Week 2!A18:H28',
+    'Week 3!A2:I13','Week 3!A22:I37',
+    'Week 4!A2:I17', 'Week 4!A18:I31',
+    'Playoff Bracket!B1:I27','Prizepool!B2:G13'
+    ]
 table_names={
     'us_roster':'Rosters!A2:C15',
     'eu_roster':'Rosters!E2:G16',
@@ -71,6 +51,12 @@ LESCranges2 = ['upper_roster','lower_roster','upper_standings','lower_standings'
     'upper_week1','lower_week1','upper_week2','lower_week2','upper_week3','lower_week3',
     'upper_week4','lower_week4','playoff', 'awards']
 
+LESC3sheetNAUpper = '1SrSeVJHxd7uODeV2uC6AsMXd_RgfCgqotChIN0AvAyg'
+LESC3sheetNALower = '1HF-krfg69EZ5xK2BWx81_ryafQuYPOEu-acUEGQQlPo'
+LESC3sheetEUUpper = '1TC5uFyegzNsRrTMqHiuiedA8Te-SpN-WOsUck_NL15c'
+LESC3sheetEULower = '1XTRqwOyUKjD3X1PEpi7lTmd9wDpChI82N78wFPUHq6Y'
+LESC3ranges = ['rosters','standings','matches']
+
 def getDataFromGoogleSheets():
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
@@ -87,11 +73,21 @@ def getDataFromGoogleSheets():
     try:
 
     #get sheets from test LESC1
-        result = sheet.values().batchGet(spreadsheetId=LESCsheet2, ranges=LESCranges2).execute()
+        # result = sheet.values().batchGet(spreadsheetId=LESCsheet2, ranges=LESCranges2).execute()
         # result2 = sheet.values().batchGet(spreadsheetId=LESCsheet, ranges=LESCranges).execute()
+        result1 = sheet.values().batchGet(spreadsheetId=LESC3sheetNAUpper, ranges=LESC3ranges).execute()
+        result2 = sheet.values().batchGet(spreadsheetId=LESC3sheetNALower, ranges=LESC3ranges).execute()
+        result3 = sheet.values().batchGet(spreadsheetId=LESC3sheetEUUpper, ranges=LESC3ranges).execute()
+        result4 = sheet.values().batchGet(spreadsheetId=LESC3sheetEULower, ranges=LESC3ranges).execute()
 
-        ranges = result.get('valueRanges', [])
+        # ranges = result.get('valueRanges', [])
         # ranges2 = result2.get('valueRanges', [])
+        ranges = {}
+        ranges[1] = result1.get('valueRanges', [])
+        ranges[2] = result2.get('valueRanges', [])
+        ranges[3] = result3.get('valueRanges', [])
+        ranges[4] = result4.get('valueRanges', [])
+
         print('{0} ranges retrieved.'.format(len(ranges)))
 
     except Exception as err:
@@ -106,17 +102,17 @@ def getDataFromGoogleSheets():
 
     if not ranges:
          print('No data found.')
-    else:
-        # print('LESC ranges')
-        # print(ranges)
-        for range in ranges:
-            # print(range.get('range'))
-            # print(range['range'])
-            # print(range)
-            for row in range.get('values',[]):
-                # Print columns A and E, which correspond to indices 0 and 4.
-                # print(row)
-                None
+    # else:
+    #     # print('LESC ranges')
+    #     # print(ranges)
+    #     for range in ranges:
+    #         # print(range.get('range'))
+    #         # print(range['range'])
+    #         # print(range)
+    #         for row in range.get('values',[]):
+    #             # Print columns A and E, which correspond to indices 0 and 4.
+    #             # print(row)
+    #             None
     return ranges #, ranges2
 
 def formatRosters(ranges):
@@ -159,7 +155,12 @@ def formatStandings(ranges):
 def generateProfiles(season_db,playoff,awardTable):
     player_db={}
     argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
-    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    seaDiv = {
+        1: {1:'US',2:'EU'},
+        2: {1:'Upper',2:'Lower'},
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        }
     for season in season_db:
         for team in season_db[season]:
             captain = team['captain'].lower()
@@ -300,20 +301,20 @@ if __name__ == '__main__':
     # db, db2 =getDataFromGoogleSheets()
     if db:
         print('PASS')
-    matchesDB = getMatches(db)
-    print(matchesDB)
+    # matchesDB = getMatches(db)
+    # print(matchesDB)
     roster = {}
-    roster['LESC1']=formatRosters(db)
+    # roster['LESC1']=formatRosters(db)
     # roster['LESC2']=formatRosters(db)
     # print(roster)
     # standings={}
     # standings['LESC2']=formatStandings(db)
     # print(standings)
     playoffList = {}
-    playoffList['LESC1']=teamsInPlayoffs(db)
+    # playoffList['LESC1']=teamsInPlayoffs(db)
     awardsTable ={}
-    awardsTable['LESC1'] = getAwards(db)
-    players=generateProfiles(roster,playoffList,awardsTable)
+    # awardsTable['LESC1'] = getAwards(db)
+    # players=generateProfiles(roster,playoffList,awardsTable)
     # print(players)
     # print(db[4])
     # print(getMatches(db))

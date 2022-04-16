@@ -5,6 +5,7 @@ import re
 from dotenv import load_dotenv
 # from googleSheets import getDataFromGoogleSheets as getDB
 import googleSheets
+import LESC3
 from redisDB import redisDB
 from datetime import datetime
 from datetime import timedelta
@@ -21,7 +22,7 @@ TOKEN = os.getenv(key='TOKEN_BETA', default=os.getenv('TOKEN'))
 intents = discord.Intents.default()
 intents.members = True
 intents.messages = True
-print('intents: ',intents)
+# print('intents: ',intents)
 bot = discord.Client(intents=intents)
 help_command = commands.DefaultHelpCommand(
     no_category = 'Commands'
@@ -40,21 +41,26 @@ lescLiveChannel = None
 last_sorted_list = []
 last_live = []
 
-def updateFromGoogleSheets():
+async def updateFromGoogleSheets():
     try:
         # get db info from googleSheets
         print('loading data from google sheets...')
-        # global LESC_DB
-        LESC_DB = googleSheets.getDataFromGoogleSheets() #current season only
+        divisions = [1,2,3,4]
+        divisionNames = ['NA Upper','NA Lower','EU Upper', 'EU Lower']
+        divisionKey = ['naupper','nalower','euupper', 'eulower']
+        # global LESC3_DB
+        LESC3_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
-        if LESC_DB is not None:
-            rc = redisDB()
-            rc.setValue(key='lesc2_db',value=LESC_DB) # overwrite
+        # print('LESC3_DB',LESC3_DB)
+        if LESC3_DB is not None:
+            # rc1 = redisDB()
+            rc.setValue(key='lesc3_db',value=LESC3_DB) # overwrite
 
     except Exception as e:
-        msg =  log.send(e)
-        newcontent = 'Google Sheet Update:\n' + msg.content
-        msg.edit(content=newcontent)
+        # msg =  log.send(e)
+        # newcontent = 'Google Sheet Update:\n' + msg.content
+        # msg.edit(content=newcontent)
+        print(e)
         raise
 
 
@@ -72,21 +78,24 @@ async def on_ready():
     try:
         global lescLiveChannel
         lescLiveChannel = client.get_channel(lescLiveChannelID)
-        print('?????????????????????')
+        # print('?????????????????????')
     except:
-        pass
-
-    try:
-        step = 'updateFromGoogleSheets'
-        updateFromGoogleSheets()
-    except Exception as e:
-        msg = await log.send(e)
-        newcontent = step + ':\n' + msg.content
-        await msg.edit(content=newcontent)
         pass
 
     global rc
     rc=redisDB()
+
+    global LESC3_DB
+    try:
+        step = 'updateFromGoogleSheets'
+        await updateFromGoogleSheets() #temp
+    except Exception as e:
+        print('db from redis')
+        # LESC3_DB = rc.getValue('lesc3_db') #LESC1
+        msg = await log.send(e)
+        newcontent = step + ':\n' + msg.content
+        await msg.edit(content=newcontent)
+        # pass
 
     try:
         # get db info from googleSheets
@@ -98,7 +107,7 @@ async def on_ready():
 
         LESC1_DB = rc.getValue('lesc_db') #LESC1
         LESC2_DB = rc.getValue('lesc2_db') #LESC2
-
+        LESC3_DB = rc.getValue('lesc3_db')
 
         print('formating rosters...')
         step = 'rosters'
@@ -106,6 +115,7 @@ async def on_ready():
         team_db={}
         team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
         team_db['LESC2'] = googleSheets.formatRosters(LESC2_DB)
+        team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
         # rc.setValue(key='rosters',value=team_db)
 
         print('formating standings...')
@@ -114,17 +124,20 @@ async def on_ready():
         standings_db = {}
         standings_db['LESC1'] = googleSheets.formatStandings(LESC1_DB)
         standings_db['LESC2'] = googleSheets.formatStandings(LESC2_DB)
+        standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
         # rc.setValue(key='standings',value=standings_db)
         print('playoffs')
         playoffList = {}
-        playoffList['LESC1'] =googleSheets.teamsInPlayoffs(LESC1_DB)
-        playoffList['LESC2'] =googleSheets.teamsInPlayoffs(LESC2_DB)
+        playoffList['LESC1'] = googleSheets.teamsInPlayoffs(LESC1_DB)
+        playoffList['LESC2'] = googleSheets.teamsInPlayoffs(LESC2_DB)
+        playoffList['LESC3'] = []
+
         print('awards')
         awardsTable = {}
         awardsTable['LESC1']  = googleSheets.getAwards(LESC1_DB)
         # awardsTable['LESC2']  = []
         awardsTable['LESC2']  = googleSheets.getAwards(LESC2_DB)
-
+        awardsTable['LESC3'] = []
         print('generating profiles...')
         step = 'profiles'
         global player_db
@@ -136,28 +149,28 @@ async def on_ready():
         participant_db = rc.getValue('participants')
 
         for player in player_db:
-            print(player)
+            # print(player)
             if player not in participant_db:
-                print('new')
+                # print('new')
                 participant_db[player] = player_db[player]
                 participant_db[player]['id']=0
                 participant_db[player]['quote']=''
             else:
                 for season in player_db[player]['season']:
                     if not (season in participant_db[player]['season']):
-                        print('season not: ', season)
+                        # print('season not: ', season)
                         participant_db[player]['season'].append(season)
                 for team in player_db[player]['teams']:
                     if not (team in participant_db[player]['teams']):
-                        print('team not: ', team)
+                        # print('team not: ', team)
                         participant_db[player]['teams'].append(team)
                 for teammate in player_db[player]['teammates']:
                     if not (teammate in participant_db[player]['teammates']):
-                        print('teammate not: ', teammate)
+                        # print('teammate not: ', teammate)
                         participant_db[player]['teammates'].append(teammate)
                 for award in player_db[player]['awards']:
                     if not (award in participant_db[player]['awards']):
-                        print('award not: ', award)
+                        # print('award not: ', award)
                         participant_db[player]['awards'].append(award)
 
         # print(participant_db)
@@ -170,6 +183,8 @@ async def on_ready():
         matches_db = {}
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
         matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
+        matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
+        checkForMatches()
 
         # get guild
         # print(client.guilds[0].name)
@@ -223,8 +238,12 @@ async def ping(ctx):
     help='EXAMPLE:\nTo view the US division for season 1 use,\n.season 1 US')
 async def season(ctx,*args):
     division = [] #default to all
-    season = 2 #default to current
-    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    season = 3 #default to current
+    seaDiv = {
+    1: {1:'US',2:'EU'},
+    2: {1:'Upper',2:'Lower'},
+    3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+    }
     for arg in args:
         if arg == '1':
             season = 1
@@ -244,9 +263,11 @@ async def season(ctx,*args):
             season = 2
     # if division not specified, use both
     if len(division)<1:
-        division = [1,2]
-
-    d={1:'',2:''}
+        division = seaDiv[season].keys()
+    d={}
+    # d={1:'',2:''}
+    for div in division:
+        d[div] = ''
 
     embedTitle='LESC Season ' + str(season) + ' Teams'
     embedVar = discord.Embed(title=embedTitle, color=0xffffff)
@@ -266,9 +287,13 @@ async def teams(ctx,*args):
     print('command: teams')
     global team_db
     division = [] #default to all
-    season = 2 #default to current
+    season = 3 #default to current
     argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
-    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    seaDiv = {
+        1: {1:'US',2:'EU'},
+        2: {1:'Upper',2:'Lower'},
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        }
     for arg in args:
         if arg == '1':
             season = 1
@@ -287,13 +312,13 @@ async def teams(ctx,*args):
             division.append(2)
             season = 2
 
-    print(division)
+    # print(division)
     if len(division)<1:
-        division = [1,2]
+        division = seaDiv[season].keys()
 
     embedTitle='LESC Season ' + str(season) + ' Teams'
-    print(division)
-    print(team_db['LESC'+str(season)])
+    # print(division)
+    # print(team_db['LESC'+str(season)])
     for div in division:
         embedVar = discord.Embed(title=embedTitle,description='**' + seaDiv[season][div] + ' Division**', color=0xffffff)
         for col in ['team','captain','teammate']:
@@ -301,7 +326,7 @@ async def teams(ctx,*args):
             for team in team_db['LESC'+str(season)]:
 
                 if team['division'] == div:
-                    print(team)
+                    # print(team)
                     val.append(team[col])
 
             embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
@@ -316,8 +341,12 @@ help='EXAMPLE:\nTo view the standings of the Season 1 US division use,\n.season 
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
-    season = 2 #default to current
-    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    season = 3 #default to current
+    seaDiv = {
+        1: {1:'US',2:'EU'},
+        2: {1:'Upper',2:'Lower'},
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        }
     for arg in args:
         if arg == '1':
             season = 1
@@ -335,14 +364,17 @@ async def standings(ctx,*args):
             division.append(2)
 
     if len(division)<1:
-        division = [1,2]
+        division = seaDiv[season].keys()
 
     for div in division:
         matches = standings_db['LESC'+str(season)][div]
         title = '**LESC Season ' + str(season) + ' - '+ seaDiv[season][div] +' Standings**\n'
         string = ''
         temp = ''
+
         coln=len(matches[0])-1
+        if season == 3:
+            coln = coln +1
         # print('coln: ' + str(coln))
         rown=len(matches)-1
         # print('rown: ' + str(rown))
@@ -444,7 +476,7 @@ async def profile(ctx, arg = None):
                     raise
 
             else:
-                ctx.send('No season roles')
+                await ctx.send('No season roles')
         else:
             await ctx.message.reply('Profile not found')
 
@@ -460,16 +492,16 @@ async def invite(ctx):
     link = 'https://discord.com/api/oauth2/authorize?client_id=873361977991381043&permissions=223296&scope=bot'
     await ctx.send(string+link)
 
-@client.command(aliases=['doc','data','stats','sheets'],brief='Link to LESC Google Sheet')
-async def sheet(ctx):
-    string= 'Click the link below to go to the offical LESC spreadsheet\n'
-    # season 1
-    # link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
-    # season 2
-    link = 'https://docs.google.com/spreadsheets/d/1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw/edit?usp=sharing'
-    # season 3
-    # link =
-    await ctx.send(string+link)
+# @client.command(aliases=['doc','data','stats','sheets'],brief='Link to LESC Google Sheet')
+# async def sheet(ctx):
+#     string= 'Click the link below to go to the offical LESC spreadsheet\n'
+#     # season 1
+#     # link='https://docs.google.com/spreadsheets/d/1jnsbvMoK2VlV5pIP1NmyaqZWezFtI5Vs4ZA_kOQcFII/edit#gid=1868244777'
+#     # season 2
+#     link = 'https://docs.google.com/spreadsheets/d/1DdgY8i-pKK8WoszvfrKUYEoy4I9f3qzUxaLumOo7Ptw/edit?usp=sharing'
+#     # season 3
+#     # link =
+#     await ctx.send(string+link)
 
 # TEMPORARILY REMOVED
 # @client.command(brief="!Link to the LESC feedback form!")
@@ -565,6 +597,11 @@ async def quote(ctx, *args):
 async def matches(ctx, arg = ''):
     # season = 1 #default
     # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    seaDiv = {
+        1: {1:'US',2:'EU'},
+        2: {1:'Upper',2:'Lower'},
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        }
     global matches_db
     if arg == '':
         await ctx.message.reply('Please include part of team name you wish to lookup. For example,**.matches never**, to look up matches for the "Never Wallalols"')
@@ -589,9 +626,9 @@ async def matches(ctx, arg = ''):
         # 'commentators': 0,
         'result': 'Result'
         }
-    for div in matches_db['LESC2']:
+    for div in matches_db['LESC3']:
 
-        for match in matches_db['LESC2'][div]:
+        for match in matches_db['LESC3'][div]:
             if searchTerm.lower() in match['home'].lower() or searchTerm.lower() in match['away'].lower():
                 for m in max:
                     if max[m] < len(match[m]):
@@ -600,7 +637,7 @@ async def matches(ctx, arg = ''):
     head = []
     for key in max:
         head.append(header[key] + ' '*(max[key]-len(header[key])))
-    output = 'LESC Season 2\n' + '  '.join(head)
+    output = 'LESC Season 3\n' + '  '.join(head)
     for match in prepList:
         output = output + "\n"
         temp = []
@@ -818,6 +855,12 @@ async def twitchAlerts():
             if lescLiveChannel != None:
                 await lescLiveChannel.send(embed=embed2)
     last_live = lesc_live
+
+
+
+
+    checkForMatches()
+
     # max time to wait 10 minutes
     if next_time > 600: next_time = 600
     return next_time
@@ -914,6 +957,29 @@ async def cycle(seconds):
     # asyncio.create_task(cycle(wait_time))
     # print('cycle end', seconds)
     return asyncio.create_task(cycle(wait_time))
+
+def checkForMatches():
+    #check for scheduled matches
+    now=datetime.utcnow()
+    print('UTC',now)
+    print('EST',now + timedelta(hours=-5))
+    print('EDT',now + timedelta(hours=-4))
+    print('ET',datetime.now())
+    print('CET',now + timedelta(hours=1))
+    for match in matches_db['LESC2'][2]:
+
+        # print('Date: ', match['date'],'Time: ',match['time'])
+        # print(2022,int(match['date'][3:5]),int(match['date'][0:2]),int(match['time'][0:2]),int(match['time'][3:5]))
+        try:
+            matchdatetime = datetime(2022,int(match['date'][3:5]),int(match['date'][0:2]),int(match['time'][0:2]),int(match['time'][3:5]))
+            # print('Future: ',now<matchdatetime)
+        except Exception as e:
+            # raise
+            print(e)
+            pass
+        # print('Match datetime: ',matchdatetime)
+
+
 
 if __name__ == '__main__':
     client.run(TOKEN)
