@@ -124,6 +124,7 @@ async def on_ready():
         standings_db = {}
         standings_db['LESC1'] = googleSheets.formatStandings(LESC1_DB)
         standings_db['LESC2'] = googleSheets.formatStandings(LESC2_DB)
+        standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
         # rc.setValue(key='standings',value=standings_db)
         print('playoffs')
         playoffList = {}
@@ -333,8 +334,12 @@ help='EXAMPLE:\nTo view the standings of the Season 1 US division use,\n.season 
 async def standings(ctx,*args):
     global standings_db
     division = [] #default to all
-    season = 2 #default to current
-    seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
+    season = 3 #default to current
+    seaDiv = {
+        1: {1:'US',2:'EU'},
+        2: {1:'Upper',2:'Lower'},
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        }
     for arg in args:
         if arg == '1':
             season = 1
@@ -352,14 +357,17 @@ async def standings(ctx,*args):
             division.append(2)
 
     if len(division)<1:
-        division = [1,2]
+        division = seaDiv[season].keys()
 
     for div in division:
         matches = standings_db['LESC'+str(season)][div]
         title = '**LESC Season ' + str(season) + ' - '+ seaDiv[season][div] +' Standings**\n'
         string = ''
         temp = ''
+
         coln=len(matches[0])-1
+        if season == 3:
+            coln = coln +1
         # print('coln: ' + str(coln))
         rown=len(matches)-1
         # print('rown: ' + str(rown))
