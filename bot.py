@@ -263,9 +263,11 @@ async def season(ctx,*args):
             season = 2
     # if division not specified, use both
     if len(division)<1:
-        division = [1,2]
-
-    d={1:'',2:''}
+        division = seaDiv[season].keys()
+    d={}
+    # d={1:'',2:''}
+    for div in division:
+        d[div] = ''
 
     embedTitle='LESC Season ' + str(season) + ' Teams'
     embedVar = discord.Embed(title=embedTitle, color=0xffffff)
