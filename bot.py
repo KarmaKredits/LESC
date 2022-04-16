@@ -21,7 +21,7 @@ TOKEN = os.getenv(key='TOKEN_BETA', default=os.getenv('TOKEN'))
 intents = discord.Intents.default()
 intents.members = True
 intents.messages = True
-print('intents: ',intents)
+# print('intents: ',intents)
 bot = discord.Client(intents=intents)
 help_command = commands.DefaultHelpCommand(
     no_category = 'Commands'
@@ -44,17 +44,21 @@ def updateFromGoogleSheets():
     try:
         # get db info from googleSheets
         print('loading data from google sheets...')
+        divisions = [1,2,3,4]
+        divisionNames = ['NA Upper','NA Lower','EU Upper', 'EU Lower']
+        divisionKey = ['naupper','nalower','euupper', 'eulower']
         # global LESC_DB
         LESC_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
         if LESC_DB is not None:
             rc = redisDB()
-            rc.setValue(key='lesc2_db',value=LESC_DB) # overwrite
+            rc.setValue(key='lesc3_db',value=LESC_DB) # overwrite
 
     except Exception as e:
-        msg =  log.send(e)
-        newcontent = 'Google Sheet Update:\n' + msg.content
-        msg.edit(content=newcontent)
+        # msg =  log.send(e)
+        # newcontent = 'Google Sheet Update:\n' + msg.content
+        # msg.edit(content=newcontent)
+        print(e)
         raise
 
 
@@ -72,7 +76,7 @@ async def on_ready():
     try:
         global lescLiveChannel
         lescLiveChannel = client.get_channel(lescLiveChannelID)
-        print('?????????????????????')
+        # print('?????????????????????')
     except:
         pass
 
@@ -80,14 +84,16 @@ async def on_ready():
         step = 'updateFromGoogleSheets'
         updateFromGoogleSheets()
     except Exception as e:
+        print('db from redis')
+        LESC3_DB = rc.getValue('lesc3_db') #LESC1
         msg = await log.send(e)
         newcontent = step + ':\n' + msg.content
         await msg.edit(content=newcontent)
-        pass
+        # pass
 
     global rc
     rc=redisDB()
-
+    print('after rc')
     try:
         # get db info from googleSheets
         print('loading data from google sheets...')
@@ -136,28 +142,28 @@ async def on_ready():
         participant_db = rc.getValue('participants')
 
         for player in player_db:
-            print(player)
+            # print(player)
             if player not in participant_db:
-                print('new')
+                # print('new')
                 participant_db[player] = player_db[player]
                 participant_db[player]['id']=0
                 participant_db[player]['quote']=''
             else:
                 for season in player_db[player]['season']:
                     if not (season in participant_db[player]['season']):
-                        print('season not: ', season)
+                        # print('season not: ', season)
                         participant_db[player]['season'].append(season)
                 for team in player_db[player]['teams']:
                     if not (team in participant_db[player]['teams']):
-                        print('team not: ', team)
+                        # print('team not: ', team)
                         participant_db[player]['teams'].append(team)
                 for teammate in player_db[player]['teammates']:
                     if not (teammate in participant_db[player]['teammates']):
-                        print('teammate not: ', teammate)
+                        # print('teammate not: ', teammate)
                         participant_db[player]['teammates'].append(teammate)
                 for award in player_db[player]['awards']:
                     if not (award in participant_db[player]['awards']):
-                        print('award not: ', award)
+                        # print('award not: ', award)
                         participant_db[player]['awards'].append(award)
 
         # print(participant_db)
@@ -170,6 +176,7 @@ async def on_ready():
         matches_db = {}
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
         matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
+        checkForMatches()
 
         # get guild
         # print(client.guilds[0].name)
@@ -444,7 +451,7 @@ async def profile(ctx, arg = None):
                     raise
 
             else:
-                ctx.send('No season roles')
+                await ctx.send('No season roles')
         else:
             await ctx.message.reply('Profile not found')
 
@@ -818,6 +825,12 @@ async def twitchAlerts():
             if lescLiveChannel != None:
                 await lescLiveChannel.send(embed=embed2)
     last_live = lesc_live
+
+
+
+
+    checkForMatches()
+
     # max time to wait 10 minutes
     if next_time > 600: next_time = 600
     return next_time
@@ -914,6 +927,29 @@ async def cycle(seconds):
     # asyncio.create_task(cycle(wait_time))
     # print('cycle end', seconds)
     return asyncio.create_task(cycle(wait_time))
+
+def checkForMatches():
+    #check for scheduled matches
+    now=datetime.utcnow()
+    print('UTC',now)
+    print('EST',now + timedelta(hours=-5))
+    print('EDT',now + timedelta(hours=-4))
+    print('ET',datetime.now())
+    print('CET',now + timedelta(hours=1))
+    for match in matches_db['LESC2'][2]:
+
+        # print('Date: ', match['date'],'Time: ',match['time'])
+        # print(2022,int(match['date'][3:5]),int(match['date'][0:2]),int(match['time'][0:2]),int(match['time'][3:5]))
+        try:
+            matchdatetime = datetime(2022,int(match['date'][3:5]),int(match['date'][0:2]),int(match['time'][0:2]),int(match['time'][3:5]))
+            # print('Future: ',now<matchdatetime)
+        except Exception as e:
+            # raise
+            print(e)
+            pass
+        # print('Match datetime: ',matchdatetime)
+
+
 
 if __name__ == '__main__':
     client.run(TOKEN)
