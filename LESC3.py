@@ -18,7 +18,7 @@ def formatRosters(db):
     roster=[]
     for index in range(0,len(rosters)):
         divN = index+1
-        for row in range(2,len(rosters[index])):
+        for row in range(1,len(rosters[index])):
             # entry = {'division':'US'}
             entry = {'division':divN}
             # print(rosters[index][row])
