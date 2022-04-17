@@ -172,6 +172,19 @@ async def on_ready():
                     if not (award in participant_db[player]['awards']):
                         # print('award not: ', award)
                         participant_db[player]['awards'].append(award)
+        print('test')
+        for player in participant_db:
+            print(player)
+            for item in participant_db[player]:
+                # print(item)
+                if item in ['season', 'teams', 'teammates', 'awards']:
+                    print(item)
+                    if len(participant_db[player][item]) > 1 and ('-' in participant_db[player][item]):
+                        try:
+                            participant_db[player][item].remove('-')
+                        except Exception as e:
+                            print('Removal of "-" in participant_db:\n', e)
+                            pass
 
         # print(participant_db)
         # print(participant_db['sassybrenda'])
@@ -466,7 +479,7 @@ async def profile(ctx, arg = None):
                 embedVar.set_footer(text=lescTitle)
                 await ctx.send(embed=embedVar)
                 try:
-                    # rc.setValue('participants',participant_db) #save user to db
+                    rc.setValue('participants',participant_db) #save user to db
                     y=8
 
                 except Exception as e:
