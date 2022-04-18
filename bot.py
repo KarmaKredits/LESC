@@ -88,7 +88,7 @@ async def on_ready():
     global LESC3_DB
     try:
         step = 'updateFromGoogleSheets'
-        await updateFromGoogleSheets() #temp
+        # await updateFromGoogleSheets() #temp
     except Exception as e:
         print('db from redis')
         # LESC3_DB = rc.getValue('lesc3_db') #LESC1
@@ -979,18 +979,37 @@ def checkForMatches():
     print('EDT',now + timedelta(hours=-4))
     print('ET',datetime.now())
     print('CET',now + timedelta(hours=1))
-    for match in matches_db['LESC2'][2]:
+    zoneOffset = {'ET': -4,'CET': 1}
+    meridiemOffset = {'AM': 0, 'PM': 12,'': 0}
+    monthNumber = {'Apr': 4, 'May': 5, 'Jun': 6}
+    for div in matches_db['LESC3']:
+        for match in matches_db['LESC3'][div]:
 
-        # print('Date: ', match['date'],'Time: ',match['time'])
-        # print(2022,int(match['date'][3:5]),int(match['date'][0:2]),int(match['time'][0:2]),int(match['time'][3:5]))
-        try:
-            matchdatetime = datetime(2022,int(match['date'][3:5]),int(match['date'][0:2]),int(match['time'][0:2]),int(match['time'][3:5]))
-            # print('Future: ',now<matchdatetime)
-        except Exception as e:
-            # raise
-            print(e)
-            pass
-        # print('Match datetime: ',matchdatetime)
+            print('Date: ', match['date'],'Time: ',match['time'])
+            # print(2022,int(match['date'][3:5]),int(match['date'][0:2]),int(match['time'][0:2]),int(match['time'][3:5]))
+            x = re.findall("(\d{1,2})-(\w{3})", match['date'])
+            print(x)
+            day, month = x[0]
+            day = int(day)
+            y = re.findall("(\d{1,2}):(\d\d)\s([AP]?[M]?)\s?(\w{2,3})", match['time'])
+            print(y, len(y[0]))
+
+            hour, minute, meridiem, zone = y[0]
+
+            hour = int(hour)
+            minute = int(minute)
+            try:
+                matchdatetime = datetime(2022,monthNumber[month],day,hour,minute)
+                print(matchdatetime)
+                matchdatetimeUTC = matchdatetime + timedelta(hours=zoneOffset[zone]+meridiemOffset[meridiem])
+                print(matchdatetimeUTC)
+                print('Future: ',now<matchdatetimeUTC)
+                print(datetime.timestamp(matchdatetimeUTC))
+            except Exception as e:
+                # raise
+                print(e)
+                pass
+            # print('Match datetime: ',matchdatetime)
 
 
 
