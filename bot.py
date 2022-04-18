@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 import googleSheets
 import LESC3
 from redisDB import redisDB
-from datetime import datetime
-from datetime import timedelta
+import calendar
+from datetime import datetime, timedelta
 import time as t
 twitchTracking = {}
 import twitchWatcher as tw
@@ -88,7 +88,7 @@ async def on_ready():
     global LESC3_DB
     try:
         step = 'updateFromGoogleSheets'
-        # await updateFromGoogleSheets() #temp
+        await updateFromGoogleSheets() #temp
     except Exception as e:
         print('db from redis')
         # LESC3_DB = rc.getValue('lesc3_db') #LESC1
@@ -197,7 +197,8 @@ async def on_ready():
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
         matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
         matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
-        checkForMatches()
+        schedule = checkForMatches() #test
+
 
         # get guild
         # print(client.guilds[0].name)
@@ -742,6 +743,20 @@ async def streams(ctx):
     # await ctx.send(embed=embed)
     await msg.edit(content = '', embed=embed)
 
+@client.command(brief="Return a list of scheduled matches",
+    help='List the future matches to be played with local time and teams')
+async def schedule(ctx):
+    schedule = checkForMatches()
+    # print(schedule)
+    matchList = []
+    for item in schedule:
+        # print(item)
+        matchList.append(f"<t:{item['unix']}> \t**{item['info']['home']}**  vs  **{item['info']['away']}**")
+    text = '\n'.join(matchList)
+    # print(text)
+    title = '**Scheduled Matches**\n'
+    await ctx.send(content = title + text)
+
 
 async def twitchAlerts():
     global last_sorted_list
@@ -869,10 +884,7 @@ async def twitchAlerts():
                 await lescLiveChannel.send(embed=embed2)
     last_live = lesc_live
 
-
-
-
-    checkForMatches()
+    schedule = checkForMatches()
 
     # max time to wait 10 minutes
     if next_time > 600: next_time = 600
@@ -974,43 +986,73 @@ async def cycle(seconds):
 def checkForMatches():
     #check for scheduled matches
     now=datetime.utcnow()
-    print('UTC',now)
-    print('EST',now + timedelta(hours=-5))
-    print('EDT',now + timedelta(hours=-4))
-    print('ET',datetime.now())
-    print('CET',now + timedelta(hours=1))
-    zoneOffset = {'ET': -4,'CET': 1}
+    # print('UTC',now)
+    # print('EST',now + timedelta(hours=-5))
+    # print('EDT',now + timedelta(hours=-4))
+    # print('ET',datetime.now())
+    # print('CET',now + timedelta(hours=1))
+    zoneOffset = {'ET': +4,'CET': -1} #local to utc
     meridiemOffset = {'AM': 0, 'PM': 12,'': 0}
     monthNumber = {'Apr': 4, 'May': 5, 'Jun': 6}
+    schedule = []
+    future = False
     for div in matches_db['LESC3']:
         for match in matches_db['LESC3'][div]:
 
-            print('Date: ', match['date'],'Time: ',match['time'])
+            # print('Date: ', match['date'],'Time: ',match['time'])
             # print(2022,int(match['date'][3:5]),int(match['date'][0:2]),int(match['time'][0:2]),int(match['time'][3:5]))
             x = re.findall("(\d{1,2})-(\w{3})", match['date'])
-            print(x)
+            # print(x)
             day, month = x[0]
             day = int(day)
             y = re.findall("(\d{1,2}):(\d\d)\s([AP]?[M]?)\s?(\w{2,3})", match['time'])
-            print(y, len(y[0]))
-
+            # print(y, len(y[0]))
             hour, minute, meridiem, zone = y[0]
-
             hour = int(hour)
             minute = int(minute)
             try:
                 matchdatetime = datetime(2022,monthNumber[month],day,hour,minute)
-                print(matchdatetime)
+                # print(matchdatetime)
                 matchdatetimeUTC = matchdatetime + timedelta(hours=zoneOffset[zone]+meridiemOffset[meridiem])
-                print(matchdatetimeUTC)
-                print('Future: ',now<matchdatetimeUTC)
-                print(datetime.timestamp(matchdatetimeUTC))
+                # print(matchdatetimeUTC)
+                future = now < matchdatetimeUTC
+                unixtime = calendar.timegm(matchdatetimeUTC.utctimetuple())
+                # print(t.mktime(matchdatetimeUTC.utctimetuple())) #shows utc time as local
+
             except Exception as e:
                 # raise
                 print(e)
                 pass
             # print('Match datetime: ',matchdatetime)
+            if future:
+                schedule.append({'unix': unixtime, 'info': match})
 
+
+    # print(schedule)
+    # for item in schedule:
+    #     print(item)
+    # sort schedule
+
+    scheduleSorted = []
+    cnt = 0
+    while len(schedule)>0:
+        if cnt>50: break
+        cnt = cnt + 1
+        minUnix = 9999999999
+        minInfo = {}
+        minIndex = 0
+
+        for i in range(len(schedule)):
+            if schedule[i]['unix']<minUnix:
+                minUnix = schedule[i]['unix']
+                # minInfo = schedule[i]['info']
+                minIndex = i
+        scheduleSorted.append(schedule.pop(minIndex))
+    # print('sorted')
+    # for item in scheduleSorted:
+    #     print(item['unix'], item['info']['date'])
+    # print(scheduleSorted)
+    return scheduleSorted
 
 
 if __name__ == '__main__':
