@@ -42,6 +42,7 @@ last_sorted_list = []
 last_live = []
 
 async def updateFromGoogleSheets():
+    response = ''
     try:
         # get db info from googleSheets
         print('loading data from google sheets...')
@@ -52,16 +53,20 @@ async def updateFromGoogleSheets():
         LESC3_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
         # print('LESC3_DB',LESC3_DB)
+        response = 'Unable to update Redis, contact KarmaKredits'
         if LESC3_DB is not None:
             # rc1 = redisDB()
             rc.setValue(key='lesc3_db',value=LESC3_DB) # overwrite
+            response = 'Update Successful'
 
     except Exception as e:
+        response = 'Unable to connect to sheets, contact KarmaKredits'
         # msg =  log.send(e)
         # newcontent = 'Google Sheet Update:\n' + msg.content
         # msg.edit(content=newcontent)
         print(e)
         raise
+    return response
 
 
 @client.event
@@ -88,7 +93,7 @@ async def on_ready():
     global LESC3_DB
     try:
         step = 'updateFromGoogleSheets'
-        await updateFromGoogleSheets() #temp
+        response = await updateFromGoogleSheets() #temp
     except Exception as e:
         print('db from redis')
         # LESC3_DB = rc.getValue('lesc3_db') #LESC1
@@ -243,9 +248,38 @@ async def on_ready():
 # def logErr(arg):
 #     await log.send(arg)
 
+@client.command(brief='Update DB from Google Sheets (Commissioners ONLY)')
+async def update(ctx):
+    roles = [183800165767970820, #life guard
+    835907130074333184] #commissioners
+    userOverride = [174714475113480192] #karmakredits id
+    # print(ctx.author.roles)
+    allowed = False
+    #check for KarmaKredits
+    if ctx.author.id in userOverride:
+        allowed = True
+        # print('userOverride')
+        #check roles
+    for roleNeeded in roles:
+        # print(roleNeeded)
+        if allowed: break
+        for role in ctx.author.roles:
+            if role.id == roleNeeded:
+                allowed = True
+                # print('found')
+                break
+    # print(allowed)
+    if allowed:
+        print('update executed')
+        msg = await ctx.reply('Updating DB from Sheets...')
+        response = await updateFromGoogleSheets()
+        await msg.edit(content=response)
+
+
+
 @client.command(brief='Check bot latency')
 async def ping(ctx):
-  await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
+    await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
 
 @client.command(brief='View the teams of a season',usage='[season #] [division name]',
     description='Defaults to the current season if no [arguments] are passed',
