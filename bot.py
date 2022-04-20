@@ -281,7 +281,7 @@ async def update(ctx):
 @client.command(brief='List available subs',
     aliases=['subs','substitute','substitutes'])
 async def sub(ctx):
-    sub_role = [963617395874889740
+    sub_role = [958277060390965258
     # , #sub
     # 183800165767970820
     ] #life guard
