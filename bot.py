@@ -284,7 +284,7 @@ async def update(ctx):
 
 
 @client.command(brief='List available subs',
-    aliases=['subs,substitute'])
+    aliases=['subs','substitute','substitutes'])
 async def sub(ctx):
     sub_role = [963617395874889740, #sub
     183800165767970820] #life guard
@@ -316,14 +316,16 @@ async def sub(ctx):
                                 if rankId not in sub_list:
                                     sub_list[rankId] = []
                                 sub_list[rankId].append(member.mention)
-    print(sub_list)
-    text = ''
-    embedTitle='LESC Season Substitutes'
-    embedVar = discord.Embed(title=embedTitle, color=0xffffff)
+        print(sub_list)
+        text = ''
+        embedTitle='LESC Season Substitutes'
+        embedVar = discord.Embed(title=embedTitle, color=0xffffff)
 
-    for item in sub_list:
-        embedVar.add_field(name=guild.get_role(item).name, value='\n'.join(sub_list[item]), inline=True)
-    await ctx.send(embed=embedVar)
+        for item in sub_list:
+            embedVar.add_field(name=guild.get_role(item).name, value='\n'.join(sub_list[item]), inline=True)
+        await ctx.send(embed=embedVar)
+        embedVar.clear_fields
+
 
 @client.command(brief='Check bot latency')
 async def ping(ctx):
