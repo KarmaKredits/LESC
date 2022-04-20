@@ -93,7 +93,7 @@ async def on_ready():
     global LESC3_DB
     try:
         step = 'updateFromGoogleSheets'
-        # response = await updateFromGoogleSheets() #temp
+        response = await updateFromGoogleSheets() #temp
     except Exception as e:
         print('db from redis')
         # LESC3_DB = rc.getValue('lesc3_db') #LESC1
@@ -237,20 +237,11 @@ async def on_ready():
         await msg.edit(content=newcontent)
         raise
 
-
-
-
     print('Bot Ready')
     print('==========================')
     # twitchAlerts()
     print('execute cycle from ready')
     task1 = asyncio.create_task(cycle(10))
-
-
-
-
-
-
 
 # def logErr(arg):
 #     await log.send(arg)
