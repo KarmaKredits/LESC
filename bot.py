@@ -326,6 +326,43 @@ async def sub(ctx):
             await ctx.send(embed=embedVar)
         embedVar.clear_fields
 
+@client.command(brief='War of Fruit')
+async def fruit(ctx):
+    fruit_role_ids = [963451965084409907, #strawberry
+    963455568838791178] #, #grape
+    # 843196839057948722] #partygoers
+    fruit_list = {}
+    max_count = 0
+    max = 0
+    color = 0xffffff
+    for guild in client.guilds:
+        print(guild.name)
+        for fruit_role_id in fruit_role_ids:
+            if guild.get_role(fruit_role_id) != None:
+                fruit_role = guild.get_role(fruit_role_id)
+                print(fruit_role.name)
+                count = len(fruit_role.members)
+                if count > max_count:
+                    max_count = count
+                    max = fruit_role.id
+                    color = fruit_role.color
+                elif count == max_count:
+                    color = 0xffffff
+
+                print('count:', count)
+                fruit_list[fruit_role_id] = count
+    print(fruit_list)
+
+    embedTitle='The Grape Debate'
+
+
+    embedVar = discord.Embed(title=embedTitle, color=color)
+
+    for item in fruit_list:
+        embedVar.add_field(name=guild.get_role(item).name, value=str(fruit_list[item]), inline=True)
+    if len(fruit_list)>0:
+        await ctx.send(embed=embedVar)
+
 
 @client.command(brief='Check bot latency')
 async def ping(ctx):
