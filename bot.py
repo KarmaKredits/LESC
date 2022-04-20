@@ -214,6 +214,10 @@ async def on_ready():
         except: pass
         print('+++++++++++++++++++++++')
         print(guildLESC)
+
+        for item in guildLESC.members:
+            print(item)
+
         global guildTEST
 
         guildTEST = client.get_guild(guildTESTID)
@@ -277,8 +281,10 @@ async def update(ctx):
 @client.command(brief='List available subs',
     aliases=['subs','substitute','substitutes'])
 async def sub(ctx):
-    sub_role = [963617395874889740, #sub
-    183800165767970820] #life guard
+    sub_role = [963617395874889740
+    # , #sub
+    # 183800165767970820
+    ] #life guard
     rank_roles = [
     869528040265363456, #grand champ
     869527980035153940, #champ
@@ -288,14 +294,16 @@ async def sub(ctx):
     869527391351996417, #silver
     869527337702666242, #bronze
     # 892260316224839680, #freestyle
-    695490219687804928, #poke
-    843196839057948722 #party
+    # 695490219687804928, #poke
+    # 843196839057948722 #party
     ]
     for guild in client.guilds:
+        print(guild.name)
         sub_list = {}
         for roleId in sub_role:
             if guild.get_role(roleId) != None:
                 for member in guild.get_role(roleId).members:
+                    print(member.name)
                     found = False
                     for rankId in rank_roles:
                         if found: break
@@ -314,7 +322,8 @@ async def sub(ctx):
 
         for item in sub_list:
             embedVar.add_field(name=guild.get_role(item).name, value='\n'.join(sub_list[item]), inline=True)
-        await ctx.send(embed=embedVar)
+        if len(sub_list)>0:
+            await ctx.send(embed=embedVar)
         embedVar.clear_fields
 
 
