@@ -52,7 +52,7 @@ async def updateFromGoogleSheets():
         # global LESC3_DB
         LESC3_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
-        # print('LESC3_DB',LESC3_DB)
+        print('LESC3_DB',LESC3_DB)
         response = 'Unable to update Redis, contact KarmaKredits'
         if LESC3_DB is not None:
             # rc1 = redisDB()
@@ -68,6 +68,13 @@ async def updateFromGoogleSheets():
         raise
     return response
 
+def variable_update():
+    global team_db
+    team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
+    global standings_db
+    standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
+    global matches_db
+    matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
 
 @client.event
 async def on_ready():
@@ -202,7 +209,7 @@ async def on_ready():
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
         matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
         matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
-        schedule = checkForMatches() #test
+        # schedule = checkForMatches() #test
 
 
         # get guild
@@ -275,6 +282,8 @@ async def update(ctx):
         print('update executed')
         msg = await ctx.reply('Updating DB from Sheets...')
         response = await updateFromGoogleSheets()
+        if response == 'Update Successful':
+            variable_update()
         await msg.edit(content=response)
 
 
