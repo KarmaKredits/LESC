@@ -53,11 +53,14 @@ async def updateFromGoogleSheets():
         LESC3_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
         # print('LESC3_DB',LESC3_DB)
-        response = 'Unable to update Redis, contact KarmaKredits'
+
         if LESC3_DB is not None:
             # rc1 = redisDB()
+            response = 'Unable to update Redis, contact KarmaKredits'
             rc.setValue(key='lesc3_db',value=LESC3_DB) # overwrite
             response = 'Update Successful'
+        else:
+            response = 'Unable to connect to Google Sheets, contact KarmaKredits'
 
     except Exception as e:
         response = 'Unable to connect to sheets, contact KarmaKredits'
@@ -68,6 +71,13 @@ async def updateFromGoogleSheets():
         raise
     return response
 
+def variable_update():
+    global team_db
+    team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
+    global standings_db
+    standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
+    global matches_db
+    matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
 
 @client.event
 async def on_ready():
@@ -177,13 +187,13 @@ async def on_ready():
                     if not (award in participant_db[player]['awards']):
                         # print('award not: ', award)
                         participant_db[player]['awards'].append(award)
-        print('test')
+        # print('test')
         for player in participant_db:
-            print(player)
+            # print(player)
             for item in participant_db[player]:
                 # print(item)
                 if item in ['season', 'teams', 'teammates', 'awards']:
-                    print(item)
+                    # print(item)
                     if len(participant_db[player][item]) > 1 and ('-' in participant_db[player][item]):
                         try:
                             participant_db[player][item].remove('-')
@@ -202,7 +212,7 @@ async def on_ready():
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
         matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
         matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
-        schedule = checkForMatches() #test
+        # schedule = checkForMatches() #test
 
 
         # get guild
@@ -275,6 +285,9 @@ async def update(ctx):
         print('update executed')
         msg = await ctx.reply('Updating DB from Sheets...')
         response = await updateFromGoogleSheets()
+        if response == 'Update Successful':
+            variable_update()
+            print('variable update')
         await msg.edit(content=response)
 
 
