@@ -52,7 +52,7 @@ async def updateFromGoogleSheets():
         # global LESC3_DB
         LESC3_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
-        print('LESC3_DB',LESC3_DB)
+        # print('LESC3_DB',LESC3_DB)
 
         if LESC3_DB is not None:
             # rc1 = redisDB()
@@ -287,6 +287,7 @@ async def update(ctx):
         response = await updateFromGoogleSheets()
         if response == 'Update Successful':
             variable_update()
+            print('variable update')
         await msg.edit(content=response)
 
 

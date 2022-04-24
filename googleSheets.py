@@ -223,7 +223,7 @@ def getAwards(ranges):
     return awardList
 
 def getMatches(ranges):
-    print('getMatches')
+    # print('getMatches')
     # print(ranges)
     matches = {1:[], 2:[]}
     temp = ranges[4].get('values',[])
