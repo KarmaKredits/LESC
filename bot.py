@@ -310,10 +310,12 @@ async def sub(ctx):
     # 695490219687804928, #poke
     # 843196839057948722 #party
     ]
+    no_rank = []
     for guild in client.guilds:
         print(guild.name)
         sub_list = {}
         for roleId in sub_role:
+            # skip if roles does not exist
             if guild.get_role(roleId) != None:
                 for member in guild.get_role(roleId).members:
                     print(member.name)
@@ -325,9 +327,13 @@ async def sub(ctx):
                             if rankId == memRole.id:
                                 print('found', rankId, memRole.name)
                                 found = True
+                                #add rank to sub list if it does not exist
                                 if rankId not in sub_list:
                                     sub_list[rankId] = []
+                                #append member id to respective rank
                                 sub_list[rankId].append(member.mention)
+                    if not found:
+                        no_rank.append(member.mention)
         print(sub_list)
         text = ''
         embedTitle='LESC Season Substitutes'
@@ -335,6 +341,8 @@ async def sub(ctx):
 
         for item in sub_list:
             embedVar.add_field(name=guild.get_role(item).name, value='\n'.join(sub_list[item]), inline=True)
+        if len(no_rank)>0:
+            embedVar.add_field(name='No Rank', value='\n'.join(no_rank), inline=True)
         if len(sub_list)>0:
             await ctx.send(embed=embedVar)
         embedVar.clear_fields
