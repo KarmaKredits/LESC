@@ -358,19 +358,19 @@ async def fruit(ctx):
     #             teamname_list.append(entry['team'])
     stats = {}
     global standings_db
-    print(standings_db)
+    # print(standings_db)
     for div in standings_db['LESC3']:
         for entry in standings_db['LESC3'][div]:
             if entry[1] not in stats:
-                stats[entry[1]] = {'gw': entry[2], 'sp':entry[3],'sw':entry[4],'points':entry[5]}
+                stats[entry[1]] = {'gw': entry[4], 'sp':entry[2],'sw':entry[3],'points':entry[5]}
 
     # print(teamname_list)
-    print(stats)
+    print('stats from standings:',stats)
     fruit_totals = {}
     # fruit_totals[963451965084409907] = {'gw': 0, 'sp':0,'sw':0,'points':0}
     # fruit_totals[963455568838791178] = {'gw': 0, 'sp':0,'sw':0,'points':0}
     for ids in fruit_role_ids:
-        fruit_totals[ids] = {'gw': 0, 'sp':0,'sw':0,'points':0}
+        fruit_totals[ids] = {'sp':0,'sw':0,'gw': 0, 'points':0,'participants':0}
     for guild in client.guilds:
         print(guild.name)
         for fruit_role_id in fruit_role_ids:
@@ -401,28 +401,32 @@ async def fruit(ctx):
                             fruit_totals[fruit_role_id]['sp'] = fruit_totals[fruit_role_id]['sp'] + int(stats[role.name]['sp'])
                             fruit_totals[fruit_role_id]['sw'] = fruit_totals[fruit_role_id]['sw'] + int(stats[role.name]['sw'])
                             fruit_totals[fruit_role_id]['points'] = fruit_totals[fruit_role_id]['points'] + int(stats[role.name]['points'])
+                            fruit_totals[fruit_role_id]['participants'] = fruit_totals[fruit_role_id]['participants'] + 1
 
 
                 print('count:', count)
                 fruit_stats[fruit_role_id]['count'] = count
+                fruit_stats[fruit_role_id]['participants'] = fruit_totals[fruit_role_id]['participants']
+    print('fruit_db',fruit_db)
     print('fruit_stats:',fruit_stats)
-    print('fruit_totals:',fruit_totals)
     for fruit in fruit_totals:
         for stat in fruit_totals[fruit]:
-            if stat != 'count' and fruit in fruit_stats:
-                fruit_stats[fruit][stat] = round(fruit_totals[fruit][stat]/fruit_stats[fruit]['count'],1)
+            if stat not in  ['count','participants'] and fruit in fruit_stats:
+                fruit_stats[fruit][stat] = round(fruit_totals[fruit][stat]/fruit_totals[fruit]['participants'],1)
 
-    print(fruit_stats)
 
-    stat_names = {'count': 'Total:','gw': 'Avg. Games Won:', 'sp': 'Avg. Series Played:','sw': 'Avg. Series Won:','points': 'Avg. Points:'}
+    print('fruit_totals',fruit_totals)
+    print('fruit_stats',fruit_stats)
+
+    stat_names = {'count': 'Total Votes','gw': 'Avg. Games Won', 'sp': 'Avg. Series Played','sw': 'Avg. Series Won','points': 'Avg. Points','participants': 'League Participants'}
 
     embedTitle='The Grape Debate'
     embedVar = discord.Embed(title=embedTitle, color=color)
-
+    embedVar.set_footer(text='Results collected by strawberry poll')
     for fruit in fruit_stats:
         statlist=[]
         for stat in fruit_stats[fruit]:
-            statlist.append(f'{stat_names[stat]}    {fruit_stats[fruit][stat]}')
+            statlist.append(f'{stat_names[stat]}:    **{fruit_stats[fruit][stat]}**')
         embedVar.add_field(name=guild.get_role(fruit).name, value='\n'.join(statlist), inline=True)
     if len(fruit_stats)>0:
         await ctx.send(embed=embedVar)
