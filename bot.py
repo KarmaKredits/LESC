@@ -225,8 +225,8 @@ async def on_ready():
         print('+++++++++++++++++++++++')
         print(guildLESC)
 
-        for item in guildLESC.members:
-            print(item)
+        # for item in guildLESC.members:
+        #     print(item)
 
         global guildTEST
 
