@@ -422,9 +422,6 @@ async def fruit(ctx):
         elif fruit_stats[fruit]['points'] == max_points:
             embedcolor = white
 
-    max_points = 0
-    for fruit in fruit_stats
-
     print('fruit_totals',fruit_totals)
     print('fruit_stats',fruit_stats)
 
