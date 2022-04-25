@@ -368,8 +368,6 @@ async def fruit(ctx):
     # print(teamname_list)
     print('stats from standings:',stats)
     fruit_totals = {}
-    # fruit_totals[963451965084409907] = {'gw': 0, 'sp':0,'sw':0,'points':0}
-    # fruit_totals[963455568838791178] = {'gw': 0, 'sp':0,'sw':0,'points':0}
     for ids in fruit_role_ids:
         fruit_totals[ids] = {'sp':0,'sw':0,'gw': 0, 'points':0,'participants':0}
     for guild in client.guilds:
@@ -377,21 +375,13 @@ async def fruit(ctx):
         for fruit_role_id in fruit_role_ids:
             if guild.get_role(fruit_role_id) != None:
                 fruit_stats[fruit_role_id] = {}
-                color[fruit_role_id] = fruit_role.color
                 fruit_role = guild.get_role(fruit_role_id)
+                color[fruit_role_id] = fruit_role.color
                 print(fruit_role.name)
                 count = len(fruit_role.members)
-                # if count > max_count:
-                #     max_count = count
-                #     max = fruit_role.id
-                #     # color = fruit_role.color
-                # elif count == max_count:
-                #     color = 0xffffff
                 for member in fruit_role.members:
                     if member.id not in fruit_db:
                         fruit_db[member.id] = {'team': '', 'fruit': [],'gw': 0, 'sp':0,'sw':0,'points':0}
-                    # fruit_db[member.id]['fruit_name'].append(fruit_role.name)
-                    # fruit_db[member.id]['fruit_id'].append(fruit_role.id)
                     for role in member.roles:
                         if role.name in stats:
                             fruit_db[member.id]['team'] = role.name
