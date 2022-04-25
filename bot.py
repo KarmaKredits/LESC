@@ -348,7 +348,8 @@ async def fruit(ctx):
     fruit_stats = {}
     max_count = 0
     max = 0
-    color = 0xffffff
+    white = 0xffffff
+    color = {}
     fruit_db={}
     teamname_list=[]
     # global team_db
@@ -376,15 +377,16 @@ async def fruit(ctx):
         for fruit_role_id in fruit_role_ids:
             if guild.get_role(fruit_role_id) != None:
                 fruit_stats[fruit_role_id] = {}
+                color[fruit_role_id] = fruit_role.color
                 fruit_role = guild.get_role(fruit_role_id)
                 print(fruit_role.name)
                 count = len(fruit_role.members)
-                if count > max_count:
-                    max_count = count
-                    max = fruit_role.id
-                    color = fruit_role.color
-                elif count == max_count:
-                    color = 0xffffff
+                # if count > max_count:
+                #     max_count = count
+                #     max = fruit_role.id
+                #     # color = fruit_role.color
+                # elif count == max_count:
+                #     color = 0xffffff
                 for member in fruit_role.members:
                     if member.id not in fruit_db:
                         fruit_db[member.id] = {'team': '', 'fruit': [],'gw': 0, 'sp':0,'sw':0,'points':0}
@@ -409,11 +411,19 @@ async def fruit(ctx):
                 fruit_stats[fruit_role_id]['participants'] = fruit_totals[fruit_role_id]['participants']
     print('fruit_db',fruit_db)
     print('fruit_stats:',fruit_stats)
+    max_points = 0
+    embedcolor = white
     for fruit in fruit_totals:
         for stat in fruit_totals[fruit]:
             if stat not in  ['count','participants'] and fruit in fruit_stats:
                 fruit_stats[fruit][stat] = round(fruit_totals[fruit][stat]/fruit_totals[fruit]['participants'],1)
+        if fruit_stats[fruit]['points'] > max_points:
+            embedcolor = color[fruit]
+        elif fruit_stats[fruit]['points'] == max_points:
+            embedcolor = white
 
+    max_points = 0
+    for fruit in fruit_stats
 
     print('fruit_totals',fruit_totals)
     print('fruit_stats',fruit_stats)
@@ -421,7 +431,7 @@ async def fruit(ctx):
     stat_names = {'count': 'Total Votes','gw': 'Avg. Games Won', 'sp': 'Avg. Series Played','sw': 'Avg. Series Won','points': 'Avg. Points','participants': 'League Participants'}
 
     embedTitle='The Grape Debate'
-    embedVar = discord.Embed(title=embedTitle, color=color)
+    embedVar = discord.Embed(title=embedTitle, color=embedcolor)
     embedVar.set_footer(text='Results collected by strawberry poll')
     for fruit in fruit_stats:
         statlist=[]
