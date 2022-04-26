@@ -22,7 +22,7 @@ streamDiscordId = {
     'karmakredits': 174714475113480192, 'og_grips': 346715426241380362,
     'csmith_games': 492497679570436117, 'xxvhpxx': 335887314159140866,
     'qs3v3n': 192007340927614976, 'altihex3': 505797270164340788,
-    'kedsypoo': 408671999439667202
+    'kedsypoo': 408671999439667202, 'shakeyjake_': 228109622551117824
     }
 # streamDiscordId= {'karmakredits': '174714475113480192'} #test with my id
 # driver = webdriver.Chrome(options=chrome_options)
@@ -30,7 +30,7 @@ streamDiscordId = {
 streamerlist = ['gingersoccermom','ragdoll139','rudbud','theleakygiraffe','midoriin4k',
                 'soundsofthewild','shwa_zee','chillcatdad','benny07','csmith_games',
                 'itsjeffguy','arkwav','xxvhpxx','dannyofthepaul','bigfootmcgroot',
-                'r4lplays','tuffavocado','kylure','laggittarius','skrupstar','enjib',
+                'r4lplays','tuffavocado','kylure','shakeyjake_','skrupstar','enjib',
                 'elekidp06', 'skilltwister', 'karmakredits', 'og_grips', 'qs3v3n',
                 'altihex3','kedsypoo']
 
