@@ -238,12 +238,12 @@ async def on_ready():
         print(guildTEST)
         # print(client.get_guild(183763588870176768))
         me = await guildTEST.fetch_member(174714475113480192)
-        print(me)
+        # print(me)
         # await log.send(me.mention)
         # members = await guildTEST.fetch_members(limit=150).flatten()
         # print(members)
-        for item in guildTEST.members:
-            print(item)
+        # for item in guildTEST.members:
+        #     print(item)
 
         step = 'keys'
         rc.printKeys()
@@ -946,18 +946,48 @@ async def streams(ctx):
     await msg.edit(content = '', embed=embed)
 
 @client.command(brief="Return a list of scheduled matches",
-    help='List the future matches to be played with local time and teams')
+    help='List the future matches to be played with local time and teams',
+    aliases=['games'])
 async def schedule(ctx):
     schedule = checkForMatches()
     # print(schedule)
     matchList = []
-    for item in schedule:
-        # print(item)
-        matchList.append(f"<t:{item['unix']}> \t**{item['info']['home']}**  vs  **{item['info']['away']}**")
-    text = '\n'.join(matchList)
+    categoryList = []
+    catN = 0
+    for i in range(len(schedule)):
+        if i == 0:
+            categoryList.insert(catN,[schedule[i]])
+        else:
+            if (schedule[i]['unix']-schedule[i-1]['unix'])/3600 > 8:
+                catN = catN + 1
+                categoryList.insert(catN,[schedule[i]])
+            else:
+                categoryList[catN].append(schedule[i])
+    # print(categoryList)
+
+    # for item in schedule:
+    #     # print(item)
+    #     matchList.append(f"<t:{item['unix']}> \t**{item['info']['home']}**  vs  **{item['info']['away']}**")
+    # text = '\n'.join(matchList)
     # print(text)
-    title = '**Scheduled Matches**\n'
-    await ctx.send(content = title + text)
+    title = '**Scheduled Matches**'
+
+    catText = ''
+
+    for group in categoryList:
+        catText = catText + f"\n\n__Games starting <t:{group[0]['unix']}:R>__\n"
+        # print('new group')
+        groupMatches = []
+        for item in group:
+            # print('item',item)
+            groupMatches.append(f"<t:{item['unix']}> \t**{item['info']['home']}**  vs  **{item['info']['away']}**")
+        # print('group',groupMatches)
+        catText = catText + '\n'.join(groupMatches)
+
+
+    await ctx.send(content = title + catText)
+
+
 
 
 async def twitchAlerts():
@@ -1254,6 +1284,18 @@ def checkForMatches():
     # for item in scheduleSorted:
     #     print(item['unix'], item['info']['date'])
     # print(scheduleSorted)
+    diff = []
+    for i in range(1,len(scheduleSorted)):
+        diff.append((scheduleSorted[i]['unix'] - scheduleSorted[i-1]['unix'])/3600)
+    mean_diff = sum(diff) / len(diff)
+    print(diff)
+    print(mean_diff)
+    for item in diff:
+        if item > mean_diff:
+            print('-')
+        print(item)
+
+
     return scheduleSorted
 
 
