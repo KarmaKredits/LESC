@@ -1201,30 +1201,30 @@ def checkForMatches():
     for div in matches_db['LESC3']:
         for match in matches_db['LESC3'][div]:
 
-            # print('Date: ', match['date'],'Time: ',match['time'])
-            # print(2022,int(match['date'][3:5]),int(match['date'][0:2]),int(match['time'][0:2]),int(match['time'][3:5]))
             x = re.findall("(\d{1,2})-(\w{3})", match['date'])
-            # print(x)
-            day, month = x[0]
-            day = int(day)
             y = re.findall("(\d{1,2}):(\d\d)\s([AP]?[M]?)\s?(\w{2,3})", match['time'])
-            # print(y, len(y[0]))
-            hour, minute, meridiem, zone = y[0]
-            hour = int(hour)
-            minute = int(minute)
-            try:
-                matchdatetime = datetime(2022,monthNumber[month],day,hour,minute)
-                # print(matchdatetime)
-                matchdatetimeUTC = matchdatetime + timedelta(hours=zoneOffset[zone]+meridiemOffset[meridiem])
-                # print(matchdatetimeUTC)
-                future = now < matchdatetimeUTC
-                unixtime = calendar.timegm(matchdatetimeUTC.utctimetuple())
-                # print(t.mktime(matchdatetimeUTC.utctimetuple())) #shows utc time as local
+            # print(x)
+            # print(y)
 
-            except Exception as e:
-                # raise
-                print(e)
-                pass
+            if len(x) > 0 and len(y) > 0:
+                day, month = x[0]
+                day = int(day)
+                hour, minute, meridiem, zone = y[0]
+                hour = int(hour)
+                minute = int(minute)
+                try:
+                    matchdatetime = datetime(2022,monthNumber[month],day,hour,minute)
+                    # print(matchdatetime)
+                    matchdatetimeUTC = matchdatetime + timedelta(hours=zoneOffset[zone]+meridiemOffset[meridiem])
+                    # print(matchdatetimeUTC)
+                    future = now < matchdatetimeUTC
+                    unixtime = calendar.timegm(matchdatetimeUTC.utctimetuple())
+                    # print(t.mktime(matchdatetimeUTC.utctimetuple())) #shows utc time as local
+
+                except Exception as e:
+                    # raise
+                    print(e)
+                    pass
             # print('Match datetime: ',matchdatetime)
             if future:
                 schedule.append({'unix': unixtime, 'info': match})
