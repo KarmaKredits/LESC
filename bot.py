@@ -72,11 +72,15 @@ async def updateFromGoogleSheets():
     return response
 
 def variable_update():
-    global team_db
+    # global team_db
+    # print(LESC3_DB)
+    print('team_db')
     team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
-    global standings_db
+    # global standings_db
+    print('standings_db')
     standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
-    global matches_db
+    # global matches_db
+    print('matches_db')
     matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
 
 @client.event

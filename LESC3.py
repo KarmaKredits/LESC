@@ -6,13 +6,16 @@
 def formatRosters(db):
     # print(db)
     # print(db['1'][0].get('values',[]))
-    d1 = db['1'][0].get('values',[])
-    d2 = db['2'][0].get('values',[])
-    d3 = db['3'][0].get('values',[])
-    d4 = db['4'][0].get('values',[])
-    rosters = [d1,d2,d3,d4]
+    # d1 = db['1'][0].get('values',[])
+    # d2 = db['2'][0].get('values',[])
+    # d3 = db['3'][0].get('values',[])
+    # d4 = db['4'][0].get('values',[])
+    # rosters = [d1,d2,d3,d4]
+    rosters=[]
+    for i in db:
+        rosters.append(db[i][0].get('values',[]))
     # print(d1)
-    header = d1[0]
+    # header = d1[0]
     header = ['team','captain','teammate']
     # print(header)
     roster=[]
@@ -31,16 +34,17 @@ def formatRosters(db):
     return roster
 
 def formatStandings(db):
-    d1 = db['1'][1].get('values',[])
-    d2 = db['2'][1].get('values',[])
-    d3 = db['3'][1].get('values',[])
-    d4 = db['4'][1].get('values',[])
+    if '1' in db:
+        d1 = db['1'][1].get('values',[])
+        d2 = db['2'][1].get('values',[])
+        d3 = db['3'][1].get('values',[])
+        d4 = db['4'][1].get('values',[])
+    else:
+        d1 = db[1][1].get('values',[])
+        d2 = db[2][1].get('values',[])
+        d3 = db[3][1].get('values',[])
+        d4 = db[4][1].get('values',[])
 
-    # no Rank column
-    # d1[0][0]='Rank' #currently null cell
-    # d2[0][0]='Rank' #currently null cell
-    # d3[0][0]='Rank' #currently null cell
-    # d4[0][0]='Rank' #currently null cell
     standings = {}
     standings[1]=d1
     standings[2]=d2
@@ -61,10 +65,16 @@ def getMatches(db):
     # print(ranges)
     matches = {1:[], 2:[], 3:[], 4:[]}
     tz = {1: 'ET', 2: 'ET', 3: 'CET', 4: 'CET'}
-    d1 = db['1'][2].get('values',[])
-    d2 = db['2'][2].get('values',[])
-    d3 = db['3'][2].get('values',[])
-    d4 = db['4'][2].get('values',[])
+    if '1' in db:
+        d1 = db['1'][2].get('values',[])
+        d2 = db['2'][2].get('values',[])
+        d3 = db['3'][2].get('values',[])
+        d4 = db['4'][2].get('values',[])
+    else:
+        d1 = db[1][2].get('values',[])
+        d2 = db[2][2].get('values',[])
+        d3 = db[3][2].get('values',[])
+        d4 = db[4][2].get('values',[])
     matchRaw = {
         1: d1,
         2: d2,
