@@ -49,7 +49,7 @@ async def updateFromGoogleSheets():
         divisions = [1,2,3,4]
         divisionNames = ['NA Upper','NA Lower','EU Upper', 'EU Lower']
         divisionKey = ['naupper','nalower','euupper', 'eulower']
-        # global LESC3_DB
+        global LESC3_DB
         LESC3_DB = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
         # print('LESC3_DB',LESC3_DB)
@@ -414,7 +414,10 @@ async def fruit(ctx):
     for fruit in fruit_totals:
         for stat in fruit_totals[fruit]:
             if stat not in  ['count','participants'] and fruit in fruit_stats:
-                fruit_stats[fruit][stat] = round(fruit_totals[fruit][stat]/fruit_totals[fruit]['participants'],1)
+                denom = fruit_totals[fruit]['participants']
+                if fruit_totals[fruit]['participants'] == 0:
+                    denom = 1
+                fruit_stats[fruit][stat] = round(fruit_totals[fruit][stat]/denom,1)
         if fruit_stats[fruit]['points'] > max_points:
             embedcolor = color[fruit]
         elif fruit_stats[fruit]['points'] == max_points:
