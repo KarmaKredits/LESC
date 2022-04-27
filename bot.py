@@ -420,6 +420,7 @@ async def fruit(ctx):
                 fruit_stats[fruit][stat] = round(fruit_totals[fruit][stat]/denom,1)
         if fruit_stats[fruit]['points'] > max_points:
             embedcolor = color[fruit]
+            max_points = fruit_stats[fruit]['points']
         elif fruit_stats[fruit]['points'] == max_points:
             embedcolor = white
 
