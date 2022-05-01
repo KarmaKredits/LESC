@@ -40,6 +40,10 @@ log = None
 lescLiveChannel = None
 last_sorted_list = []
 last_live = []
+rc=redisDB()
+team_db={}
+standings_db = {}
+matches_db = {}
 
 async def updateFromGoogleSheets():
     response = ''
@@ -88,6 +92,8 @@ async def on_ready():
     print('LOADING...')
     await client.change_presence(activity=discord.Activity(name=".help",type=discord.ActivityType.watching))
 
+    client.load_extension('cogs.commissioners')
+
     step = 'log'
 
     global log
@@ -101,8 +107,7 @@ async def on_ready():
     except:
         pass
 
-    global rc
-    rc=redisDB()
+
 
     global LESC3_DB
     try:
@@ -130,8 +135,7 @@ async def on_ready():
 
         print('formating rosters...')
         step = 'rosters'
-        global team_db
-        team_db={}
+
         team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
         team_db['LESC2'] = googleSheets.formatRosters(LESC2_DB)
         team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
@@ -139,8 +143,7 @@ async def on_ready():
 
         print('formating standings...')
         step = 'standings'
-        global standings_db
-        standings_db = {}
+
         standings_db['LESC1'] = googleSheets.formatStandings(LESC1_DB)
         standings_db['LESC2'] = googleSheets.formatStandings(LESC2_DB)
         standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
@@ -211,8 +214,7 @@ async def on_ready():
 
         print('formating matches...')
         step = 'matches'
-        global matches_db
-        matches_db = {}
+
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
         matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
         matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
@@ -264,35 +266,35 @@ async def on_ready():
 # def logErr(arg):
 #     await log.send(arg)
 
-@client.command(brief='Update DB from Google Sheets (Commissioners ONLY)')
-async def update(ctx):
-    roles = [183800165767970820, #life guard
-    835907130074333184] #commissioners
-    userOverride = [174714475113480192] #karmakredits id
-    # print(ctx.author.roles)
-    allowed = False
-    #check for KarmaKredits
-    if ctx.author.id in userOverride:
-        allowed = True
-        # print('userOverride')
-        #check roles
-    for roleNeeded in roles:
-        # print(roleNeeded)
-        if allowed: break
-        for role in ctx.author.roles:
-            if role.id == roleNeeded:
-                allowed = True
-                # print('found')
-                break
-    # print(allowed)
-    if allowed:
-        print('update executed')
-        msg = await ctx.reply('Updating DB from Sheets...')
-        response = await updateFromGoogleSheets()
-        if response == 'Update Successful':
-            variable_update()
-            print('variable update')
-        await msg.edit(content=response)
+# @client.command(brief='Update DB from Google Sheets (Commissioners ONLY)')
+# async def update(ctx):
+#     roles = [183800165767970820, #life guard
+#     835907130074333184] #commissioners
+#     userOverride = [174714475113480192] #karmakredits id
+#     # print(ctx.author.roles)
+#     allowed = False
+#     #check for KarmaKredits
+#     if ctx.author.id in userOverride:
+#         allowed = True
+#         # print('userOverride')
+#         #check roles
+#     for roleNeeded in roles:
+#         # print(roleNeeded)
+#         if allowed: break
+#         for role in ctx.author.roles:
+#             if role.id == roleNeeded:
+#                 allowed = True
+#                 # print('found')
+#                 break
+#     # print(allowed)
+#     if allowed:
+#         print('update executed')
+#         msg = await ctx.reply('Updating DB from Sheets...')
+#         response = await updateFromGoogleSheets()
+#         if response == 'Update Successful':
+#             variable_update()
+#             print('variable update')
+#         await msg.edit(content=response)
 
 
 @client.command(brief='List available subs',
