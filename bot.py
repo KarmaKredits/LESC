@@ -44,6 +44,7 @@ rc=redisDB()
 team_db={}
 standings_db = {}
 matches_db = {}
+participant_db = {}
 
 async def updateFromGoogleSheets():
     response = ''
@@ -87,12 +88,15 @@ def variable_update():
     print('matches_db')
     matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
 
+
+
 @client.event
 async def on_ready():
     print('LOADING...')
     await client.change_presence(activity=discord.Activity(name=".help",type=discord.ActivityType.watching))
 
     client.load_extension('cogs.commissioners')
+    client.load_extension('cogs.profile')
 
     step = 'log'
 
@@ -135,7 +139,7 @@ async def on_ready():
 
         print('formating rosters...')
         step = 'rosters'
-
+        global team_db
         team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
         team_db['LESC2'] = googleSheets.formatRosters(LESC2_DB)
         team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
@@ -143,7 +147,7 @@ async def on_ready():
 
         print('formating standings...')
         step = 'standings'
-
+        global standings_db
         standings_db['LESC1'] = googleSheets.formatStandings(LESC1_DB)
         standings_db['LESC2'] = googleSheets.formatStandings(LESC2_DB)
         standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
@@ -162,7 +166,7 @@ async def on_ready():
         awardsTable['LESC3'] = []
         print('generating profiles...')
         step = 'profiles'
-        global player_db
+        # global player_db
         player_db = googleSheets.generateProfiles(team_db,playoffList,awardsTable)
         # print(player_db)
         print('loading participants from redis...')
@@ -214,7 +218,7 @@ async def on_ready():
 
         print('formating matches...')
         step = 'matches'
-
+        global matches_db
         matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
         matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
         matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
@@ -296,7 +300,6 @@ async def on_ready():
 #             print('variable update')
 #         await msg.edit(content=response)
 
-
 @client.command(brief='List available subs',
     aliases=['subs','substitute','substitutes'])
 async def sub(ctx):
@@ -372,7 +375,7 @@ async def fruit(ctx):
     #         if entry['team'] not in teamname_list:
     #             teamname_list.append(entry['team'])
     stats = {}
-    global standings_db
+    # global standings_db
     # print(standings_db)
     for div in standings_db['LESC3']:
         for entry in standings_db['LESC3'][div]:
@@ -624,79 +627,79 @@ async def standings(ctx,*args):
         string = '\n'.join(rowlist)
         await ctx.send(title + "```" + string + "```")
 
-@client.command(description='View the LESC profile of yourself or the mentioned user',
-    brief='View LESC profile of [user], defaults to self',aliases=['me'],usage='[@user]')
-async def profile(ctx, arg = None):
-    if arg == None:
-        arg = ctx.author.display_name #mention
-        print(arg)
-    elif len(arg)<3:
-        await ctx.message.reply('Please use at least 3 characters for profile name search')
-        return
-    not_found = True
-    global participant_db
-
-    for playerkey in participant_db:
-        # print(playerkey)
-        pp=participant_db[playerkey]
-        if (arg.lower() == playerkey.lower()) or (arg.lower() in playerkey.lower() and len(arg)>2):
-            description = ''
-            if len(pp['quote'])>1:
-                description = '*"'+ pp['quote'] +'"*'
-            embedVar = discord.Embed(title=pp['player'], description=description, color=0xffffff)
-            embedVar.add_field(name='Seasons',value='\n'.join(pp['season']),inline=True)
-            embedVar.add_field(name='Teams',value='\n'.join(pp['teams']),inline=True)
-            embedVar.add_field(name='Teammates',value='\n'.join(pp['teammates']),inline=True)
-            embedVar.add_field(name='Awards',value='\n'.join(pp['awards']),inline=True)
-            embedVar.set_footer(text=lescTitle,icon_url='https://cdn.discordapp.com/icons/835907044024123473/3963713137e01ae8b9c0be2311dc434c.png')
-            await ctx.send(embed=embedVar)
-            embedVar.clear_fields
-            not_found = False
-    season_sub= ['860144876866502666', # S1 US Sub
-    '860145226224107550',# S1 EU Sub
-    '843196839057948722'] #test
-    award_sub=['869417365975224340', # S1 Participant
-    '695490219687804928'] #test
-    if not_found:
-        if arg.lower()==ctx.author.display_name.lower():
-            season_list = ['-']
-            award_list = ['-']
-            for role in ctx.author.roles:
-                if str(role.id) in season_sub:
-                    print('season')
-                    print(role.name)
-                    season_list.insert(0,role.name)
-                if str(role.id) in award_sub:
-                    print('award')
-                    print(role.name)
-                    award_list.insert(0,role.name)
-            if len(season_list) or len(award_list):
-                key=arg.lower()
-                participant_db[key] = {'player':arg,
-                    'season':season_list,'teams':['-'],'teammates':['-'],'awards':award_list,'id':0,'quote':''}
-                if len(participant_db[key]['season'])>1 and '-' in participant_db[key]['season']: participant_db[key]['season'].remove('-')
-                if len(participant_db[key]['awards'])>1 and '-' in participant_db[key]['awards']: participant_db[key]['awards'].remove('-')
-                embedVar = discord.Embed(title=arg, color=0xffffff)
-                embedVar.add_field(name='Seasons',value='\n'.join(participant_db[key]['season']),inline=True)
-                embedVar.add_field(name='Teams',value='\n'.join(participant_db[key]['teams']),inline=True)
-                embedVar.add_field(name='Teammates',value='\n'.join(participant_db[key]['teammates']),inline=True)
-                embedVar.add_field(name='Awards',value='\n'.join(participant_db[key]['awards']),inline=True)
-                embedVar.set_footer(text=lescTitle)
-                await ctx.send(embed=embedVar)
-                try:
-                    rc.setValue('participants',participant_db) #save user to db
-                    y=8
-
-                except Exception as e:
-                    msg = await log.send(e)
-                    newcontent = 'save user to redis participants: '+ arg + '\n' + msg.content
-                    await msg.edit(content=newcontent)
-                    raise
-
-            else:
-                await ctx.send('No season roles')
-        else:
-            await ctx.message.reply('Profile not found')
+# @client.command(description='View the LESC profile of yourself or the mentioned user',
+#     brief='View LESC profile of [user], defaults to self',aliases=['me'],usage='[@user]')
+# async def profile(ctx, arg = None):
+#     if arg == None:
+#         arg = ctx.author.display_name #mention
+#         print(arg)
+#     elif len(arg)<3:
+#         await ctx.message.reply('Please use at least 3 characters for profile name search')
+#         return
+#     not_found = True
+#     global participant_db
+#
+#     for playerkey in participant_db:
+#         # print(playerkey)
+#         pp=participant_db[playerkey]
+#         if (arg.lower() == playerkey.lower()) or (arg.lower() in playerkey.lower() and len(arg)>2):
+#             description = ''
+#             if len(pp['quote'])>1:
+#                 description = '*"'+ pp['quote'] +'"*'
+#             embedVar = discord.Embed(title=pp['player'], description=description, color=0xffffff)
+#             embedVar.add_field(name='Seasons',value='\n'.join(pp['season']),inline=True)
+#             embedVar.add_field(name='Teams',value='\n'.join(pp['teams']),inline=True)
+#             embedVar.add_field(name='Teammates',value='\n'.join(pp['teammates']),inline=True)
+#             embedVar.add_field(name='Awards',value='\n'.join(pp['awards']),inline=True)
+#             embedVar.set_footer(text=lescTitle,icon_url='https://cdn.discordapp.com/icons/835907044024123473/3963713137e01ae8b9c0be2311dc434c.png')
+#             await ctx.send(embed=embedVar)
+#             embedVar.clear_fields
+#             not_found = False
+#     season_sub= ['860144876866502666', # S1 US Sub
+#     '860145226224107550',# S1 EU Sub
+#     '843196839057948722'] #test
+#     award_sub=['869417365975224340', # S1 Participant
+#     '695490219687804928'] #test
+#     if not_found:
+#         if arg.lower()==ctx.author.display_name.lower():
+#             season_list = ['-']
+#             award_list = ['-']
+#             for role in ctx.author.roles:
+#                 if str(role.id) in season_sub:
+#                     print('season')
+#                     print(role.name)
+#                     season_list.insert(0,role.name)
+#                 if str(role.id) in award_sub:
+#                     print('award')
+#                     print(role.name)
+#                     award_list.insert(0,role.name)
+#             if len(season_list) or len(award_list):
+#                 key=arg.lower()
+#                 participant_db[key] = {'player':arg,
+#                     'season':season_list,'teams':['-'],'teammates':['-'],'awards':award_list,'id':0,'quote':''}
+#                 if len(participant_db[key]['season'])>1 and '-' in participant_db[key]['season']: participant_db[key]['season'].remove('-')
+#                 if len(participant_db[key]['awards'])>1 and '-' in participant_db[key]['awards']: participant_db[key]['awards'].remove('-')
+#                 embedVar = discord.Embed(title=arg, color=0xffffff)
+#                 embedVar.add_field(name='Seasons',value='\n'.join(participant_db[key]['season']),inline=True)
+#                 embedVar.add_field(name='Teams',value='\n'.join(participant_db[key]['teams']),inline=True)
+#                 embedVar.add_field(name='Teammates',value='\n'.join(participant_db[key]['teammates']),inline=True)
+#                 embedVar.add_field(name='Awards',value='\n'.join(participant_db[key]['awards']),inline=True)
+#                 embedVar.set_footer(text=lescTitle)
+#                 await ctx.send(embed=embedVar)
+#                 try:
+#                     rc.setValue('participants',participant_db) #save user to db
+#                     y=8
+#
+#                 except Exception as e:
+#                     msg = await log.send(e)
+#                     newcontent = 'save user to redis participants: '+ arg + '\n' + msg.content
+#                     await msg.edit(content=newcontent)
+#                     raise
+#
+#             else:
+#                 await ctx.send('No season roles')
+#         else:
+#             await ctx.message.reply('Profile not found')
 
 # @client.command()
 # async def prefix(ctx, arg = '.'):
