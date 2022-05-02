@@ -74,7 +74,7 @@ class League(commands.Cog):
         await ctx.send('```' + output + '```')
 
 
-    @client.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]',
+    @commands.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]',
     description='Defaults to the current season if no [arguments] are passed',
     help='EXAMPLE:\nTo view the team rosters for the Season 1 US division use,\n.team 1 US')
     async def teams(self, ctx,*args):
