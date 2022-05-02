@@ -503,58 +503,58 @@ async def season(ctx,*args):
 
     await ctx.send(embed=embedVar)
 
-@client.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]',
-description='Defaults to the current season if no [arguments] are passed',
-help='EXAMPLE:\nTo view the team rosters for the Season 1 US division use,\n.team 1 US')
-async def teams(ctx,*args):
-    print('command: teams')
-    global team_db
-    division = [] #default to all
-    season = 3 #default to current
-    argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
-    seaDiv = {
-        1: {1:'US',2:'EU'},
-        2: {1:'Upper',2:'Lower'},
-        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
-        }
-    for arg in args:
-        if arg == '1':
-            season = 1
-        elif arg == '2':
-            season = 2
-        elif arg.lower() == 'eu':
-            division.append(2)
-            season = 1
-        elif arg.lower() == 'us':
-            division.append(1)
-            season = 1
-        elif arg.lower() == 'upper':
-            division.append(1)
-            season = 2
-        elif arg.lower() == 'lower':
-            division.append(2)
-            season = 2
-
-    # print(division)
-    if len(division)<1:
-        division = seaDiv[season].keys()
-
-    embedTitle='LESC Season ' + str(season) + ' Teams'
-    # print(division)
-    # print(team_db['LESC'+str(season)])
-    for div in division:
-        embedVar = discord.Embed(title=embedTitle,description='**' + seaDiv[season][div] + ' Division**', color=0xffffff)
-        for col in ['team','captain','teammate']:
-            val = []
-            for team in team_db['LESC'+str(season)]:
-
-                if team['division'] == div:
-                    # print(team)
-                    val.append(team[col])
-
-            embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
-        await ctx.send(embed=embedVar)
-        embedVar.clear_fields
+# @client.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]',
+# description='Defaults to the current season if no [arguments] are passed',
+# help='EXAMPLE:\nTo view the team rosters for the Season 1 US division use,\n.team 1 US')
+# async def teams(ctx,*args):
+#     print('command: teams')
+#     global team_db
+#     division = [] #default to all
+#     season = 3 #default to current
+#     argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
+#     seaDiv = {
+#         1: {1:'US',2:'EU'},
+#         2: {1:'Upper',2:'Lower'},
+#         3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+#         }
+#     for arg in args:
+#         if arg == '1':
+#             season = 1
+#         elif arg == '2':
+#             season = 2
+#         elif arg.lower() == 'eu':
+#             division.append(2)
+#             season = 1
+#         elif arg.lower() == 'us':
+#             division.append(1)
+#             season = 1
+#         elif arg.lower() == 'upper':
+#             division.append(1)
+#             season = 2
+#         elif arg.lower() == 'lower':
+#             division.append(2)
+#             season = 2
+#
+#     # print(division)
+#     if len(division)<1:
+#         division = seaDiv[season].keys()
+#
+#     embedTitle='LESC Season ' + str(season) + ' Teams'
+#     # print(division)
+#     # print(team_db['LESC'+str(season)])
+#     for div in division:
+#         embedVar = discord.Embed(title=embedTitle,description='**' + seaDiv[season][div] + ' Division**', color=0xffffff)
+#         for col in ['team','captain','teammate']:
+#             val = []
+#             for team in team_db['LESC'+str(season)]:
+#
+#                 if team['division'] == div:
+#                     # print(team)
+#                     val.append(team[col])
+#
+#             embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
+#         await ctx.send(embed=embedVar)
+#         embedVar.clear_fields
 
 
 

@@ -74,6 +74,71 @@ class League(commands.Cog):
         await ctx.send('```' + output + '```')
 
 
+    @client.command(brief='View team rosters',aliases=['team','roster','rosters'],usage='[season #] [division name]',
+    description='Defaults to the current season if no [arguments] are passed',
+    help='EXAMPLE:\nTo view the team rosters for the Season 1 US division use,\n.team 1 US')
+    async def teams(self, ctx,*args):
+        print('command: teams')
+
+        division = [] #default to all
+        season = 3 #default to current
+        argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
+        seaDiv = {
+            1: {1:'US',2:'EU'},
+            2: {1:'Upper',2:'Lower'},
+            3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+            }
+        for arg in args:
+            if arg == '1':
+                season = 1
+            elif arg == '2':
+                season = 2
+            elif arg.lower() == 'eu':
+                division.append(2)
+                season = 1
+            elif arg.lower() == 'us':
+                division.append(1)
+                season = 1
+            elif arg.lower() == 'upper':
+                division.append(1)
+                season = 2
+            elif arg.lower() == 'lower':
+                division.append(2)
+                season = 2
+
+        # print(division)
+        if len(division)<1:
+            division = seaDiv[season].keys()
+
+        embedTitle='LESC Season ' + str(season) + ' Teams'
+        # print(division)
+        # print(team_db['LESC'+str(season)])
+        #load correct db
+        team_db = {}
+        if season == 1:
+            LESC1_DB = rc.getValue('lesc_db') #LESC1
+            team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
+        elif season == 2:
+            LESC2_DB = rc.getValue('lesc2_db') #LESC2
+            team_db['LESC2'] = googleSheets.formatRosters(LESC2_DB)
+        elif season == 3:
+            LESC3_DB = rc.getValue('lesc3_db')
+            team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
+
+
+        for div in division:
+            embedVar = discord.Embed(title=embedTitle,description='**' + seaDiv[season][div] + ' Division**', color=0xffffff)
+            for col in ['team','captain','teammate']:
+                val = []
+                for team in team_db['LESC'+str(season)]:
+
+                    if team['division'] == div:
+                        # print(team)
+                        val.append(team[col])
+
+                embedVar.add_field(name=col.capitalize(), value='\n'.join(val), inline=True)
+            await ctx.send(embed=embedVar)
+            embedVar.clear_fields
 
 
 
