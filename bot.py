@@ -558,76 +558,76 @@ async def season(ctx,*args):
 
 
 
-@client.command(brief='View season standings',aliases=['results'],usage='[season #] [division name]',
-description='Defaults to the current season if no [arguments] are passed',
-help='EXAMPLE:\nTo view the standings of the Season 1 US division use,\n.season 1 US')
-async def standings(ctx,*args):
-    global standings_db
-    division = [] #default to all
-    season = 3 #default to current
-    seaDiv = {
-        1: {1:'US',2:'EU'},
-        2: {1:'Upper',2:'Lower'},
-        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
-        }
-    for arg in args:
-        if arg == '1':
-            season = 1
-        elif arg == '2':
-            season = 2
-        elif arg.lower() == 'eu':
-            division.append(2)
-            season = 1
-        elif arg.lower() == 'us':
-            division.append(1)
-            season = 1
-        elif arg.lower() == 'upper':
-            division.append(1)
-        elif arg.lower() == 'lower':
-            division.append(2)
-
-    if len(division)<1:
-        division = seaDiv[season].keys()
-
-    for div in division:
-        matches = standings_db['LESC'+str(season)][div]
-        title = '**LESC Season ' + str(season) + ' - '+ seaDiv[season][div] +' Standings**\n'
-        string = ''
-        temp = ''
-
-        coln=len(matches[0])-1
-        if season == 3:
-            coln = coln +1
-        # print('coln: ' + str(coln))
-        rown=len(matches)-1
-        # print('rown: ' + str(rown))
-        maxchar = []
-        for col in range(coln):
-            maxn=0
-            for row in matches:
-                # print(row[col])
-                if len(row[col]) > maxn:
-                    maxn=len(row[col])
-                    # print(row[col] + ' - ' + str(len(row[col])))
-            maxchar.append(maxn)
-        # print(maxchar)
-        rowlist = []
-        for line in matches:
-            rowtext = ''
-            font=''
-            # if line[0].isnumeric():
-            #     if int(line[0])>7:
-            #         font='- '
-            #     else:
-            #         font='+ '
-            # print(line)
-            for col in range(coln):
-                # print(line[col])
-                diff = maxchar[col]-len(line[col]) + 2
-                rowtext = rowtext + line[col] + (' '*diff)
-            rowlist.append(font+rowtext)
-        string = '\n'.join(rowlist)
-        await ctx.send(title + "```" + string + "```")
+# @client.command(brief='View season standings',aliases=['results'],usage='[season #] [division name]',
+# description='Defaults to the current season if no [arguments] are passed',
+# help='EXAMPLE:\nTo view the standings of the Season 1 US division use,\n.season 1 US')
+# async def standings(ctx,*args):
+#     global standings_db
+#     division = [] #default to all
+#     season = 3 #default to current
+#     seaDiv = {
+#         1: {1:'US',2:'EU'},
+#         2: {1:'Upper',2:'Lower'},
+#         3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+#         }
+#     for arg in args:
+#         if arg == '1':
+#             season = 1
+#         elif arg == '2':
+#             season = 2
+#         elif arg.lower() == 'eu':
+#             division.append(2)
+#             season = 1
+#         elif arg.lower() == 'us':
+#             division.append(1)
+#             season = 1
+#         elif arg.lower() == 'upper':
+#             division.append(1)
+#         elif arg.lower() == 'lower':
+#             division.append(2)
+#
+#     if len(division)<1:
+#         division = seaDiv[season].keys()
+#
+#     for div in division:
+#         matches = standings_db['LESC'+str(season)][div]
+#         title = '**LESC Season ' + str(season) + ' - '+ seaDiv[season][div] +' Standings**\n'
+#         string = ''
+#         temp = ''
+#
+#         coln=len(matches[0])-1
+#         if season == 3:
+#             coln = coln +1
+#         # print('coln: ' + str(coln))
+#         rown=len(matches)-1
+#         # print('rown: ' + str(rown))
+#         maxchar = []
+#         for col in range(coln):
+#             maxn=0
+#             for row in matches:
+#                 # print(row[col])
+#                 if len(row[col]) > maxn:
+#                     maxn=len(row[col])
+#                     # print(row[col] + ' - ' + str(len(row[col])))
+#             maxchar.append(maxn)
+#         # print(maxchar)
+#         rowlist = []
+#         for line in matches:
+#             rowtext = ''
+#             font=''
+#             # if line[0].isnumeric():
+#             #     if int(line[0])>7:
+#             #         font='- '
+#             #     else:
+#             #         font='+ '
+#             # print(line)
+#             for col in range(coln):
+#                 # print(line[col])
+#                 diff = maxchar[col]-len(line[col]) + 2
+#                 rowtext = rowtext + line[col] + (' '*diff)
+#             rowlist.append(font+rowtext)
+#         string = '\n'.join(rowlist)
+#         await ctx.send(title + "```" + string + "```")
 
 # @client.command(description='View the LESC profile of yourself or the mentioned user',
 #     brief='View LESC profile of [user], defaults to self',aliases=['me'],usage='[@user]')
