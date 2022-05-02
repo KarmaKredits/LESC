@@ -778,39 +778,39 @@ async def time(ctx, hours=0.0):
 #         to_send = to_send + arg + ' not found'
 #     await ctx.message.reply(to_send)
 #
-@client.command(brief="Add a quote to your profile",
-    usage='<"Your quote enclosed with double quotations">',
-    description="Add some flavor to your profile with a quote")
-async def quote(ctx, *args):
-    response = ''
-    if len(args) == 0:
-        print('None')
-        response = 'No quote detected. use this format:\n.quote "your quote here, enclosed by double-quotation marks"'
-    elif len(args)>0:
-        found=False
-        for player in participant_db:
-            if participant_db[player]['id'] == ctx.author.id:
-                print('found claimed profile')
-                found = True
-                if len(args)>1:
-                    quote = ' '.join(args)
-                else:
-                    quote = args[0]
-
-                participant_db[player]['quote'] = quote
-                try:
-                    rc.setValue('participants',participant_db)
-                    response = 'Profile quote set to:\n*"' + quote + '"*'
-                    await log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
-                except Exception as e:
-                    msg = await log.send(e)
-                    newcontent = 'quote to redis participants: '+ arg + '\n' + msg.content
-                    await msg.edit(content=newcontent)
-                    raise
-        if not found:
-            response = 'You must first claim your profile, please use the ".claim <profile name>" command to claim your profile'
-    if len(response)>1:
-        await ctx.message.reply(response)
+# @client.command(brief="Add a quote to your profile",
+#     usage='<"Your quote enclosed with double quotations">',
+#     description="Add some flavor to your profile with a quote")
+# async def quote(ctx, *args):
+#     response = ''
+#     if len(args) == 0:
+#         print('None')
+#         response = 'No quote detected. use this format:\n.quote "your quote here, enclosed by double-quotation marks"'
+#     elif len(args)>0:
+#         found=False
+#         for player in participant_db:
+#             if participant_db[player]['id'] == ctx.author.id:
+#                 print('found claimed profile')
+#                 found = True
+#                 if len(args)>1:
+#                     quote = ' '.join(args)
+#                 else:
+#                     quote = args[0]
+#
+#                 participant_db[player]['quote'] = quote
+#                 try:
+#                     rc.setValue('participants',participant_db)
+#                     response = 'Profile quote set to:\n*"' + quote + '"*'
+#                     await log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
+#                 except Exception as e:
+#                     msg = await log.send(e)
+#                     newcontent = 'quote to redis participants: '+ arg + '\n' + msg.content
+#                     await msg.edit(content=newcontent)
+#                     raise
+#         if not found:
+#             response = 'You must first claim your profile, please use the ".claim <profile name>" command to claim your profile'
+#     if len(response)>1:
+#         await ctx.message.reply(response)
 
 @client.command(brief="Search current season matches of a team",
     aliases=['match','matchup','matchups'],

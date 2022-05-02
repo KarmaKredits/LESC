@@ -8,6 +8,7 @@ logChannel=866129852708814858
 class Profile(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.log = self.client.get_channel(logChannel)
 
 
 
@@ -23,7 +24,7 @@ class Profile(commands.Cog):
         not_found = True
         # global participant_db
         participant_db = rc.getValue('participants')
-        print(participant_db)
+        # print(participant_db)
         for playerkey in participant_db:
             if not not_found: break
             pp=participant_db[playerkey]
@@ -47,7 +48,7 @@ class Profile(commands.Cog):
         usage='[your name in google sheets if not the same as your Discord name]',
         description='In order to pull up your league stats in discord without searching your name, you will need to assign your name in the LESC google sheet to your discord account.')
     async def claim(self, ctx, arg=None):
-        log = self.client.get_channel(logChannel)
+        # log = self.client.get_channel(logChannel)
         print('claim command used')
         to_send = ''
         if arg == None:
@@ -65,9 +66,9 @@ class Profile(commands.Cog):
             try:
                 rc.setValue('participants',participant_db)
                 # await log.send(link_text)
-                await log.send(link_text)
+                await self.log.send(link_text)
             except Exception as e:
-                msg = await log.send(e)
+                msg = await self.log.send(e)
                 newcontent = 'claim redis participants: '+ arg + '\n' + msg.content
                 await msg.edit(content=newcontent)
                 raise
@@ -75,6 +76,42 @@ class Profile(commands.Cog):
             print(arg + ' not found')
             to_send = to_send + arg + ' not found'
         await ctx.message.reply(to_send)
+
+    @commands.command(brief="Add a quote to your profile",
+        usage='<"Your quote enclosed with double quotations">',
+        description="Add some flavor to your profile with a quote")
+    async def quote(self, ctx, *args):
+        response = ''
+        if len(args) == 0:
+            print('None')
+            response = 'No quote detected. use this format:\n.quote "your quote here, enclosed by double-quotation marks"'
+        elif len(args)>0:
+            found=False
+            participant_db = rc.getValue('participants')
+            for player in participant_db:
+                if participant_db[player]['id'] == ctx.author.id:
+                    print('found claimed profile')
+                    found = True
+                    if len(args)>1:
+                        quote = ' '.join(args)
+                    else:
+                        quote = args[0]
+
+                    participant_db[player]['quote'] = quote
+                    try:
+                        rc.setValue('participants',participant_db)
+                        response = 'Profile quote set to:\n*"' + quote + '"*'
+                        await self.log.send('<@' + str(ctx.author.id) + '> has set ' + player + ' quote to: ' + quote)
+                    except Exception as e:
+                        msg = await self.log.send(e)
+                        newcontent = 'quote to redis participants: '+ arg + '\n' + msg.content
+                        await msg.edit(content=newcontent)
+                        raise
+            if not found:
+                response = 'You must first claim your profile, please use the ".claim <profile name>" command to claim your profile'
+        if len(response)>1:
+            await ctx.message.reply(response)
+
 
 def setup(client):
     client.add_cog(Profile(client))
