@@ -3,10 +3,13 @@ from discord.ext import commands
 from bot import lescTitle
 from redisDB import redisDB
 rc=redisDB()
+logChannel=866129852708814858
 
 class Profile(commands.Cog):
     def __init__(self, client):
         self.client = client
+
+
 
     @commands.command(description='View the LESC profile of yourself or the mentioned user',
         brief='View LESC profile of [user], defaults to self',aliases=['me'],usage='[@user]')
@@ -37,52 +40,41 @@ class Profile(commands.Cog):
                 await ctx.send(embed=embedVar)
                 embedVar.clear_fields
                 not_found = False
-        # season_sub= ['860144876866502666', # S1 US Sub
-        # '860145226224107550',# S1 EU Sub
-        # '843196839057948722'] #test
-        # award_sub=['869417365975224340', # S1 Participant
-        # '695490219687804928'] #test
         if not_found:
-            # if arg.lower()==ctx.author.display_name.lower():
-            #     season_list = ['-']
-            #     award_list = ['-']
-            #     for role in ctx.author.roles:
-            #         if str(role.id) in season_sub:
-            #             print('season')
-            #             print(role.name)
-            #             season_list.insert(0,role.name)
-            #         if str(role.id) in award_sub:
-            #             print('award')
-            #             print(role.name)
-            #             award_list.insert(0,role.name)
-            #     if len(season_list) or len(award_list):
-            #         key=arg.lower()
-            #         participant_db[key] = {'player':arg,
-            #             'season':season_list,'teams':['-'],'teammates':['-'],'awards':award_list,'id':0,'quote':''}
-            #         if len(participant_db[key]['season'])>1 and '-' in participant_db[key]['season']: participant_db[key]['season'].remove('-')
-            #         if len(participant_db[key]['awards'])>1 and '-' in participant_db[key]['awards']: participant_db[key]['awards'].remove('-')
-            #         embedVar = discord.Embed(title=arg, color=0xffffff)
-            #         embedVar.add_field(name='Seasons',value='\n'.join(participant_db[key]['season']),inline=True)
-            #         embedVar.add_field(name='Teams',value='\n'.join(participant_db[key]['teams']),inline=True)
-            #         embedVar.add_field(name='Teammates',value='\n'.join(participant_db[key]['teammates']),inline=True)
-            #         embedVar.add_field(name='Awards',value='\n'.join(participant_db[key]['awards']),inline=True)
-            #         embedVar.set_footer(text=lescTitle)
-            #         await ctx.send(embed=embedVar)
-            #         try:
-            #             rc.setValue('participants',participant_db) #save user to db
-            #             y=8
-            #
-            #         except Exception as e:
-            #             msg = await log.send(e)
-            #             newcontent = 'save user to redis participants: '+ arg + '\n' + msg.content
-            #             await msg.edit(content=newcontent)
-            #             raise
-            #
-            #     else:
-            #         await ctx.send('No season roles')
-            # else:
             await ctx.message.reply('Profile not found')
 
+    @commands.command(brief="Link LESC profile to your discord",
+        usage='[your name in google sheets if not the same as your Discord name]',
+        description='In order to pull up your league stats in discord without searching your name, you will need to assign your name in the LESC google sheet to your discord account.')
+    async def claim(self, ctx, arg=None):
+        log = self.client.get_channel(logChannel)
+        print('claim command used')
+        to_send = ''
+        if arg == None:
+            print('no arg')
+            arg = ctx.author.display_name
+            to_send = 'No name given, using Discord display name: ' + str(ctx.author.display_name) + '\n'
+        arg = arg.lower()
+        participant_db = rc.getValue('participants')
+
+        if arg in participant_db:
+            print('arg found')
+            participant_db[arg]['id']=ctx.author.id
+            link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
+            to_send = to_send + 'Profile name found! ' + link_text
+            try:
+                rc.setValue('participants',participant_db)
+                # await log.send(link_text)
+                await log.send(link_text)
+            except Exception as e:
+                msg = await log.send(e)
+                newcontent = 'claim redis participants: '+ arg + '\n' + msg.content
+                await msg.edit(content=newcontent)
+                raise
+        else:
+            print(arg + ' not found')
+            to_send = to_send + arg + ' not found'
+        await ctx.message.reply(to_send)
 
 def setup(client):
     client.add_cog(Profile(client))

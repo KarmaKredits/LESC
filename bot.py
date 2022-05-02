@@ -212,6 +212,7 @@ async def on_ready():
                             print('Removal of "-" in participant_db:\n', e)
                             pass
 
+        rc.setValue('participants',participant_db)
         # print(participant_db)
         # print(participant_db['sassybrenda'])
         # print(participant_db['karmakredits'])
@@ -747,35 +748,35 @@ async def invite(ctx):
 async def time(ctx, hours=0.0):
     await ctx.reply(f'<t:{str(int(t.time()) + int(hours*3600))}>')
 
-@client.command(brief="Link LESC profile to your discord",
-    usage='[your name in google sheets if not the same as your Discord name]',
-    description='In order to pull up your league stats in discord without searching your name, you will need to assign your name in the LESC google sheet to your discord account.')
-async def claim(ctx, arg=None):
-    print('claim command used')
-    to_send = ''
-    if arg == None:
-        print('no arg')
-        arg = ctx.author.display_name
-        to_send = 'No name given, using Discord display name: ' + str(ctx.author.display_name) + '\n'
-    arg = arg.lower()
-    if arg in participant_db:
-        print('arg found')
-        participant_db[arg]['id']=ctx.author.id
-        link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
-        to_send = to_send + 'Profile name found! ' + link_text
-        try:
-            rc.setValue('participants',participant_db)
-            await log.send(link_text)
-        except Exception as e:
-            msg = await log.send(e)
-            newcontent = 'claim redis participants: '+ arg + '\n' + msg.content
-            await msg.edit(content=newcontent)
-            raise
-
-    else:
-        print(arg + ' not found')
-        to_send = to_send + arg + ' not found'
-    await ctx.message.reply(to_send)
+# @client.command(brief="Link LESC profile to your discord",
+#     usage='[your name in google sheets if not the same as your Discord name]',
+#     description='In order to pull up your league stats in discord without searching your name, you will need to assign your name in the LESC google sheet to your discord account.')
+# async def claim(ctx, arg=None):
+#     print('claim command used')
+#     to_send = ''
+#     if arg == None:
+#         print('no arg')
+#         arg = ctx.author.display_name
+#         to_send = 'No name given, using Discord display name: ' + str(ctx.author.display_name) + '\n'
+#     arg = arg.lower()
+#     if arg in participant_db:
+#         print('arg found')
+#         participant_db[arg]['id']=ctx.author.id
+#         link_text = '<@' + str(ctx.author.id) + '> linked with ' + participant_db[arg]['player']
+#         to_send = to_send + 'Profile name found! ' + link_text
+#         try:
+#             rc.setValue('participants',participant_db)
+#             await log.send(link_text)
+#         except Exception as e:
+#             msg = await log.send(e)
+#             newcontent = 'claim redis participants: '+ arg + '\n' + msg.content
+#             await msg.edit(content=newcontent)
+#             raise
+#
+#     else:
+#         print(arg + ' not found')
+#         to_send = to_send + arg + ' not found'
+#     await ctx.message.reply(to_send)
 #
 @client.command(brief="Add a quote to your profile",
     usage='<"Your quote enclosed with double quotations">',
@@ -991,8 +992,6 @@ async def schedule(ctx):
 
 
     await ctx.send(content = title + catText)
-
-
 
 
 async def twitchAlerts():
