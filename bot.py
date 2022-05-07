@@ -45,8 +45,10 @@ team_db={}
 standings_db = {}
 matches_db = {}
 participant_db = {}
+LESC3_DB = []
 
 async def updateFromGoogleSheets():
+    global LESC3_DB
     response = ''
     try:
         # get db info from googleSheets
@@ -54,15 +56,17 @@ async def updateFromGoogleSheets():
         divisions = [1,2,3,4]
         divisionNames = ['NA Upper','NA Lower','EU Upper', 'EU Lower']
         divisionKey = ['naupper','nalower','euupper', 'eulower']
-        global LESC3_DB
-        LESC3_DB = googleSheets.getDataFromGoogleSheets() #current season only
+
+        updated_db = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
         # print('LESC3_DB',LESC3_DB)
 
-        if LESC3_DB is not None:
+        if updated_db is not None:
             # rc1 = redisDB()
             response = 'Unable to update Redis, contact KarmaKredits'
-            rc.setValue(key='lesc3_db',value=LESC3_DB) # overwrite
+            rc.setValue(key='lesc3_db',value=updated_db) # overwrite
+            LESC3_DB = updated_db
+
             response = 'Update Successful'
         else:
             response = 'Unable to connect to Google Sheets, contact KarmaKredits'
@@ -77,7 +81,9 @@ async def updateFromGoogleSheets():
     return response
 
 def variable_update():
+    global LESC3_DB
     # global team_db
+    # print(LESC3_DB)
     # print(LESC3_DB)
     print('team_db')
     team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
@@ -623,7 +629,6 @@ async def twitchAlerts():
                 await lescLiveChannel.send(embed=embed2)
     last_live = lesc_live
 
-    schedule = checkForMatches()
 
     # max time to wait 10 minutes
     if next_time > 600: next_time = 600
@@ -735,8 +740,10 @@ def checkForMatches():
     monthNumber = {'Apr': 4, 'May': 5, 'Jun': 6}
     schedule = []
     future = False
-    for div in matches_db['LESC3']:
-        for match in matches_db['LESC3'][div]:
+    matchdb = LESC3.getMatches(rc.getValue('lesc3_db'))
+    # print(matchdb)
+    for div in matchdb:
+        for match in matchdb[div]:
 
             x = re.findall("(\d{1,2})-(\w{3})", match['date'])
             y = re.findall("(\d{1,2}):(\d\d)\s([AP]?[M]?)\s?(\w{2,3})", match['time'])
@@ -801,7 +808,6 @@ def checkForMatches():
         if item > mean_diff:
             print('-')
         print(item)
-
 
     return scheduleSorted
 
