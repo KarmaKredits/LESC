@@ -322,7 +322,7 @@ class League(commands.Cog):
                                     #append member id to respective rank
                                     sub_list[rankId].append(f'{member.mention} {member}')
                         if not found:
-                            no_rank.append(member.mention)
+                            no_rank.append(f'{member.mention} {member}')
             print(sub_list)
             text = ''
             embedTitle='LESC Season Substitutes'
