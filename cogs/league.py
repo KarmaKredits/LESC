@@ -320,7 +320,7 @@ class League(commands.Cog):
                                     if rankId not in sub_list:
                                         sub_list[rankId] = []
                                     #append member id to respective rank
-                                    sub_list[rankId].append(member.mention)
+                                    sub_list[rankId].append(f'{member.mention} {member}')
                         if not found:
                             no_rank.append(member.mention)
             print(sub_list)
