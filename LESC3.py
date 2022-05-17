@@ -133,17 +133,17 @@ def teamsInPlayoffs(db):
     # print(rows - 6)
     # print('here')
     for div in playoffs:
-        print(div)
+        # print(div)
         for col in [0,-1]:
             for row in rows:
                 # print(div[row])
-                print(div[row][col])
+                # print(div[row][col])
                 team = div[row][col]
                 index = team.find('(')
                 if index > 0:
                     team = team[:index].strip()
                 team = team.lower()
-                print(team)
+                # print(team)
                 list.append(team)
-    print(list)
+    # print(list)
     return list
