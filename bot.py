@@ -801,13 +801,15 @@ def checkForMatches():
     diff = []
     for i in range(1,len(scheduleSorted)):
         diff.append((scheduleSorted[i]['unix'] - scheduleSorted[i-1]['unix'])/3600)
-    mean_diff = sum(diff) / len(diff)
-    print(diff)
-    print(mean_diff)
-    for item in diff:
-        if item > mean_diff:
-            print('-')
-        print(item)
+    # print(diff)
+
+    # mean_diff = sum(diff) / len(diff)
+    # print(diff)
+    # print(mean_diff)
+    # for item in diff:
+    #     if item > mean_diff:
+    #         print('-')
+    #     print(item)
 
     return scheduleSorted
 
