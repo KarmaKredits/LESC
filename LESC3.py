@@ -13,7 +13,10 @@ def formatRosters(db):
     # rosters = [d1,d2,d3,d4]
     rosters=[]
     for i in db:
-        rosters.append(db[i][0].get('values',[]))
+        if i == '5' or i == 5:
+            pass
+        else:
+            rosters.append(db[i][0].get('values',[]))
     # print(d1)
     # header = d1[0]
     header = ['team','captain','teammate']
@@ -115,3 +118,32 @@ def getMatches(db):
                     })
 
     return matches
+
+def teamsInPlayoffs(db):
+    na = db['5'][0].get('values',[])
+    eu = db['5'][1].get('values',[])
+    playoffs = [na,eu]
+    inPlayoffs = False
+    list = []
+    # print(playoffs)
+    # print(len(playoffs))
+    rows = [0,6,7,12,13,18]
+    # print(rows)
+        # print(rows)
+    # print(rows - 6)
+    # print('here')
+    for div in playoffs:
+        print(div)
+        for col in [0,-1]:
+            for row in rows:
+                # print(div[row])
+                print(div[row][col])
+                team = div[row][col]
+                index = team.find('(')
+                if index > 0:
+                    team = team[:index].strip()
+                team = team.lower()
+                print(team)
+                list.append(team)
+    print(list)
+    return list

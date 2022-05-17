@@ -91,11 +91,12 @@ def getDataFromGoogleSheets():
         ranges[4] = result4.get('valueRanges', [])
 
         print('{0} ranges retrieved.'.format(len(ranges)))
-        print(ranges)
+        # print(ranges)
         playoffs_awards = sheet.values().batchGet(spreadsheetId=LESC3Playoffs, ranges=LESC3PlayoffRanges).execute()
         playoffs_awards_ranges = playoffs_awards.get('valueRanges', [])
         print('{0} playoff ranges retrieved.'.format(len(playoffs_awards_ranges)))
-        print(playoffs_awards_ranges)
+        # print(playoffs_awards_ranges)
+        ranges[5] = playoffs_awards_ranges
     except Exception as err:
         errArray = [type(err).__class__.__name__]
         print('++ ', type(err))

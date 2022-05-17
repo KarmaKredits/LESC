@@ -163,7 +163,7 @@ async def on_ready():
         playoffList = {}
         playoffList['LESC1'] = googleSheets.teamsInPlayoffs(LESC1_DB)
         playoffList['LESC2'] = googleSheets.teamsInPlayoffs(LESC2_DB)
-        playoffList['LESC3'] = []
+        playoffList['LESC3'] = LESC3.teamsInPlayoffs(LESC3_DB)
 
         print('awards')
         awardsTable = {}
