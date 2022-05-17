@@ -56,6 +56,8 @@ LESC3sheetNALower = '1HF-krfg69EZ5xK2BWx81_ryafQuYPOEu-acUEGQQlPo'
 LESC3sheetEUUpper = '1TC5uFyegzNsRrTMqHiuiedA8Te-SpN-WOsUck_NL15c'
 LESC3sheetEULower = '1XTRqwOyUKjD3X1PEpi7lTmd9wDpChI82N78wFPUHq6Y'
 LESC3ranges = ['rosters','standings','matches']
+LESC3Playoffs = '1C4GNYKAh1Mfsta1-xMRJRu8MpizbqAVjvLNRVb2OEBk'
+LESC3PlayoffRanges = ['na_playoffs','eu_playoffs','awards','weekly']
 
 def getDataFromGoogleSheets():
     """Shows basic usage of the Sheets API.
@@ -89,7 +91,11 @@ def getDataFromGoogleSheets():
         ranges[4] = result4.get('valueRanges', [])
 
         print('{0} ranges retrieved.'.format(len(ranges)))
-
+        print(ranges)
+        playoffs_awards = sheet.values().batchGet(spreadsheetId=LESC3Playoffs, ranges=LESC3PlayoffRanges).execute()
+        playoffs_awards_ranges = playoffs_awards.get('valueRanges', [])
+        print('{0} playoff ranges retrieved.'.format(len(playoffs_awards_ranges)))
+        print(playoffs_awards_ranges)
     except Exception as err:
         errArray = [type(err).__class__.__name__]
         print('++ ', type(err))
@@ -102,17 +108,7 @@ def getDataFromGoogleSheets():
 
     if not ranges:
          print('No data found.')
-    # else:
-    #     # print('LESC ranges')
-    #     # print(ranges)
-    #     for range in ranges:
-    #         # print(range.get('range'))
-    #         # print(range['range'])
-    #         # print(range)
-    #         for row in range.get('values',[]):
-    #             # Print columns A and E, which correspond to indices 0 and 4.
-    #             # print(row)
-    #             None
+
     return ranges #, ranges2
 
 def formatRosters(ranges):
