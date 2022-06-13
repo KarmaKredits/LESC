@@ -147,3 +147,19 @@ def teamsInPlayoffs(db):
                 list.append(team)
     # print(list)
     return list
+
+def getAwards(db):
+    awardList = []
+    awardTable = db['5'][2].get('values',[])
+    rosters = formatRosters(db)
+    print(awardTable)
+    print(rosters)
+    for row in awardTable:
+        print(row)
+        for div in rosters:
+            if(len(row))>3:
+                if div['team'] == row[3]:
+                    awardList.append([row[0],div['captain'],div['teammate']])
+                    break
+
+    return awardList

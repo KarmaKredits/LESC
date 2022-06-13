@@ -170,7 +170,8 @@ async def on_ready():
         awardsTable['LESC1']  = googleSheets.getAwards(LESC1_DB)
         # awardsTable['LESC2']  = []
         awardsTable['LESC2']  = googleSheets.getAwards(LESC2_DB)
-        awardsTable['LESC3'] = []
+        awardsTable['LESC3'] = LESC3.getAwards(LESC3_DB)
+
         print('generating profiles...')
         step = 'profiles'
         # global player_db
