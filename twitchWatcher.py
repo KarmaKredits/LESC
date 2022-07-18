@@ -23,7 +23,8 @@ streamDiscordId = {
     'csmith_games': 492497679570436117, 'xxvhpxx': 335887314159140866,
     'qs3v3n': 192007340927614976, 'altihex3': 505797270164340788,
     'kedsypoo': 408671999439667202, 'shakeyjake_': 228109622551117824,
-    'arturek1666': 124875390014586880, 'iota2002': 283336058085703683
+    'arturek1666': 124875390014586880, 'iota2002': 283336058085703683,
+    'lit_nyte': 638948229634850826
     }
 # streamDiscordId= {'karmakredits': '174714475113480192'} #test with my id
 # driver = webdriver.Chrome(options=chrome_options)
@@ -33,7 +34,7 @@ streamerlist = ['gingersoccermom','ragdoll139','rudbud','theleakygiraffe','midor
                 'itsjeffguy','arkwav','xxvhpxx','dannyofthepaul','bigfootmcgroot',
                 'r4lplays','tuffavocado','kylure','shakeyjake_','skrupstar','enjib',
                 'elekidp06', 'skilltwister', 'karmakredits', 'og_grips', 'qs3v3n',
-                'altihex3','kedsypoo','arturek1666', 'rlgamermom','iota2002']
+                'altihex3','kedsypoo','arturek1666', 'rlgamermom','iota2002','lit_nyte']
 
 game_name = 'Rocket League'
 key_words = ['LESC','League of Extraordinary Soccer Cars']
