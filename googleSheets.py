@@ -55,9 +55,19 @@ LESC3sheetNAUpper = '1SrSeVJHxd7uODeV2uC6AsMXd_RgfCgqotChIN0AvAyg'
 LESC3sheetNALower = '1HF-krfg69EZ5xK2BWx81_ryafQuYPOEu-acUEGQQlPo'
 LESC3sheetEUUpper = '1TC5uFyegzNsRrTMqHiuiedA8Te-SpN-WOsUck_NL15c'
 LESC3sheetEULower = '1XTRqwOyUKjD3X1PEpi7lTmd9wDpChI82N78wFPUHq6Y'
-LESC3ranges = ['rosters','standings','matches']
-LESC3Playoffs = '1C4GNYKAh1Mfsta1-xMRJRu8MpizbqAVjvLNRVb2OEBk'
+LESC3ranges       = ['rosters','standings','matches']
+LESC3Playoffs     = '1C4GNYKAh1Mfsta1-xMRJRu8MpizbqAVjvLNRVb2OEBk'
 LESC3PlayoffRanges = ['na_playoffs','eu_playoffs','awards','weekly']
+
+LESC4sheetNAUpper = '1xyIPmXb6c8tpYIDJe6JOayVSxjW1QSJsDnvvF0ki56w'
+LESC4sheetNALower = '1YDyasS0O96uF7f3HTgODhVwFWECwkZqyp2iX8UvLtp8'
+LESC4sheetEU      = '1W25GRXL02nzws7Nrx7OxlVM-hJJPGYaiRjL4oZeeQtA'
+LESC4ranges       = ['rosters','standings','matches']
+LESC4Playoffs     = ''
+LESC4PlayoffRanges = []
+
+
+
 
 def getDataFromGoogleSheets():
     """Shows basic usage of the Sheets API.
