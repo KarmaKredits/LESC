@@ -39,8 +39,6 @@ def formatRosters(db):
 
 def formatStandings(db):
     # print(db['1'])
-    print(db)
-    print(len(db))
     if '1' in db:
         d1 = db['1'][1].get('values',[])
         d2 = db['2'][1].get('values',[])

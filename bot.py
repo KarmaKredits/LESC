@@ -307,8 +307,8 @@ async def fruit(ctx):
     stats = {}
     # global standings_db
     # print(standings_db)
-    for div in standings_db['LESC3']:
-        for entry in standings_db['LESC3'][div]:
+    for div in standings_db['LESC4']:
+        for entry in standings_db['LESC4'][div]:
             if entry[1] not in stats:
                 stats[entry[1]] = {'gw': entry[4], 'sp':entry[2],'sw':entry[3],'points':entry[5]}
 
@@ -744,10 +744,13 @@ def checkForMatches():
     # print('CET',now + timedelta(hours=1))
     zoneOffset = {'ET': +4,'CET': -1} #local to utc
     meridiemOffset = {'AM': 0, 'PM': 12,'': 0}
-    monthNumber = {'Apr': 4, 'May': 5, 'Jun': 6}
+    monthNumber = {'Jan': 1, 'Feb': 2, 'Mar': 3,
+                   'Apr': 4, 'May': 5, 'Jun': 6,
+                   'Jul': 7, 'Aug': 8, 'Sep': 9,
+                   'Oct': 10, 'Nov': 11, 'Dec': 12}
     schedule = []
     future = False
-    matchdb = LESC3.getMatches(rc.getValue('lesc3_db'))
+    matchdb = LESC4.getMatches(rc.getValue('lesc4_db'))
     # print(matchdb)
     for div in matchdb:
         for match in matchdb[div]:
@@ -759,8 +762,10 @@ def checkForMatches():
 
             if len(x) > 0 and len(y) > 0:
                 day, month = x[0]
+                # print(day,month)
                 day = int(day)
                 hour, minute, meridiem, zone = y[0]
+                # print(hour, minute, meridiem, zone)
                 hour = int(hour)
                 minute = int(minute)
                 try:
@@ -774,6 +779,7 @@ def checkForMatches():
 
                 except Exception as e:
                     # raise
+                    print('failed')
                     print(e)
                     pass
             # print('Match datetime: ',matchdatetime)
