@@ -1,10 +1,11 @@
 #############################
-##   Formating LESC 3 DB   ##
+##   Formating LESC 4 DB   ##
 #############################
 
 
 def formatRosters(db):
     # print(db)
+
     # print(db['1'][0].get('values',[]))
     # d1 = db['1'][0].get('values',[])
     # d2 = db['2'][0].get('values',[])
@@ -37,22 +38,25 @@ def formatRosters(db):
     return roster
 
 def formatStandings(db):
+    # print(db['1'])
     if '1' in db:
         d1 = db['1'][1].get('values',[])
         d2 = db['2'][1].get('values',[])
         d3 = db['3'][1].get('values',[])
-        d4 = db['4'][1].get('values',[])
-    else:
+        # d4 = db['4'][1].get('values',[])
+    elif 1 in db:
         d1 = db[1][1].get('values',[])
         d2 = db[2][1].get('values',[])
         d3 = db[3][1].get('values',[])
-        d4 = db[4][1].get('values',[])
+        # d4 = db[4][1].get('values',[])
+    else:
+        return None
 
     standings = {}
     standings[1]=d1
     standings[2]=d2
     standings[3]=d3
-    standings[4]=d4
+    # standings[4]=d4
     # insert rank column
     for division in standings.keys():
         standings[division][0].insert(0,'Rank')
@@ -66,23 +70,23 @@ def formatStandings(db):
 def getMatches(db):
     print('getMatches')
     # print(ranges)
-    matches = {1:[], 2:[], 3:[], 4:[]}
+    matches = {1:[], 2:[], 3:[]}
     tz = {1: 'ET', 2: 'ET', 3: 'CET', 4: 'CET'}
     if '1' in db:
         d1 = db['1'][2].get('values',[])
         d2 = db['2'][2].get('values',[])
         d3 = db['3'][2].get('values',[])
-        d4 = db['4'][2].get('values',[])
+        # d4 = db['4'][2].get('values',[])
     else:
         d1 = db[1][2].get('values',[])
         d2 = db[2][2].get('values',[])
         d3 = db[3][2].get('values',[])
-        d4 = db[4][2].get('values',[])
+        # d4 = db[4][2].get('values',[])
     matchRaw = {
         1: d1,
         2: d2,
         3: d3,
-        4: d4
+        # 4: d4
     }
     # print('===========\nweek')
     # print('upper')

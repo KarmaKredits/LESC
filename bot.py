@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 # from googleSheets import getDataFromGoogleSheets as getDB
 import googleSheets
 import LESC3
+import LESC4
 from redisDB import redisDB
 import calendar
 from datetime import datetime, timedelta
@@ -45,27 +46,27 @@ team_db={}
 standings_db = {}
 matches_db = {}
 participant_db = {}
-LESC3_DB = []
+LESC4_DB = []
 
 async def updateFromGoogleSheets():
-    global LESC3_DB
+    global LESC4_DB
     response = ''
     try:
         # get db info from googleSheets
         print('loading data from google sheets...')
-        divisions = [1,2,3,4]
-        divisionNames = ['NA Upper','NA Lower','EU Upper', 'EU Lower']
-        divisionKey = ['naupper','nalower','euupper', 'eulower']
+        divisions = [1,2,3]
+        divisionNames = ['NA Upper','NA Lower','EU']
+        divisionKey = ['naupper','nalower','eu']
 
         updated_db = googleSheets.getDataFromGoogleSheets() #current season only
         #sync existing and new data
-        # print('LESC3_DB',LESC3_DB)
+        # print('LESC4_DB',LESC4_DB)
 
         if updated_db is not None:
             # rc1 = redisDB()
             response = 'Unable to update Redis, contact KarmaKredits'
-            rc.setValue(key='lesc3_db',value=updated_db) # overwrite
-            LESC3_DB = updated_db
+            rc.setValue(key='lesc4_db',value=updated_db) # overwrite
+            LESC4_DB = updated_db
 
             response = 'Update Successful'
         else:
@@ -81,18 +82,16 @@ async def updateFromGoogleSheets():
     return response
 
 def variable_update():
-    global LESC3_DB
+    global LESC4_DB
     # global team_db
-    # print(LESC3_DB)
-    # print(LESC3_DB)
     print('team_db')
-    team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
+    team_db['LESC4'] = LESC4.formatRosters(LESC4_DB)
     # global standings_db
     print('standings_db')
-    standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
+    standings_db['LESC4'] = LESC4.formatStandings(LESC4_DB)
     # global matches_db
     print('matches_db')
-    matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
+    matches_db['LESC4'] = LESC4.getMatches(LESC4_DB)
 
 
 
@@ -120,7 +119,7 @@ async def on_ready():
 
 
 
-    global LESC3_DB
+    global LESC4_DB
     try:
         step = 'updateFromGoogleSheets'
         response = await updateFromGoogleSheets() #temp
@@ -139,10 +138,13 @@ async def on_ready():
         # global LESC_DB
         # LESC2_DB = googleSheets.getDataFromGoogleSheets()
         # rc.setValue(key='lesc2_db',value=LESC2_DB)
+        # rc.setValue(key='lesc4_db',value={})
+        LESC1_DB = rc.getValue('lesc_db') # LESC1
+        LESC2_DB = rc.getValue('lesc2_db') # LESC2
+        LESC3_DB = rc.getValue('lesc3_db') # LESC4
+        LESC4_DB = rc.getValue('lesc4_db')
 
-        LESC1_DB = rc.getValue('lesc_db') #LESC1
-        LESC2_DB = rc.getValue('lesc2_db') #LESC2
-        LESC3_DB = rc.getValue('lesc3_db')
+        # print(LESC4_DB)
 
         print('formating rosters...')
         step = 'rosters'
@@ -150,6 +152,7 @@ async def on_ready():
         team_db['LESC1'] = googleSheets.formatRosters(LESC1_DB)
         team_db['LESC2'] = googleSheets.formatRosters(LESC2_DB)
         team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
+        team_db['LESC4'] = LESC4.formatRosters(LESC4_DB)
         rc.setValue(key='rosters',value=team_db)
 
         print('formating standings...')
@@ -158,12 +161,14 @@ async def on_ready():
         standings_db['LESC1'] = googleSheets.formatStandings(LESC1_DB)
         standings_db['LESC2'] = googleSheets.formatStandings(LESC2_DB)
         standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
+        standings_db['LESC4'] = LESC4.formatStandings(LESC4_DB)
         # rc.setValue(key='standings',value=standings_db)
         print('playoffs')
         playoffList = {}
         playoffList['LESC1'] = googleSheets.teamsInPlayoffs(LESC1_DB)
         playoffList['LESC2'] = googleSheets.teamsInPlayoffs(LESC2_DB)
         playoffList['LESC3'] = LESC3.teamsInPlayoffs(LESC3_DB)
+        playoffList['LESC4'] = []
 
         print('awards')
         awardsTable = {}
@@ -171,6 +176,7 @@ async def on_ready():
         # awardsTable['LESC2']  = []
         awardsTable['LESC2']  = googleSheets.getAwards(LESC2_DB)
         awardsTable['LESC3'] = LESC3.getAwards(LESC3_DB)
+        awardsTable['LESC4'] = []
 
         print('generating profiles...')
         step = 'profiles'
@@ -301,8 +307,8 @@ async def fruit(ctx):
     stats = {}
     # global standings_db
     # print(standings_db)
-    for div in standings_db['LESC3']:
-        for entry in standings_db['LESC3'][div]:
+    for div in standings_db['LESC4']:
+        for entry in standings_db['LESC4'][div]:
             if entry[1] not in stats:
                 stats[entry[1]] = {'gw': entry[4], 'sp':entry[2],'sw':entry[3],'points':entry[5]}
 
@@ -738,10 +744,13 @@ def checkForMatches():
     # print('CET',now + timedelta(hours=1))
     zoneOffset = {'ET': +4,'CET': -1} #local to utc
     meridiemOffset = {'AM': 0, 'PM': 12,'': 0}
-    monthNumber = {'Apr': 4, 'May': 5, 'Jun': 6}
+    monthNumber = {'Jan': 1, 'Feb': 2, 'Mar': 3,
+                   'Apr': 4, 'May': 5, 'Jun': 6,
+                   'Jul': 7, 'Aug': 8, 'Sep': 9,
+                   'Oct': 10, 'Nov': 11, 'Dec': 12}
     schedule = []
     future = False
-    matchdb = LESC3.getMatches(rc.getValue('lesc3_db'))
+    matchdb = LESC4.getMatches(rc.getValue('lesc4_db'))
     # print(matchdb)
     for div in matchdb:
         for match in matchdb[div]:
@@ -753,8 +762,10 @@ def checkForMatches():
 
             if len(x) > 0 and len(y) > 0:
                 day, month = x[0]
+                # print(day,month)
                 day = int(day)
                 hour, minute, meridiem, zone = y[0]
+                # print(hour, minute, meridiem, zone)
                 hour = int(hour)
                 minute = int(minute)
                 try:
@@ -768,6 +779,7 @@ def checkForMatches():
 
                 except Exception as e:
                     # raise
+                    print('failed')
                     print(e)
                     pass
             # print('Match datetime: ',matchdatetime)
