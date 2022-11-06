@@ -152,10 +152,10 @@ def getAwards(db):
     awardList = []
     awardTable = db['5'][2].get('values',[])
     rosters = formatRosters(db)
-    print(awardTable)
-    print(rosters)
+    # print(awardTable)
+    # print(rosters)
     for row in awardTable:
-        print(row)
+        # print(row)
         for div in rosters:
             if(len(row))>3:
                 if div['team'] == row[3]:

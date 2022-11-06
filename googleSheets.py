@@ -64,7 +64,7 @@ LESC4sheetNALower = '1YDyasS0O96uF7f3HTgODhVwFWECwkZqyp2iX8UvLtp8'
 LESC4sheetEU      = '1W25GRXL02nzws7Nrx7OxlVM-hJJPGYaiRjL4oZeeQtA'
 LESC4ranges       = ['rosters','standings','matches']
 LESC4Playoffs     = ''
-LESC4PlayoffRanges = []
+LESC4PlayoffRanges = ['']
 
 
 
@@ -87,10 +87,13 @@ def getDataFromGoogleSheets():
     #get sheets from test LESC1
         # result = sheet.values().batchGet(spreadsheetId=LESCsheet2, ranges=LESCranges2).execute()
         # result2 = sheet.values().batchGet(spreadsheetId=LESCsheet, ranges=LESCranges).execute()
-        result1 = sheet.values().batchGet(spreadsheetId=LESC3sheetNAUpper, ranges=LESC3ranges).execute()
-        result2 = sheet.values().batchGet(spreadsheetId=LESC3sheetNALower, ranges=LESC3ranges).execute()
-        result3 = sheet.values().batchGet(spreadsheetId=LESC3sheetEUUpper, ranges=LESC3ranges).execute()
-        result4 = sheet.values().batchGet(spreadsheetId=LESC3sheetEULower, ranges=LESC3ranges).execute()
+        # result1 = sheet.values().batchGet(spreadsheetId=LESC3sheetNAUpper, ranges=LESC3ranges).execute()
+        # result2 = sheet.values().batchGet(spreadsheetId=LESC3sheetNALower, ranges=LESC3ranges).execute()
+        # result3 = sheet.values().batchGet(spreadsheetId=LESC3sheetEUUpper, ranges=LESC3ranges).execute()
+        # result4 = sheet.values().batchGet(spreadsheetId=LESC3sheetEULower, ranges=LESC3ranges).execute()
+        result1 = sheet.values().batchGet(spreadsheetId=LESC4sheetNAUpper, ranges=LESC4ranges).execute()
+        result2 = sheet.values().batchGet(spreadsheetId=LESC4sheetNALower, ranges=LESC4ranges).execute()
+        result3 = sheet.values().batchGet(spreadsheetId=LESC4sheetEU,      ranges=LESC4ranges).execute()
 
         # ranges = result.get('valueRanges', [])
         # ranges2 = result2.get('valueRanges', [])
@@ -98,15 +101,16 @@ def getDataFromGoogleSheets():
         ranges[1] = result1.get('valueRanges', [])
         ranges[2] = result2.get('valueRanges', [])
         ranges[3] = result3.get('valueRanges', [])
-        ranges[4] = result4.get('valueRanges', [])
-
-        print('{0} ranges retrieved.'.format(len(ranges)))
-        # print(ranges)
-        playoffs_awards = sheet.values().batchGet(spreadsheetId=LESC3Playoffs, ranges=LESC3PlayoffRanges).execute()
-        playoffs_awards_ranges = playoffs_awards.get('valueRanges', [])
-        print('{0} playoff ranges retrieved.'.format(len(playoffs_awards_ranges)))
+        # ranges[4] = result4.get('valueRanges', [])
+        #
+        # ## PLAYOFFS ##
+        # print('{0} ranges retrieved.'.format(len(ranges)))
+        # # print(ranges)
+        # playoffs_awards = sheet.values().batchGet(spreadsheetId=LESC3Playoffs, ranges=LESC3PlayoffRanges).execute()
+        # playoffs_awards_ranges = playoffs_awards.get('valueRanges', [])
+        # print('{0} playoff ranges retrieved.'.format(len(playoffs_awards_ranges)))
         # print(playoffs_awards_ranges)
-        ranges[5] = playoffs_awards_ranges
+        # ranges[5] = playoffs_awards_ranges
     except Exception as err:
         errArray = [type(err).__class__.__name__]
         print('++ ', type(err))
@@ -121,6 +125,8 @@ def getDataFromGoogleSheets():
          print('No data found.')
 
     return ranges #, ranges2
+
+## LESC1,2
 
 def formatRosters(ranges):
     d1 = ranges[0].get('values',[])
@@ -164,9 +170,10 @@ def generateProfiles(season_db,playoff,awardTable):
     argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
     # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
     seaDiv = {
-        1: {1:'US',2:'EU'},
-        2: {1:'Upper',2:'Lower'},
-        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        1: {1:'US',2:'EU'}, #season 1 divisions
+        2: {1:'Upper',2:'Lower'}, #season 2 divisions
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}, #season 3 divisions
+        4: {1:'NA Upper', 2:'NA Lower', 3: 'EU'} #season 4 divisions
         }
     for season in season_db:
         for team in season_db[season]:
@@ -178,6 +185,8 @@ def generateProfiles(season_db,playoff,awardTable):
             if not (teammate in player_db):
                 player_db[teammate] = {'player':team['teammate'],
                     'season':[],'teams':[],'teammates':[],'awards':[]}
+            print('Season: ', season)
+            print('Team: ', team)
             player_db[captain]['season'].append('S' + season[-1] + ' ' + seaDiv[int(season[-1])][team['division']] + ' Division')
             player_db[captain]['teams'].append(team['team'])
             player_db[captain]['teammates'].append(team['teammate'])
