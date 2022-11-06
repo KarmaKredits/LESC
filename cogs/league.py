@@ -3,10 +3,18 @@ from discord.ext import commands
 from bot import lescTitle
 from redisDB import redisDB
 import LESC3
+import LESC4
 import googleSheets
 rc=redisDB()
 logChannel=866129852708814858
-
+season = 4 #default to current
+argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
+seaDiv = {
+    1: {1:'US',2:'EU'},
+    2: {1:'Upper',2:'Lower'},
+    3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'},
+    4: {1:'NA Upper', 2:'NA Lower', 3: 'EU'}
+    }
 class League(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -20,15 +28,16 @@ class League(commands.Cog):
     async def matches(self, ctx, arg = ''):
         # season = 1 #default
         # seaDiv = { 1: {1:'US',2:'EU'}, 2: {1:'Upper',2:'Lower'} }
-        LESC3_DB = rc.getValue('lesc3_db')
+        LESC4_DB = rc.getValue('lesc4_db')
         matches_db = {}
         # matches_db['LESC1'] = googleSheets.getMatches(LESC1_DB)
         # matches_db['LESC2'] = googleSheets.getMatches(LESC2_DB)
-        matches_db['LESC3'] = LESC3.getMatches(LESC3_DB)
+        matches_db['LESC4'] = LESC4.getMatches(LESC4_DB)
         seaDiv = {
             1: {1:'US',2:'EU'},
             2: {1:'Upper',2:'Lower'},
-            3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+            3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'},
+            4: {1:'NA Upper', 2:'NA Lower', 3: 'EU'}
             }
         if arg == '':
             await ctx.message.reply('Please include part of team name you wish to lookup. For example,**.matches kimchi**, to look up matches for the "Kimchi Tacos"')
@@ -53,9 +62,9 @@ class League(commands.Cog):
             # 'commentators': 0,
             'result': 'Result'
             }
-        for div in matches_db['LESC3']:
+        for div in matches_db['LESC4']:
 
-            for match in matches_db['LESC3'][div]:
+            for match in matches_db['LESC4'][div]:
                 if searchTerm.lower() in match['home'].lower() or searchTerm.lower() in match['away'].lower():
                     for m in max:
                         if max[m] < len(match[m]):
@@ -82,12 +91,13 @@ class League(commands.Cog):
         print('command: teams')
 
         division = [] #default to all
-        season = 3 #default to current
+        season = 4 #default to current
         argDiv = {'us': 1, 'eu' : 2, 'upper': 1, 'lower': 2}
         seaDiv = {
             1: {1:'US',2:'EU'},
             2: {1:'Upper',2:'Lower'},
-            3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+            3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'},
+            4: {1:'NA Upper', 2:'NA Lower', 3: 'EU'}
             }
         for arg in args:
             if arg == '1':
@@ -125,6 +135,9 @@ class League(commands.Cog):
         elif season == 3:
             LESC3_DB = rc.getValue('lesc3_db')
             team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
+        elif season == 4:
+            LESC4_DB = rc.getValue('lesc4_db')
+            team_db['LESC4'] = LESC4.formatRosters(LESC4_DB)
 
 
         for div in division:
@@ -147,11 +160,12 @@ class League(commands.Cog):
     async def standings(self, ctx,*args):
         global standings_db
         division = [] #default to all
-        season = 3 #default to current
+        season = 4 #default to current
         seaDiv = {
             1: {1:'US',2:'EU'},
             2: {1:'Upper',2:'Lower'},
-            3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+            3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'},
+            4: {1:'NA Upper', 2:'NA Lower', 3: 'EU'}
             }
         for arg in args:
             if arg == '1':
@@ -181,6 +195,9 @@ class League(commands.Cog):
         elif season == 3:
             LESC3_DB = rc.getValue('lesc3_db')
             standings_db['LESC3'] = LESC3.formatStandings(LESC3_DB)
+        elif season == 4:
+            LESC4_DB = rc.getValue('lesc4_db')
+            standings_db['LESC4'] = LESC4.formatStandings(LESC4_DB)
 
 
         for div in division:
@@ -228,11 +245,12 @@ class League(commands.Cog):
         help='EXAMPLE:\nTo view the US division for season 1 use,\n.season 1 US')
     async def season(self, ctx,*args):
         division = [] #default to all
-        season = 3 #default to current
+        season = 4 #default to current
         seaDiv = {
         1: {1:'US',2:'EU'},
         2: {1:'Upper',2:'Lower'},
-        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'}
+        3: {1:'NA Upper', 2:'NA Lower', 3: 'EU Upper', 4:'EU Lower'},
+        4: {1:'NA Upper', 2:'NA Lower', 3: 'EU'}
         }
         for arg in args:
             if arg == '1':
@@ -272,6 +290,9 @@ class League(commands.Cog):
         elif season == 3:
             LESC3_DB = rc.getValue('lesc3_db')
             team_db['LESC3'] = LESC3.formatRosters(LESC3_DB)
+        elif season == 4:
+            LESC4_DB = rc.getValue('lesc4_db')
+            team_db['LESC4'] = LESC4.formatRosters(LESC4_DB)
 
         for team in team_db['LESC'+str(season)]:
             d[team['division']] = d[team['division']] + '\n' + team['team']
