@@ -311,7 +311,8 @@ class League(commands.Cog):
         958277060390965258, # s3 sub
         1033750905138454669, # s4 sub
         # 859142619513749515, # Benchwarmer
-        # ,  183800165767970820 #life guard
+        # 967967940253196308, #TEST p on p
+        # 183800165767970820 # TESTlife guard
         ]
         rank_roles = [
         869528138919608350, # SSL
@@ -322,9 +323,9 @@ class League(commands.Cog):
         869527452257517589, # gold
         869527391351996417, #silver
         869527337702666242, #bronze
-        # 892260316224839680, #freestyle
-        # 695490219687804928, #poke
-        # 843196839057948722 #party
+        # 892260316224839680, #TEST freestyle
+        # 695490219687804928, #TEST poke
+        # 843196839057948722 #TEST party
         ]
         no_rank = []
         for guild in self.client.guilds:
@@ -347,7 +348,9 @@ class League(commands.Cog):
                                     if rankId not in sub_list:
                                         sub_list[rankId] = []
                                     #append member id to respective rank
-                                    sub_list[rankId].append(f'{member.mention} {member}')
+                                    if f'{member.mention} {member}' not in sub_list[rankId]:
+                                        sub_list[rankId].append(f'{member.mention} {member}')
+
                         if not found:
                             no_rank.append(f'{member.mention} {member}')
             print(sub_list)
