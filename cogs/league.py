@@ -305,10 +305,16 @@ class League(commands.Cog):
     @commands.command(brief='List available subs',
         aliases=['subs','substitute','substitutes'])
     async def sub(self, ctx):
-        sub_role = [958277060390965258 #sub
+        sub_role = [
+        860144876866502666, # s1 US sub
+        860145226224107550,# s1 EU sub
+        958277060390965258, # s3 sub
+        1033750905138454669, # s4 sub
+        # 859142619513749515, # Benchwarmer
         # ,  183800165767970820 #life guard
         ]
         rank_roles = [
+        869528138919608350, # SSL
         869528040265363456, #grand champ
         869527980035153940, #champ
         869527795456442368, #diamond
