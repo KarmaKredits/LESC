@@ -185,8 +185,8 @@ def generateProfiles(season_db,playoff,awardTable):
             if not (teammate in player_db):
                 player_db[teammate] = {'player':team['teammate'],
                     'season':[],'teams':[],'teammates':[],'awards':[]}
-            print('Season: ', season)
-            print('Team: ', team)
+            # print('Season: ', season)
+            # print('Team: ', team)
             player_db[captain]['season'].append('S' + season[-1] + ' ' + seaDiv[int(season[-1])][team['division']] + ' Division')
             player_db[captain]['teams'].append(team['team'])
             player_db[captain]['teammates'].append(team['teammate'])
